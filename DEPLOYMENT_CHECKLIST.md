@@ -103,9 +103,22 @@ VITE_CLARITY_PROJECT_ID = tnghvs6g11
 ```
 
 6. **Enable Auto-Deploy**
-   - Go to **Settings** → **Builds & deployments**
-   - Ensure **"Deploy on push"** is enabled
+   
+   **Option A: In Project Setup (Recommended)**
+   - During the initial project creation, ensure **"Deploy on push"** is checked/enabled
+   - This is usually on the same screen where you configure build settings
+   
+   **Option B: After Project Creation**
+   - Go to your project dashboard
+   - Click **"Settings"** tab
+   - Look for **"Builds & deployments"** or **"Git"** section
+   - Enable **"Deploy on push"** or **"Automatic deployments"**
    - Set **Production branch** to `main`
+   
+   **Option C: If you can't find the setting**
+   - The auto-deploy might be enabled by default
+   - Try pushing a test commit to see if it auto-deploys
+   - If not, you can manually trigger deployments from the dashboard
 
 #### **Verification:**
 - [x] Repository connected: `Truthmedia123/Thegoanwedding12`
@@ -114,6 +127,31 @@ VITE_CLARITY_PROJECT_ID = tnghvs6g11
 - [x] Framework preset: None/Other
 - [x] Environment variables configured
 - [x] Auto-deploy enabled
+
+#### **Troubleshooting Auto-Deploy Settings:**
+
+**Where to find the setting in Cloudflare Pages:**
+
+1. **During Setup**: Look for a checkbox labeled "Deploy on push" or "Automatic deployments" when creating the project
+
+2. **After Setup**: 
+   - Go to your Pages project dashboard
+   - Click the **"Settings"** tab
+   - Look for sections like:
+     - **"Builds & deployments"**
+     - **"Git"** 
+     - **"Source"**
+     - **"Deployment settings"**
+
+3. **Alternative Locations**:
+   - Sometimes it's under **"Configuration"** → **"Source"**
+   - Or in **"Settings"** → **"Git integration"**
+   - Look for toggle switches or checkboxes related to automatic deployments
+
+4. **If Still Can't Find It**:
+   - Auto-deploy might be enabled by default
+   - Test by making a small change and pushing to main
+   - Check the **"Deployments"** tab to see if new commits trigger builds
 
 ### 3. Environment Variables
 
