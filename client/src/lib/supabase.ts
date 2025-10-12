@@ -180,6 +180,128 @@ export interface Database {
           updated_at?: string
         }
       }
+      profiles: {
+        Row: {
+          id: string
+          email: string
+          full_name: string | null
+          role: string
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id: string
+          email: string
+          full_name?: string | null
+          role?: string
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          email?: string
+          full_name?: string | null
+          role?: string
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      blogs: {
+        Row: {
+          id: number
+          title: string
+          slug: string
+          content: string
+          excerpt: string | null
+          author_id: string | null
+          published: boolean
+          featured_image: string | null
+          tags: string[] | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: number
+          title: string
+          slug: string
+          content: string
+          excerpt?: string | null
+          author_id?: string | null
+          published?: boolean
+          featured_image?: string | null
+          tags?: string[] | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: number
+          title?: string
+          slug?: string
+          content?: string
+          excerpt?: string | null
+          author_id?: string | null
+          published?: boolean
+          featured_image?: string | null
+          tags?: string[] | null
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      vendor_analytics: {
+        Row: {
+          id: number
+          vendor_id: number
+          event_type: string
+          user_id: string | null
+          session_id: string | null
+          metadata: any | null
+          created_at: string
+        }
+        Insert: {
+          id?: number
+          vendor_id: number
+          event_type: string
+          user_id?: string | null
+          session_id?: string | null
+          metadata?: any | null
+          created_at?: string
+        }
+        Update: {
+          id?: number
+          vendor_id?: number
+          event_type?: string
+          user_id?: string | null
+          session_id?: string | null
+          metadata?: any | null
+          created_at?: string
+        }
+      }
+      site_settings: {
+        Row: {
+          id: number
+          key: string
+          value: any
+          description: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: number
+          key: string
+          value: any
+          description?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: number
+          key?: string
+          value?: any
+          description?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+      }
     }
     Views: {
       [_ in never]: never

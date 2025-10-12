@@ -3,6 +3,8 @@ import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { AuthProvider } from "@/contexts/AuthContext";
+import ProtectedRoute from "@/components/ProtectedRoute";
 import Layout from "@/components/layout/Layout";
 import Home from "@/pages/Home";
 import VendorCategory from "@/pages/VendorCategory";
@@ -14,7 +16,13 @@ import About from "@/pages/About";
 import Contact from "@/pages/Contact";
 import Couples from "@/pages/Couples";
 import Search from "@/pages/Search";
+import Login from "@/pages/Login";
 import AdminDashboard from "@/pages/AdminDashboard";
+import VendorsPage from "@/pages/admin/VendorsPage";
+import AnalyticsPage from "@/pages/admin/AnalyticsPage";
+import BlogsPage from "@/pages/admin/BlogsPage";
+import InvitationsPage from "@/pages/admin/InvitationsPage";
+import SettingsPage from "@/pages/admin/SettingsPage";
 import WeddingTools from "@/pages/WeddingTools";
 import VendorSubscription from "@/pages/VendorSubscription";
 import VendorChat from "@/pages/VendorChat";
@@ -58,8 +66,37 @@ function Router() {
           <Route path="/vendor/chat" component={VendorChat} />
           <Route path="/timeline" component={GoanWeddingTimeline} />
           <Route path="/mobile-analytics" component={MobileAnalytics} />
-          <Route path="/admin" component={() => <div className="p-8"><h1 className="text-2xl">Admin Dashboard</h1><p>Token: admin-secret-2024</p></div>} />
-          <Route path="/admin/dashboard" component={AdminDashboard} />
+          <Route path="/login" component={Login} />
+          <Route path="/admin/dashboard" component={() => (
+            <ProtectedRoute requireAdmin>
+              <AdminDashboard />
+            </ProtectedRoute>
+          )} />
+          <Route path="/admin/vendors" component={() => (
+            <ProtectedRoute requireAdmin>
+              <VendorsPage />
+            </ProtectedRoute>
+          )} />
+          <Route path="/admin/analytics" component={() => (
+            <ProtectedRoute requireAdmin>
+              <AnalyticsPage />
+            </ProtectedRoute>
+          )} />
+          <Route path="/admin/blogs" component={() => (
+            <ProtectedRoute requireAdmin>
+              <BlogsPage />
+            </ProtectedRoute>
+          )} />
+          <Route path="/admin/invitations" component={() => (
+            <ProtectedRoute requireAdmin>
+              <InvitationsPage />
+            </ProtectedRoute>
+          )} />
+          <Route path="/admin/settings" component={() => (
+            <ProtectedRoute requireAdmin>
+              <SettingsPage />
+            </ProtectedRoute>
+          )} />
           <Route path="/favorites" component={FavoritesPage} />
           // Add routes for the new components
           <Route path="/invitations" component={InvitationsPage} />
@@ -82,14 +119,16 @@ function App() {
   
   // Add error boundary
   try {
-    return (
-      <QueryClientProvider client={queryClient}>
+  return (
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
         <TooltipProvider>
           <Toaster />
           <Router />
         </TooltipProvider>
-      </QueryClientProvider>
-    );
+      </AuthProvider>
+    </QueryClientProvider>
+  );
   } catch (error) {
     console.error("Error in App component:", error);
     return (

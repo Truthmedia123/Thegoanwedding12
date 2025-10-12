@@ -39,7 +39,8 @@
     "test:coverage": "jest --coverage",
     "test:smoke": "node scripts/production-smoke-test.js",
     "deploy:verify": "node scripts/deploy-verify.js",
-    "rollback": "tsx scripts/rollback-deployment.ts"
+    "rollback": "tsx scripts/rollback-deployment.ts",
+    "setup:admin": "node scripts/setup-admin.js"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",

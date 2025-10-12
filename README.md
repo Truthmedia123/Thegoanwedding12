@@ -23,11 +23,33 @@ A beautiful, modern wedding vendor directory platform specifically designed for 
 - **Dark Mode**: Automatic theme switching
 
 ### 🔧 Admin Features
-- **Database Integration**: Supabase PostgreSQL for robust data management
-- **Vendor Management**: Import/export vendor data with social media fields
-- **Analytics Dashboard**: Google Analytics 4 and Microsoft Clarity integration
+- **Secure Authentication**: Supabase Auth with role-based access control
+- **Admin Dashboard**: Comprehensive control panel with sidebar navigation
+- **Vendor Management**: 
+  - CRUD operations for vendor listings
+  - Bulk CSV/Excel import with preview
+  - Bulk edit capabilities
+  - Advanced search and filtering
+- **Analytics System**: 
+  - Real-time event tracking (views, contacts, reviews, invitations)
+  - Interactive charts and visualizations
+  - Top performing vendors
+  - GA4 and Clarity integration
+- **Blog Management**: 
+  - Create and manage blog posts
+  - Rich text editor
+  - SEO optimization
+  - Publishing workflow
+- **Invitations Management**: 
+  - View all wedding invitations
+  - RSVP tracking and analytics
+  - Export to CSV
+  - Filter by status and wedding
+- **Settings & Configuration**: 
+  - Site customization (colors, logo, metadata)
+  - Admin user management
+  - Analytics configuration
 - **Security Features**: Row Level Security (RLS) and API protection
-- **Bulk Import**: CSV import with template support
 - **Rate Limiting**: API protection against abuse
 - **Full-Text Search**: PostgreSQL-based search with ranking
 
@@ -319,10 +341,24 @@ The platform uses a Goan wedding color scheme:
 - **Accent**: Emerald (#10b981)
 - **Background**: Gradient from pink to purple
 
+### Admin Access
+1. **Login**: Navigate to `/login` and use admin credentials
+2. **Default Admin**: 
+   - Email: `admin@thegoanwedding.com`
+   - Password: `admin123`
+3. **Admin Dashboard**: Access at `/admin/dashboard` after authentication
+4. **Features Available**:
+   - Vendor Management (`/admin/vendors`)
+   - Analytics Dashboard (`/admin/analytics`)
+   - Blog Management (`/admin/blogs`)
+   - Invitations Management (`/admin/invitations`)
+   - Settings (`/admin/settings`)
+
 ### Adding New Vendors
-1. Use the admin dashboard: `/admin/dashboard?token=admin-secret-2024`
-2. Import CSV file with vendor data (including social media fields)
-3. Or use Directus CMS for content management
+1. **Single Vendor**: Use the "Add Vendor" button in the admin dashboard
+2. **Bulk Import**: Upload CSV/Excel files with vendor data
+3. **Bulk Edit**: Select multiple vendors and apply changes
+4. **Categories**: Manage vendor categories and filters
 
 ## 🔧 Configuration
 
