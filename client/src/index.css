@@ -1,0 +1,325 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600&family=Dancing+Script:wght@400;500;600;700&family=Great+Vibes&family=Crimson+Text:wght@400;600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: hsl(60, 100%, 99%);
+  --foreground: hsl(210, 11%, 15%);
+  --muted: hsl(45, 25%, 97%);
+  --muted-foreground: hsl(25, 5.3%, 44.7%);
+  --popover: hsl(0, 0%, 100%);
+  --popover-foreground: hsl(210, 11%, 15%);
+  --card: hsl(0, 0%, 100%);
+  --card-foreground: hsl(210, 11%, 15%);
+  --border: hsl(20, 5.9%, 90%);
+  --input: hsl(20, 5.9%, 90%);
+  --primary: hsl(186, 100%, 59%);
+  --primary-foreground: hsl(210, 100%, 99%);
+  --secondary: hsl(45, 25%, 97%);
+  --secondary-foreground: hsl(24, 9.8%, 10%);
+  --accent: hsl(45, 25%, 97%);
+  --accent-foreground: hsl(24, 9.8%, 10%);
+  --destructive: hsl(0, 84.2%, 60.2%);
+  --destructive-foreground: hsl(60, 9.1%, 97.8%);
+  --ring: hsl(210, 11%, 15%);
+  --radius: 0.75rem;
+
+  /* Goan Wedding Theme Colors */
+  --goan-ivory: hsl(60, 100%, 99%);
+  --goan-coral: hsl(0, 79%, 65%);
+  --goan-sea-blue: hsl(174, 64%, 56%);
+  --goan-gold: hsl(51, 100%, 50%);
+  --goan-warm-gold: hsl(43, 89%, 38%);
+  --goan-warm-gray: hsl(45, 25%, 97%);
+  --goan-deep-gray: hsl(210, 11%, 15%);
+}
+
+.dark {
+  --background: hsl(240, 10%, 3.9%);
+  --foreground: hsl(0, 0%, 98%);
+  --muted: hsl(240, 3.7%, 15.9%);
+  --muted-foreground: hsl(240, 5%, 64.9%);
+  --popover: hsl(240, 10%, 3.9%);
+  --popover-foreground: hsl(0, 0%, 98%);
+  --card: hsl(240, 10%, 3.9%);
+  --card-foreground: hsl(0, 0%, 98%);
+  --border: hsl(240, 3.7%, 15.9%);
+  --input: hsl(240, 3.7%, 15.9%);
+  --primary: hsl(174, 64%, 56%);
+  --primary-foreground: hsl(210, 100%, 99%);
+  --secondary: hsl(240, 3.7%, 15.9%);
+  --secondary-foreground: hsl(0, 0%, 98%);
+  --accent: hsl(240, 3.7%, 15.9%);
+  --accent-foreground: hsl(0, 0%, 98%);
+  --destructive: hsl(0, 62.8%, 30.6%);
+  --destructive-foreground: hsl(0, 0%, 98%);
+  --ring: hsl(240, 4.9%, 83.9%);
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply font-sans antialiased bg-background text-foreground;
+    font-family: 'Inter', sans-serif;
+    background-color: var(--goan-ivory);
+    color: var(--goan-deep-gray);
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Playfair Display', serif;
+  }
+}
+
+@layer components {
+  .detail-item {
+    @apply flex items-start space-x-4 p-3 hover:bg-white hover:bg-opacity-50 rounded-lg transition-all duration-200;
+  }
+
+  .detail-item span {
+    @apply flex-shrink-0 mt-1;
+  }
+
+  .detail-item strong {
+    @apply block mb-1 tracking-wide;
+  }
+
+  .wedding-gradient-bg {
+    background: linear-gradient(135deg, #fce7f3 0%, #f3e8ff 50%, #ecfdf5 100%);
+  }
+
+  .cultural-pattern {
+    background-image: 
+      radial-gradient(circle at 25% 25%, rgba(255, 215, 0, 0.1) 2px, transparent 2px),
+      radial-gradient(circle at 75% 75%, rgba(52, 211, 153, 0.08) 2px, transparent 2px);
+    background-size: 60px 60px, 80px 80px;
+  }
+
+  .shell-pattern {
+    background-image: 
+      url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='%23FFD700' stroke-width='1' opacity='0.1'%3E%3Cpath d='M30 10 L50 30 L30 50 L10 30 Z'/%3E%3C/g%3E%3C/svg%3E");
+    background-size: 60px 60px;
+  }
+
+  .goan-gradient {
+    background: linear-gradient(135deg, var(--goan-coral) 0%, var(--goan-sea-blue) 100%);
+  }
+
+  .goan-text-gradient {
+    background: linear-gradient(135deg, var(--goan-coral) 0%, var(--goan-sea-blue) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .hero-overlay {
+    background: linear-gradient(135deg, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.3) 50%, rgba(52, 211, 153, 0.2) 100%);
+  }
+
+  .elegant-card {
+    backdrop-filter: blur(20px);
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(255, 215, 0, 0.2);
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.1);
+  }
+
+  .floating-element {
+    animation: float 6s ease-in-out infinite;
+  }
+
+  .floating-element:nth-child(2) {
+    animation-delay: -2s;
+  }
+
+  .floating-element:nth-child(3) {
+    animation-delay: -4s;
+  }
+
+  .wedding-script {
+    font-family: 'Dancing Script', cursive;
+  }
+
+  .ornament::before,
+  .ornament::after {
+    content: '❦';
+    color: var(--goan-coral);
+    font-size: 1.5em;
+    opacity: 0.6;
+  }
+
+  .ornament::before {
+    margin-right: 0.5em;
+  }
+
+  .ornament::after {
+    margin-left: 0.5em;
+  }
+}
+
+@layer utilities {
+  .animate-float {
+    animation: float 3s ease-in-out infinite;
+  }
+
+  .animate-fade-in-up {
+    animation: fadeInUp 0.6s ease-out;
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+  }
+
+  @keyframes fadeInUp {
+    from { 
+      opacity: 0; 
+      transform: translateY(30px); 
+    }
+    to { 
+      opacity: 1; 
+      transform: translateY(0); 
+    }
+  }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--goan-warm-gray);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--goan-coral);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--goan-sea-blue);
+}
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+  .hero-section {
+    padding: 60px 0 40px;
+    min-height: 70vh;
+  }
+  
+  .hero-section h1 {
+    font-size: 2.5rem !important;
+    line-height: 1.2;
+    margin-bottom: 1rem;
+  }
+  
+  .hero-section p {
+    font-size: 1rem;
+    margin-bottom: 2rem;
+    padding: 0 1rem;
+  }
+  
+  .wedding-script {
+    font-size: 1.5rem !important;
+  }
+  
+  /* Search bar mobile adjustments */
+  .search-container {
+    padding: 1.5rem 1rem;
+    margin: 1rem;
+    border-radius: 1.5rem;
+  }
+  
+  /* Button adjustments for mobile */
+  .mobile-btn {
+    font-size: 0.875rem;
+    padding: 0.75rem 1rem;
+  }
+  
+  /* Section spacing */
+  .section-mobile {
+    padding: 3rem 0;
+  }
+  
+  /* Text adjustments */
+  .section-title-mobile {
+    font-size: 2rem !important;
+    line-height: 1.2;
+  }
+  
+  .section-subtitle-mobile {
+    font-size: 1rem !important;
+    padding: 0 1rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .hero-section {
+    padding: 40px 0 30px;
+    min-height: 60vh;
+  }
+  
+  .hero-section h1 {
+    font-size: 2rem !important;
+    padding: 0 1rem;
+  }
+  
+  .section-title-mobile {
+    font-size: 1.75rem !important;
+  }
+  
+  .wedding-script {
+    font-size: 1.25rem !important;
+  }
+  
+  /* Card grid adjustments */
+  .grid-mobile-1 {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  /* Floating buttons mobile */
+  .floating-buttons {
+    bottom: 20px;
+    right: 15px;
+  }
+  
+  .floating-buttons button {
+    width: 50px;
+    height: 50px;
+    font-size: 1.2rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  /* Navigation mobile */
+  .nav-mobile {
+    padding: 0.5rem 1rem;
+  }
+  
+  /* Footer mobile */
+  .footer-mobile {
+    text-align: center;
+    padding: 2rem 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero-section h1 {
+    font-size: 1.75rem !important;
+  }
+  
+  .section-title-mobile {
+    font-size: 1.5rem !important;
+  }
+  
+  .search-container {
+    margin: 0.5rem;
+    padding: 1rem 0.75rem;
+  }
+}
+
+

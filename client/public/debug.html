@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Debug Page</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
+        .container { max-width: 800px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .error { color: red; background: #ffebee; padding: 10px; border-radius: 4px; margin: 10px 0; }
+        .warning { color: orange; background: #fff3e0; padding: 10px; border-radius: 4px; margin: 10px 0; }
+        .success { color: green; background: #e8f5e9; padding: 10px; border-radius: 4px; margin: 10px 0; }
+        .info { color: #1976d2; background: #e3f2fd; padding: 10px; border-radius: 4px; margin: 10px 0; }
+        button { padding: 10px 15px; margin: 5px; background: #1976d2; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        button:hover { background: #1565c0; }
+        #output { margin-top: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #eee; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Application Debug Page</h1>
+        <p>This page helps diagnose issues with the main application.</p>
+        
+        <div class="test-section">
+            <h2>Basic Checks</h2>
+            <button onclick="checkRoot()">Check Root Element</button>
+            <button onclick="checkScripts()">Check Scripts</button>
+            <button onclick="checkWindowObjects()">Check Window Objects</button>
+        </div>
+        
+        <div class="test-section">
+            <h2>React Simulation</h2>
+            <button onclick="simulateReact()">Simulate React Mounting</button>
+            <button onclick="testComponentRender()">Test Component Render</button>
+        </div>
+        
+        <div class="test-section">
+            <h2>Error Detection</h2>
+            <button onclick="checkConsoleErrors()">Check Console Errors</button>
+            <button onclick="monitorErrors()">Monitor Errors</button>
+        </div>
+        
+        <div id="output"></div>
+        <div id="root"></div>
+    </div>
+
+    <script>
+        // Capture console errors
+        const originalConsoleError = console.error;
+        const consoleErrors = [];
+        
+        console.error = function() {
+            consoleErrors.push(Array.from(arguments));
+            originalConsoleError.apply(console, arguments);
+        };
+        
+        function log(message, type = 'info') {
+            const output = document.getElementById('output');
+            const div = document.createElement('div');
+            div.className = type;
+            div.innerHTML = message;
+            output.appendChild(div);
+            output.scrollTop = output.scrollHeight;
+        }
+
+        function checkRoot() {
+            const root = document.getElementById('root');
+            if (root) {
+                log('✓ Root element found', 'success');
+            } else {
+                log('✗ Root element NOT found', 'error');
+            }
+        }
+
+        function checkScripts() {
+            const scripts = Array.from(document.getElementsByTagName('script'));
+            log(`Found ${scripts.length} script tags:`, 'info');
+            scripts.forEach((script, i) => {
+                const src = script.src || '(inline)';
+                log(`  Script ${i}: ${src}`, 'info');
+            });
+        }
+
+        function checkWindowObjects() {
+            const objects = ['React', 'ReactDOM'];
+            objects.forEach(obj => {
+                if (window[obj]) {
+                    log(`✓ ${obj} is available`, 'success');
+                } else {
+                    log(`✗ ${obj} is NOT available`, 'warning');
+                }
+            });
+        }
+
+        function simulateReact() {
+            try {
+                // Check if React and ReactDOM are available
+                if (!window.React || !window.ReactDOM) {
+                    log('✗ React or ReactDOM not loaded', 'error');
+                    return;
+                }
+                
+                // Try to create a simple React element
+                const element = window.React.createElement('div', null, 'React is working!');
+                log('✓ React element created successfully', 'success');
+                
+                // Try to get the root container
+                const rootContainer = document.getElementById('root');
+                if (!rootContainer) {
+                    log('✗ Root container not found', 'error');
+                    return;
+                }
+                
+                // Try to create a root and render
+                const root = window.ReactDOM.createRoot(rootContainer);
+                if (root) {
+                    log('✓ ReactDOM root created successfully', 'success');
+                }
+            } catch (error) {
+                log(`✗ Error in React simulation: ${error.message}`, 'error');
+            }
+        }
+
+        function testComponentRender() {
+            try {
+                if (!window.React || !window.ReactDOM) {
+                    log('✗ React not available for component test', 'error');
+                    return;
+                }
+                
+                // Create a simple component
+                function TestComponent() {
+                    return window.React.createElement('div', { 
+                        style: { 
+                            padding: '20px', 
+                            background: '#e3f2fd', 
+                            borderRadius: '4px',
+                            margin: '10px 0'
+                        } 
+                    }, 'Test component rendered successfully!');
+                }
+                
+                const rootContainer = document.getElementById('root');
+                if (rootContainer) {
+                    const root = window.ReactDOM.createRoot(rootContainer);
+                    root.render(window.React.createElement(TestComponent));
+                    log('✓ Test component rendered', 'success');
+                } else {
+                    log('✗ Root container not found for component test', 'error');
+                }
+            } catch (error) {
+                log(`✗ Error rendering test component: ${error.message}`, 'error');
+            }
+        }
+
+        function checkConsoleErrors() {
+            if (consoleErrors.length > 0) {
+                log(`Found ${consoleErrors.length} console errors:`, 'warning');
+                consoleErrors.forEach((error, i) => {
+                    log(`  Error ${i + 1}: ${error.join(' ')}`, 'error');
+                });
+            } else {
+                log('✓ No console errors detected', 'success');
+            }
+        }
+
+        function monitorErrors() {
+            // Override window.onerror
+            const originalOnError = window.onerror;
+            window.onerror = function(message, source, lineno, colno, error) {
+                log(`Global error: ${message} at ${source}:${lineno}:${colno}`, 'error');
+                if (error && error.stack) {
+                    log(`Stack trace: ${error.stack}`, 'error');
+                }
+                if (originalOnError) {
+                    return originalOnError.apply(this, arguments);
+                }
+            };
+            
+            // Override unhandled promise rejections
+            window.addEventListener('unhandledrejection', function(event) {
+                log(`Unhandled promise rejection: ${event.reason}`, 'error');
+            });
+            
+            log('✓ Error monitoring enabled', 'success');
+        }
+
+        // Run basic checks on page load
+        window.addEventListener('load', function() {
+            log('Page loaded - running initial checks...', 'info');
+            setTimeout(() => {
+                checkRoot();
+                checkWindowObjects();
+                monitorErrors();
+            }, 1000);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,70 @@
+{
+  "name": "TheGoanWedding - Premium Wedding Vendor Directory",
+  "short_name": "GoanWedding",
+  "description": "Discover the finest wedding vendors in Goa. From photographers to caterers, venues to decorators - find everything for your perfect Goan wedding celebration.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#dc2626",
+  "categories": ["lifestyle", "wedding", "productivity"],
+  "orientation": "portrait",
+  "lang": "en",
+  "dir": "ltr",
+  "icons": [
+    {
+      "src": "/assets/favicon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/assets/favicon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "/assets/maskable-icon.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/screenshots/mobile-home.png",
+      "sizes": "1080x1920",
+      "type": "image/png",
+      "form_factor": "mobile",
+      "label": "Home screen with vendor categories"
+    },
+    {
+      "src": "/screenshots/mobile-vendor-profile.png",
+      "sizes": "1080x1920",
+      "type": "image/png",
+      "form_factor": "mobile",
+      "label": "Vendor profile with gallery and contact info"
+    },
+    {
+      "src": "/screenshots/desktop-home.png",
+      "sizes": "1920x1080",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Desktop home screen"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Find Vendors",
+      "short_name": "Vendors",
+      "description": "Browse wedding vendors by category",
+      "url": "/vendors/all",
+      "icons": [{ "src": "/assets/wedding-planner-icon.png.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Wedding Blog",
+      "short_name": "Blog",
+      "description": "Read wedding planning tips and trends",
+      "url": "/blog",
+      "icons": [{ "src": "/assets/wedding-planner-icon.png.png", "sizes": "192x192" }]
+    }
+  ]
+}

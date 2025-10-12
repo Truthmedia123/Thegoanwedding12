@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comprehensive Debug</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background: #f0f0f0; }
+        .container { max-width: 800px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .error { color: red; background: #ffebee; padding: 10px; border-radius: 4px; margin: 10px 0; }
+        .success { color: green; background: #e8f5e9; padding: 10px; border-radius: 4px; margin: 10px 0; }
+        .warning { color: orange; background: #fff3e0; padding: 10px; border-radius: 4px; margin: 10px 0; }
+        .info { color: #1976d2; background: #e3f2fd; padding: 10px; border-radius: 4px; margin: 10px 0; }
+        button { padding: 10px 15px; margin: 5px; background: #1976d2; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        button:hover { background: #1565c0; }
+        #output { margin-top: 20px; max-height: 400px; overflow-y: auto; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Comprehensive Application Debug</h1>
+        <p>This page will help diagnose issues with the main application.</p>
+        
+        <div>
+            <button onclick="runAllTests()">Run All Tests</button>
+            <button onclick="clearOutput()">Clear Output</button>
+        </div>
+        
+        <div id="output"></div>
+    </div>
+
+    <script>
+        // Error collection
+        const errors = [];
+        const consoleLogs = [];
+        
+        // Override console methods
+        const originalConsole = {
+            log: console.log,
+            error: console.error,
+            warn: console.warn
+        };
+        
+        console.log = function() {
+            consoleLogs.push({ type: 'log', args: Array.from(arguments) });
+            originalConsole.log.apply(console, arguments);
+        };
+        
+        console.error = function() {
+            const args = Array.from(arguments);
+            errors.push({ type: 'error', args });
+            consoleLogs.push({ type: 'error', args });
+            originalConsole.error.apply(console, arguments);
+        };
+        
+        console.warn = function() {
+            consoleLogs.push({ type: 'warn', args: Array.from(arguments) });
+            originalConsole.warn.apply(console, arguments);
+        };
+        
+        // Global error handlers
+        window.addEventListener('error', function(event) {
+            errors.push({
+                type: 'globalError',
+                message: event.message,
+                filename: event.filename,
+                lineno: event.lineno,
+                colno: event.colno,
+                error: event.error
+            });
+        });
+        
+        window.addEventListener('unhandledrejection', function(event) {
+            errors.push({
+                type: 'unhandledRejection',
+                reason: event.reason
+            });
+        });
+        
+        function log(message, type = 'info') {
+            const output = document.getElementById('output');
+            const div = document.createElement('div');
+            div.className = type;
+            div.innerHTML = message;
+            output.appendChild(div);
+            output.scrollTop = output.scrollHeight;
+        }
+        
+        function clearOutput() {
+            document.getElementById('output').innerHTML = '';
+        }
+        
+        function checkDOM() {
+            log('Checking DOM elements...', 'info');
+            
+            // Check root element
+            const root = document.getElementById('root');
+            if (root) {
+                log('✓ Root element found', 'success');
+            } else {
+                log('✗ Root element NOT found', 'error');
+            }
+            
+            // Check other important elements
+            const metaTags = document.querySelectorAll('meta[name="viewport"]');
+            if (metaTags.length > 0) {
+                log('✓ Viewport meta tag found', 'success');
+            } else {
+                log('⚠ Viewport meta tag missing', 'warning');
+            }
+        }
+        
+        function checkResources() {
+            log('Checking loaded resources...', 'info');
+            
+            // Check scripts
+            const scripts = Array.from(document.scripts);
+            log(`Found ${scripts.length} script tags`, 'info');
+            
+            // Check if important scripts are loaded
+            const reactScript = scripts.find(s => s.src.includes('react'));
+            const mainScript = scripts.find(s => s.src.includes('main') || s.src.includes('src'));
+            
+            if (reactScript) {
+                log('✓ React script found', 'success');
+            } else {
+                log('⚠ React script not found', 'warning');
+            }
+            
+            if (mainScript) {
+                log('✓ Main application script found', 'success');
+            } else {
+                log('⚠ Main application script not found', 'warning');
+            }
+        }
+        
+        function checkWindowObjects() {
+            log('Checking global objects...', 'info');
+            
+            const objects = ['React', 'ReactDOM'];
+            objects.forEach(obj => {
+                if (window[obj]) {
+                    log(`✓ ${obj} is available`, 'success');
+                } else {
+                    log(`✗ ${obj} is NOT available`, 'error');
+                }
+            });
+        }
+        
+        function simulateMount() {
+            log('Simulating React component mount...', 'info');
+            
+            try {
+                // Try to access React if available
+                if (window.React && window.ReactDOM) {
+                    // Create a simple component
+                    function TestComponent() {
+                        return React.createElement('div', { 
+                            style: { 
+                                padding: '10px', 
+                                background: '#e3f2fd', 
+                                borderRadius: '4px',
+                                margin: '10px 0'
+                            } 
+                        }, 'Test component mounted successfully!');
+                    }
+                    
+                    // Try to render to root
+                    const rootElement = document.getElementById('root');
+                    if (rootElement) {
+                        const root = ReactDOM.createRoot(rootElement);
+                        root.render(React.createElement(TestComponent));
+                        log('✓ Test component rendered to root', 'success');
+                    } else {
+                        log('✗ Root element not found for rendering', 'error');
+                    }
+                } else {
+                    log('✗ React not available for simulation', 'error');
+                }
+            } catch (error) {
+                log(`✗ Error in simulation: ${error.message}`, 'error');
+                errors.push({ type: 'simulationError', error });
+            }
+        }
+        
+        function checkErrors() {
+            log('Checking for errors...', 'info');
+            
+            if (errors.length > 0) {
+                log(`Found ${errors.length} errors:`, 'warning');
+                errors.forEach((error, i) => {
+                    switch (error.type) {
+                        case 'error':
+                            log(`  Error ${i + 1}: ${error.args.join(' ')}`, 'error');
+                            break;
+                        case 'globalError':
+                            log(`  Global error ${i + 1}: ${error.message} at ${error.filename}:${error.lineno}:${error.colno}`, 'error');
+                            if (error.error && error.error.stack) {
+                                log(`    Stack: ${error.error.stack}`, 'error');
+                            }
+                            break;
+                        case 'unhandledRejection':
+                            log(`  Unhandled rejection ${i + 1}: ${error.reason}`, 'error');
+                            break;
+                    }
+                });
+            } else {
+                log('✓ No errors detected', 'success');
+            }
+        }
+        
+        function runAllTests() {
+            clearOutput();
+            log('Starting comprehensive debug tests...', 'info');
+            
+            checkDOM();
+            checkResources();
+            checkWindowObjects();
+            simulateMount();
+            checkErrors();
+            
+            log('Debug tests completed.', 'info');
+        }
+        
+        // Run initial checks
+        window.addEventListener('load', function() {
+            log('Page loaded - ready for debugging', 'info');
+        });
+    </script>
+</body>
+</html>

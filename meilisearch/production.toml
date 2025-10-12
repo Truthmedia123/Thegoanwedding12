@@ -1,0 +1,36 @@
+# Meilisearch Production Configuration
+
+# Network configuration
+http_addr = "0.0.0.0:7700"
+env = "production"
+
+# Master key for authentication
+master_key = "your-meilisearch-master-key"
+
+# SSL configuration
+ssl_cert_path = "/path/to/ssl/certificate.crt"
+ssl_key_path = "/path/to/ssl/private.key"
+ssl_auth = true
+
+# Database configuration
+db_path = "/var/lib/meilisearch/data.ms"
+
+# Snapshot configuration
+snapshot_dir = "/var/lib/meilisearch/snapshots"
+snapshot_interval_sec = 86400
+
+# Import configuration
+import_dir = "/var/lib/meilisearch/imports"
+
+# Log configuration
+log_level = "INFO"
+
+# Max memory usage
+max_memory = "8gb"
+
+# Max index size
+max_index_size = "100gb"
+
+# Experimental features
+experimental_enable_metrics = true
+experimental_enable_logs_route = true

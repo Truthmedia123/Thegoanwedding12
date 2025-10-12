@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minimal App Test</title>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/wouter@3.0.0/dist/wouter.development.js"></script>
+    <script src="https://unpkg.com/@tanstack/react-query@4.0.0/build/umd/index.development.js"></script>
+</head>
+<body>
+    <div id="root"></div>
+    
+    <script>
+        // Simple test to see if all libraries load correctly
+        console.log('Libraries available:', {
+            React: typeof React !== 'undefined',
+            ReactDOM: typeof ReactDOM !== 'undefined',
+            wouter: typeof wouter !== 'undefined',
+            ReactQuery: typeof ReactQuery !== 'undefined'
+        });
+        
+        // If all libraries are available, try to render a simple app
+        if (React && ReactDOM && wouter && ReactQuery) {
+            const { QueryClient, QueryClientProvider } = ReactQuery;
+            const { Switch, Route, Link } = wouter;
+            
+            // Create a query client
+            const queryClient = new QueryClient({
+                defaultOptions: {
+                    queries: {
+                        retry: false,
+                    },
+                },
+            });
+            
+            // Simple components
+            function Home() {
+                return React.createElement('div', null, 
+                    React.createElement('h1', null, 'Home Page'),
+                    React.createElement('p', null, 'If you can see this, the minimal app is working!')
+                );
+            }
+            
+            function App() {
+                return React.createElement(QueryClientProvider, { client: queryClient },
+                    React.createElement('div', { style: { padding: '20px' } },
+                        React.createElement('h1', null, 'Minimal Test App'),
+                        React.createElement(Switch, null,
+                            React.createElement(Route, { path: '/', component: Home })
+                        )
+                    )
+                );
+            }
+            
+            // Render the app
+            const root = ReactDOM.createRoot(document.getElementById('root'));
+            root.render(React.createElement(App));
+        } else {
+            document.getElementById('root').innerHTML = `
+                <div style="padding: 20px; color: red;">
+                    <h1>Error Loading Libraries</h1>
+                    <p>Some required libraries failed to load:</p>
+                    <ul>
+                        <li>React: ${typeof React !== 'undefined' ? '✓' : '✗'}</li>
+                        <li>ReactDOM: ${typeof ReactDOM !== 'undefined' ? '✓' : '✗'}</li>
+                        <li>wouter: ${typeof wouter !== 'undefined' ? '✓' : '✗'}</li>
+                        <li>ReactQuery: ${typeof ReactQuery !== 'undefined' ? '✓' : '✗'}</li>
+                    </ul>
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>

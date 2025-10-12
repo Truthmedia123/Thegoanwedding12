@@ -1,0 +1,20 @@
+# Use Directus base image
+FROM directus/directus:10.10.0
+
+# Set environment variables
+ENV DB_CLIENT="sqlite3"
+ENV DB_FILENAME="/directus/database/data.db"
+
+# Create directories for persistent storage
+RUN mkdir -p /directus/database
+RUN mkdir -p /directus/uploads
+RUN mkdir -p /directus/extensions
+
+# Change ownership
+RUN chown -R node:node /directus
+
+# Expose port
+EXPOSE 8055
+
+# Start Directus
+CMD ["node", "/directus/index.js"]

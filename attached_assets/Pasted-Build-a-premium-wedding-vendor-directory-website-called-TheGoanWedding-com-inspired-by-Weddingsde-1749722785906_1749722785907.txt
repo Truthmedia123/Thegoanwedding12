@@ -1,0 +1,160 @@
+Build a premium wedding vendor directory website called “TheGoanWedding.com”, inspired by Weddingsdegoa.com.
+The website must feature a beautiful, grand UI/UX that reflects the rich cultural heritage of Goan weddings. It should be fully mobile-responsive, SEO-optimized, AdSense-ready, and easy to navigate.
+
+🎨 DESIGN STYLE
+Visual inspiration: Weddingsdegoa.com
+
+Elegant fonts, large imagery, smooth transitions
+
+Color palette: ivory, coral, sea blue, gold accents
+
+Use Goan cultural motifs (e.g., shells, palm leaves, Indo-Portuguese patterns)
+
+Sticky navbar, floating WhatsApp & Call buttons
+
+Responsive for mobile, tablet, desktop
+
+📁 PAGES & FEATURES
+🏠 Homepage
+Hero section with slogan (e.g., “Celebrate Your Big Day, Goan Style”)
+
+Search bar with category + location filters
+
+Featured Vendors carousel
+
+Popular Categories section
+
+Testimonials slider
+
+“List Your Business” call-to-action
+
+📂 Vendor Category Pages
+Examples: /photographers, /caterers, /venues, etc.
+Each listing must include:
+
+Business name
+
+Profile image
+
+Star rating & review count
+
+Location
+
+WhatsApp button
+
+Direct call button
+
+View Profile link
+
+🧾 Vendor Profile Pages
+Each vendor must have a dedicated profile page with:
+
+Cover photo/banner
+
+Description of services
+
+Image gallery
+
+Ratings & reviews (with review submission form)
+
+Social media feed (Instagram/Facebook)
+
+Contact options:
+
+Click-to-call
+
+WhatsApp chat (with preset message)
+
+Contact form
+
+Business email & address
+
+Google Map location
+
+📝 “List Your Business” Submission Page
+Form for vendors to add:
+
+Name, Category, Description
+
+Phone, Email, Social Links
+
+Upload images
+
+Location & WhatsApp number
+
+📰 Blog
+Blog homepage
+
+At least one article titled: “Top 10 Goan Wedding Trends This Year”
+
+Sidebar for categories and recent posts
+
+📌 Static Pages
+About Us: Background, mission, Noel Fernandes as founder
+
+Contact Us:
+
+Email: info@thegoanwedding.com
+
+Phone: 9769661682
+
+Location: Goa, India
+
+Contact form
+
+Privacy Policy (Google AdSense compliant)
+
+Cookie Policy (consent notice + explanation)
+
+Terms & Conditions
+
+FAQs (optional)
+
+🔧 CORE FEATURES
+Mobile-first design
+
+Social feed integration (Instagram/Facebook)
+
+Vendor reviews with star ratings
+
+Google Maps integration
+
+SEO-friendly URLs
+
+Fast-loading, optimized layout
+
+Google AdSense-ready zones
+
+Admin backend to manage listings
+
+🎯 Vendor Categories to Include
+Wedding Planners
+
+Venues
+
+Photographers
+
+Videographers
+
+Bridal Wear
+
+Groom Wear
+
+Caterers
+
+Cakes & Sweets
+
+Makeup Artists
+
+Bands & DJs
+
+Priests & Religious Services
+
+Decor & Florists
+
+Car Rentals
+
+Mehndi Artists
+
+Entertainment (MCs, Dancers, etc.)
+

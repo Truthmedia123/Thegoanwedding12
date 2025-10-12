@@ -1,0 +1,2 @@
+name,category,location,priceRange,rating,contactEmail,isVerified,profileImageUrl,coverImageUrl,facebookUrl,instagramUrl,linkedinUrl,twitterUrl,embedCode
+Example Vendor,Photography,Goa,"[50000,100000]",4.5,contact@example.com,true,https://example.com/profile.jpg,https://example.com/cover.jpg,https://facebook.com/vendor,https://instagram.com/vendor,https://linkedin.com/in/vendor,https://twitter.com/vendor,"<blockquote class='instagram-media' data-instgrm-permalink='https://www.instagram.com/p/POST_ID/' data-instgrm-version='14'></blockquote>"

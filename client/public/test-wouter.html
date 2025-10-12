@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Wouter Test</title>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/wouter@3.0.0/dist/wouter.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head>
+<body>
+    <div id="root"></div>
+    
+    <script type="text/babel">
+        const { useState } = React;
+        const { Switch, Route, Link, useLocation } = wouter;
+        
+        function Home() {
+            return (
+                <div>
+                    <h2>Home Page</h2>
+                    <p>Welcome to the home page!</p>
+                </div>
+            );
+        }
+        
+        function About() {
+            return (
+                <div>
+                    <h2>About Page</h2>
+                    <p>This is the about page.</p>
+                </div>
+            );
+        }
+        
+        function Router() {
+            return (
+                <div>
+                    <nav>
+                        <Link href="/">Home</Link> | 
+                        <Link href="/about">About</Link>
+                    </nav>
+                    <Switch>
+                        <Route path="/" component={Home} />
+                        <Route path="/about" component={About} />
+                    </Switch>
+                </div>
+            );
+        }
+        
+        function App() {
+            return (
+                <div style={{ padding: '20px', fontFamily: 'sans-serif' }}>
+                    <h1>Wouter Test Page</h1>
+                    <p>If you can see this, wouter routing should work.</p>
+                    <Router />
+                </div>
+            );
+        }
+        
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>

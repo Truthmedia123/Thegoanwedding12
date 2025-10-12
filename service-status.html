@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Service Status</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        .service { margin: 20px 0; padding: 15px; border-radius: 5px; }
+        .running { background-color: #d4edda; border: 1px solid #c3e6cb; }
+        .stopped { background-color: #f8d7da; border: 1px solid #f5c6cb; }
+        .pending { background-color: #fff3cd; border: 1px solid #ffeaa7; }
+        h1 { color: #333; }
+        ul { line-height: 1.6; }
+    </style>
+</head>
+<body>
+    <h1>TheGoanWedding - Service Status</h1>
+    
+    <div class="service running">
+        <h2>✅ Services Running</h2>
+        <ul>
+            <li><strong>Main Application</strong> - http://localhost:8787</li>
+            <li><strong>Directus CMS</strong> - http://localhost:8055</li>
+            <li><strong>Meilisearch</strong> - http://localhost:7700</li>
+        </ul>
+    </div>
+
+    <div class="service pending">
+        <h2>ℹ️ Access Instructions</h2>
+        <ul>
+            <li>Open <a href="http://localhost:8787" target="_blank">http://localhost:8787</a> to view the main website</li>
+            <li>Access Directus admin at <a href="http://localhost:8055/admin" target="_blank">http://localhost:8055/admin</a></li>
+            <li>Meilisearch dashboard is available at <a href="http://localhost:7700" target="_blank">http://localhost:7700</a></li>
+        </ul>
+    </div>
+
+    <div class="service pending">
+        <h2>⚠️ Notes</h2>
+        <ul>
+            <li>Some Directus extensions have warnings but services are functional</li>
+            <li>Meilisearch is running in background mode</li>
+            <li>Press Ctrl+C in the terminal to stop all services</li>
+        </ul>
+    </div>
+</body>
+</html>

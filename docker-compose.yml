@@ -1,0 +1,80 @@
+version: '3.8'
+
+services:
+  # Directus CMS with SQLite database
+  directus:
+    build:
+      context: .
+      dockerfile: Dockerfile.directus
+    ports:
+      - "8055:8055"
+    volumes:
+      - ./directus-cms/database:/directus/database
+      - ./directus-cms/uploads:/directus/uploads
+      - ./directus-cms/extensions:/directus/extensions
+    environment:
+      KEY: 'directus-key'
+      SECRET: 'directus-secret'
+      
+      DB_CLIENT: 'sqlite3'
+      DB_FILENAME: '/directus/database/data.db'
+      
+      ADMIN_EMAIL: 'admin@example.com'
+      ADMIN_PASSWORD: 'd1r3ctu5'
+      
+      WEBSOCKETS_ENABLED: 'true'
+    networks:
+      - wedding-network
+
+  # Meilisearch with persistent data
+  meilisearch:
+    image: getmeili/meilisearch:v1.8
+    ports:
+      - "7700:7700"
+    volumes:
+      - ./meilisearch/data:/meili_data
+    environment:
+      MEILI_MASTER_KEY: 'meilisearch-master-key'
+      MEILI_ENV: 'development'
+    networks:
+      - wedding-network
+
+  # Redis for caching (optional)
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./redis/data:/data
+    networks:
+      - wedding-network
+
+  # Main application
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8787:8787"
+    volumes:
+      - ./client:/app/client
+      - ./server:/app/server
+      - ./shared:/app/shared
+      - ./scripts:/app/scripts
+    environment:
+      NODE_ENV: 'development'
+      DIRECTUS_URL: 'http://directus:8055'
+      DIRECTUS_TOKEN: 'dev-token'
+      USE_DIRECTUS: 'true'
+      MEILISEARCH_HOST: 'http://meilisearch:7700'
+      MEILISEARCH_API_KEY: 'dev-key'
+    networks:
+      - wedding-network
+    depends_on:
+      - directus
+      - meilisearch
+      - redis
+
+networks:
+  wedding-network:
+    driver: bridge

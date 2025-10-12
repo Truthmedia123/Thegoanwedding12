@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Directus Admin Access</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; background-color: #f5f5f5; }
+        .container { max-width: 600px; margin: 0 auto; background-color: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .info { background-color: #e3f2fd; border-left: 4px solid #2196f3; padding: 15px; margin: 20px 0; }
+        .credentials { background-color: #fff3e0; border-left: 4px solid #ff9800; padding: 15px; margin: 20px 0; }
+        a { color: #2196f3; text-decoration: none; font-weight: bold; }
+        a:hover { text-decoration: underline; }
+        .step { margin: 15px 0; padding-left: 20px; }
+        .step:before { content: "→ "; color: #4caf50; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Directus Admin Access</h1>
+        
+        <div class="info">
+            <h3>ℹ️ Information</h3>
+            <p>The Directus CMS service is running on port 8055.</p>
+        </div>
+        
+        <div class="credentials">
+            <h3>🔐 Admin Credentials</h3>
+            <p><strong>Email:</strong> admin@example.com</p>
+            <p><strong>Password:</strong> d1r3ctu5</p>
+        </div>
+        
+        <h3>Steps to Access:</h3>
+        <div class="step">Click on the link below to access the Directus admin interface</div>
+        <div class="step">Use the credentials above to log in</div>
+        <div class="step">After logging in, you can manage collections and data</div>
+        
+        <p style="text-align: center; margin: 30px 0;">
+            <a href="http://localhost:8055/admin" target="_blank" style="background-color: #2196f3; color: white; padding: 12px 24px; border-radius: 4px; text-decoration: none; font-size: 16px;">
+                Access Directus Admin
+            </a>
+        </p>
+        
+        <p style="text-align: center; color: #666;">
+            If the link doesn't work, make sure the services are running with <code>npm run dev:all</code>
+        </p>
+    </div>
+</body>
+</html>

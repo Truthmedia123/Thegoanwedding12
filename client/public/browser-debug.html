@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Browser Debug</title>
+</head>
+<body>
+    <div id="root"></div>
+    
+    <script>
+        // Log all errors
+        window.addEventListener('error', function(e) {
+            console.error('Global error:', e.error);
+            document.body.innerHTML += `<div style="color: red; padding: 10px; margin: 10px; border: 1px solid red;">
+                <h3>Global Error:</h3>
+                <p>${e.message}</p>
+                <p>Source: ${e.filename}:${e.lineno}:${e.colno}</p>
+                <pre>${e.error ? e.error.stack : 'No stack trace'}</pre>
+            </div>`;
+        });
+        
+        window.addEventListener('unhandledrejection', function(e) {
+            console.error('Unhandled rejection:', e.reason);
+            document.body.innerHTML += `<div style="color: red; padding: 10px; margin: 10px; border: 1px solid red;">
+                <h3>Unhandled Rejection:</h3>
+                <pre>${e.reason}</pre>
+            </div>`;
+        });
+        
+        // Try to simulate what the main app does
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM loaded');
+            document.body.innerHTML += '<div style="padding: 20px;">DOM Loaded - Testing React mounting...</div>';
+            
+            // Check if React is available
+            if (typeof window.React !== 'undefined' && typeof window.ReactDOM !== 'undefined') {
+                console.log('React is available');
+                document.body.innerHTML += '<div style="color: green; padding: 10px;">React is available</div>';
+                
+                // Try to create a root and render something
+                try {
+                    const element = window.React.createElement('div', null, 'React test successful!');
+                    const root = window.ReactDOM.createRoot(document.getElementById('root'));
+                    root.render(element);
+                    document.body.innerHTML += '<div style="color: green; padding: 10px;">React rendering test successful</div>';
+                } catch (e) {
+                    console.error('React rendering error:', e);
+                    document.body.innerHTML += `<div style="color: red; padding: 10px;">
+                        <h3>React Rendering Error:</h3>
+                        <pre>${e.message}</pre>
+                    </div>`;
+                }
+            } else {
+                console.log('React not available');
+                document.body.innerHTML += '<div style="color: orange; padding: 10px;">React not available - waiting for scripts to load</div>';
+                
+                // Wait a bit and try again
+                setTimeout(() => {
+                    if (typeof window.React !== 'undefined' && typeof window.ReactDOM !== 'undefined') {
+                        document.body.innerHTML += '<div style="color: green; padding: 10px;">React loaded after delay</div>';
+                    } else {
+                        document.body.innerHTML += '<div style="color: red; padding: 10px;">React still not available</div>';
+                    }
+                }, 2000);
+            }
+        });
+    </script>
+</body>
+</html>

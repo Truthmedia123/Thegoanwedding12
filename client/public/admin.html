@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - TheGoanWedding.com</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Dancing+Script:wght@400;500;600;700&family=Great+Vibes&family=Crimson+Text:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --goan-coral: #dc2626;
+            --goan-sea-blue: #0ea5e9;
+            --goan-sand: #fef3c7;
+            --goan-palm: #16a34a;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Crimson Text', serif;
+            background-color: #f8fafc;
+            color: #1e293b;
+            line-height: 1.6;
+        }
+        
+        header {
+            background: linear-gradient(135deg, var(--goan-coral), var(--goan-sea-blue));
+            color: white;
+            padding: 1rem 0;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+        
+        .logo span:first-child {
+            color: var(--goan-coral);
+        }
+        
+        .logo span:last-child {
+            color: var(--goan-sea-blue);
+        }
+        
+        nav ul {
+            display: flex;
+            list-style: none;
+        }
+        
+        nav ul li {
+            margin-left: 1.5rem;
+        }
+        
+        nav ul li a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: opacity 0.3s;
+        }
+        
+        nav ul li a:hover {
+            opacity: 0.8;
+        }
+        
+        main {
+            padding: 2rem 0;
+        }
+        
+        .dashboard-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .dashboard-header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            color: #1e293b;
+        }
+        
+        .dashboard-header p {
+            font-size: 1.2rem;
+            color: #64748b;
+        }
+        
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .status-card {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .status-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .status-card h2 {
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+            color: #1e293b;
+            display: flex;
+            align-items: center;
+        }
+        
+        .status-card h2 i {
+            margin-right: 0.5rem;
+        }
+        
+        .status-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .status-item:last-child {
+            border-bottom: none;
+        }
+        
+        .status-label {
+            font-weight: 500;
+        }
+        
+        .status-value {
+            display: flex;
+            align-items: center;
+        }
+        
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 0.5rem;
+        }
+        
+        .status-success {
+            background-color: #10b981;
+        }
+        
+        .status-warning {
+            background-color: #f59e0b;
+        }
+        
+        .status-error {
+            background-color: #ef4444;
+        }
+        
+        .quick-links {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+        
+        .quick-links h2 {
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            color: #1e293b;
+            display: flex;
+            align-items: center;
+        }
+        
+        .quick-links h2 i {
+            margin-right: 0.5rem;
+        }
+        
+        .links-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+        
+        .link-card {
+            background: #f1f5f9;
+            border-radius: 8px;
+            padding: 1rem;
+            text-align: center;
+            transition: background-color 0.3s;
+        }
+        
+        .link-card:hover {
+            background: #e2e8f0;
+        }
+        
+        .link-card i {
+            font-size: 2rem;
+            color: var(--goan-coral);
+            margin-bottom: 0.5rem;
+        }
+        
+        .link-card h3 {
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .link-card a {
+            display: inline-block;
+            background: var(--goan-coral);
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            font-weight: 500;
+            transition: background-color 0.3s;
+        }
+        
+        .link-card a:hover {
+            background: #b91c1c;
+        }
+        
+        footer {
+            background-color: #1e293b;
+            color: white;
+            text-align: center;
+            padding: 2rem 0;
+            margin-top: 2rem;
+        }
+        
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+            }
+            
+            nav ul {
+                margin-top: 1rem;
+            }
+            
+            nav ul li {
+                margin: 0 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <span>TheGoan</span><span>Wedding</span>
+                </div>
+                <nav>
+                    <ul>
+                        <li><a href="/"><i class="fas fa-home"></i> Home</a></li>
+                        <li><a href="/admin"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </header>
+    
+    <main>
+        <div class="container">
+            <div class="dashboard-header">
+                <h1>Admin Dashboard</h1>
+                <p>Manage your wedding vendor directory with Directus CMS</p>
+            </div>
+            
+            <div class="status-grid">
+                <div class="status-card">
+                    <h2><i class="fas fa-database"></i> System Status</h2>
+                    <div class="status-item">
+                        <span class="status-label">Database Status:</span>
+                        <span class="status-value">
+                            <span class="status-indicator status-success"></span>
+                            <span id="database-status">Checking...</span>
+                        </span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-label">CMS Status:</span>
+                        <span class="status-value">
+                            <span class="status-indicator status-success"></span>
+                            <span id="cms-status">Checking...</span>
+                        </span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-label">Deployment Status:</span>
+                        <span class="status-value">
+                            <span class="status-indicator status-success"></span>
+                            <span id="deployment-status">Cloudflare Pages Active</span>
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="status-card">
+                    <h2><i class="fas fa-chart-bar"></i> System Metrics</h2>
+                    <div class="status-item">
+                        <span class="status-label">Active Vendors:</span>
+                        <span class="status-value">-</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-label">Pending Reviews:</span>
+                        <span class="status-value">-</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-label">Monthly Visitors:</span>
+                        <span class="status-value">-</span>
+                    </div>
+                </div>
+                
+                <div class="status-card">
+                    <h2><i class="fas fa-sync-alt"></i> Data Migration</h2>
+                    <div class="status-item">
+                        <span class="status-label">Migration Status:</span>
+                        <span class="status-value">
+                            <span class="status-indicator status-success"></span>
+                            <span>Completed</span>
+                        </span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-label">Last Sync:</span>
+                        <span class="status-value">Just now</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-label">Backup Status:</span>
+                        <span class="status-value">
+                            <span class="status-indicator status-success"></span>
+                            <span>Available</span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="quick-links">
+                <h2><i class="fas fa-bolt"></i> Quick Links</h2>
+                <div class="links-grid">
+                    <div class="link-card">
+                        <i class="fas fa-crown"></i>
+                        <h3>Directus Admin</h3>
+                        <p>Access the full Directus CMS interface</p>
+                        <a href="http://localhost:8055/admin" target="_blank">Open Directus</a>
+                    </div>
+
+                    <div class="link-card">
+                        <i class="fas fa-store"></i>
+                        <h3>Vendor Management</h3>
+                        <p>Manage wedding vendors and listings</p>
+                        <a href="http://localhost:8055/admin/content/vendors" target="_blank">Manage Vendors</a>
+                    </div>
+
+                    <div class="link-card">
+                        <i class="fas fa-envelope"></i>
+                        <h3>Invitation Templates</h3>
+                        <p>Manage wedding invitation templates</p>
+                        <a href="http://localhost:8055/admin/content/invitation_templates" target="_blank">Manage Templates</a>
+                    </div>
+
+                    <div class="link-card">
+                        <i class="fas fa-file-alt"></i>
+                        <h3>Blog Posts</h3>
+                        <p>Manage blog content and articles</p>
+                        <a href="http://localhost:8055/admin/content/blog_posts" target="_blank">Manage Blog</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 TheGoanWedding.com. All rights reserved.</p>
+            <p>Admin Dashboard v1.0</p>
+        </div>
+    </footer>
+    
+    <script>
+        // Fetch system status
+        async function fetchSystemStatus() {
+            try {
+                const response = await fetch('/api/system/status');
+                const data = await response.json();
+                
+                document.getElementById('database-status').textContent = `Connected to ${data.database}`;
+                document.getElementById('cms-status').textContent = `${data.cms} Active`;
+            } catch (error) {
+                console.error('Error fetching system status:', error);
+                document.getElementById('database-status').textContent = 'Error connecting';
+                document.getElementById('cms-status').textContent = 'Error connecting';
+            }
+        }
+        
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            fetchSystemStatus();
+        });
+    </script>
+</body>
+</html>

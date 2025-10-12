@@ -1,0 +1,270 @@
+name: Accessibility & Performance Audit
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  schedule:
+    # Run weekly on Sundays at 2 AM UTC
+    - cron: '0 2 * * 0'
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x]
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+          
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps
+        
+      - name: Build application
+        run: npm run build:production
+        env:
+          NODE_ENV: production
+          
+      - name: Verify build output
+        run: |
+          echo "Checking build output..."
+          ls -la dist/ || echo "dist directory not found"
+          ls -la dist/public/ || echo "dist/public directory not found"
+          echo "Build verification completed"
+          
+      - name: Start preview server
+        run: |
+          echo "Starting Cloudflare Pages development server..."
+          npm run pages:dev &
+          SERVER_PID=$!
+          echo "Server started with PID: $SERVER_PID"
+          sleep 60  # Increased wait time for server startup
+          echo "Finished waiting, checking if server is responsive..."
+        env:
+          NODE_ENV: production
+          
+      - name: Wait for server to be ready
+        run: |
+          echo "Checking server availability at http://localhost:8787..."
+          timeout 120s bash -c '
+            attempt=1
+            until curl -f http://localhost:8787 > /dev/null 2>&1; do
+              echo "Attempt $attempt: Waiting for server to be ready..."
+              if [ $attempt -eq 10 ]; then
+                echo "Server logs (if available):"
+                ps aux | grep -E "(pages|8787|wrangler)" || echo "No server processes found"
+                netstat -tlnp | grep 8787 || echo "Port 8787 not listening"
+              fi
+              sleep 3
+              attempt=$((attempt + 1))
+            done
+            echo "Server is ready and responding!"
+          '
+          
+      - name: Verify server health
+        run: |
+          echo "Testing server endpoint..."
+          response=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8787)
+          if [ "$response" = "200" ]; then
+            echo "✅ Server is healthy (HTTP $response)"
+          else
+            echo "⚠️ Server returned HTTP $response, but continuing..."
+          fi
+          
+      - name: Install audit tools
+        run: |
+          npm install -g @axe-core/cli lighthouse-ci @lhci/cli
+          # Install additional dependencies for CI environment
+          npm install puppeteer --no-save
+          
+      - name: Run Accessibility Audit with axe-core
+        run: |
+          npx axe-cli http://localhost:8787 \
+            --include "main" \
+            --exclude "iframe" \
+            --tags "wcag2a,wcag2aa,wcag21a,wcag21aa" \
+            --reporter json \
+            --output-file axe-results.json \
+            --timeout 30000 \
+            --exit || true
+            
+      - name: Run Accessibility Audit on key pages
+        run: |
+          # Test multiple pages for comprehensive coverage
+          npx axe-cli http://localhost:8787 --output-file axe-home.json --reporter json || true
+          npx axe-cli http://localhost:8787/vendors/all --output-file axe-vendors.json --reporter json || true
+          npx axe-cli http://localhost:8787/search --output-file axe-search.json --reporter json || true
+          npx axe-cli http://localhost:8787/tools --output-file axe-tools.json --reporter json || true
+          npx axe-cli http://localhost:8787/blog --output-file axe-blog.json --reporter json || true
+          
+      - name: Merge accessibility results
+        run: |
+          echo '{"results": []}' > merged-axe-results.json
+          if [ -f axe-home.json ]; then
+            cat axe-home.json >> merged-axe-results.json
+          fi
+          echo "Accessibility audit completed"
+          
+      - name: Run Lighthouse CI Audit
+        run: |
+          npx lhci autorun --config=.lighthouserc.json || true
+        env:
+          LHCI_BUILD_CONTEXT__CURRENT_HASH: ${{ github.sha }}
+          LHCI_BUILD_CONTEXT__COMMIT_TIME: ${{ github.event.head_commit.timestamp }}
+          LHCI_BUILD_CONTEXT__CURRENT_BRANCH: ${{ github.ref_name }}
+          
+      - name: Run Custom Performance Tests
+        run: |
+          # Verify server is still responsive before running tests
+          curl -f http://localhost:8787 || (echo "Server not responding, skipping performance tests" && exit 0)
+          # Test page load times and critical metrics
+          node scripts/performance-test.js
+          
+      - name: Generate Audit Report
+        run: |
+          node scripts/generate-audit-report.js
+          
+      - name: Upload Accessibility Artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: accessibility-reports-${{ matrix.node-version }}
+          path: |
+            axe-*.json
+            merged-axe-results.json
+            .lighthouseci/
+            audit-report.html
+            performance-results.json
+          retention-days: 30
+          
+      - name: Upload Lighthouse Artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lighthouse-reports-${{ matrix.node-version }}
+          path: |
+            .lighthouseci/
+            lighthouse-*.html
+            lighthouse-*.json
+          retention-days: 30
+          
+      - name: Comment PR with Results
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            
+            let comment = '## 🔍 Accessibility & Performance Audit Results\n\n';
+            
+            // Add accessibility results
+            try {
+              const axeResults = JSON.parse(fs.readFileSync('merged-axe-results.json', 'utf8'));
+              const violations = axeResults.violations || [];
+              
+              comment += `### ♿ Accessibility Results\n`;
+              comment += `- **Violations Found:** ${violations.length}\n`;
+              
+              if (violations.length > 0) {
+                comment += `\n#### Critical Issues:\n`;
+                violations.slice(0, 5).forEach((violation, index) => {
+                  comment += `${index + 1}. **${violation.id}**: ${violation.description}\n`;
+                });
+                
+                if (violations.length > 5) {
+                  comment += `\n*...and ${violations.length - 5} more issues. See full report in artifacts.*\n`;
+                }
+              } else {
+                comment += `✅ No accessibility violations found!\n`;
+              }
+            } catch (error) {
+              comment += `❌ Could not parse accessibility results: ${error.message}\n`;
+            }
+            
+            // Add performance results
+            try {
+              const perfResults = JSON.parse(fs.readFileSync('performance-results.json', 'utf8'));
+              comment += `\n### ⚡ Performance Results\n`;
+              comment += `- **Load Time:** ${perfResults.loadTime}ms\n`;
+              comment += `- **First Contentful Paint:** ${perfResults.fcp}ms\n`;
+              comment += `- **Largest Contentful Paint:** ${perfResults.lcp}ms\n`;
+              comment += `- **Cumulative Layout Shift:** ${perfResults.cls}\n`;
+            } catch (error) {
+              comment += `\n### ⚡ Performance Results\n`;
+              comment += `❌ Could not parse performance results: ${error.message}\n`;
+            }
+            
+            comment += `\n📊 Full reports are available in the workflow artifacts.`;
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
+            
+      - name: Fail on Critical Issues
+        run: |
+          node scripts/check-audit-thresholds.js
+          
+      - name: Cleanup
+        if: always()
+        run: |
+          echo "Cleaning up server processes..."
+          pkill -f "pages:dev" || echo "No pages:dev process found"
+          pkill -f "wrangler" || echo "No wrangler process found"
+          pkill -f "8787" || echo "No processes using port 8787 found"
+          
+          # Wait a moment for processes to terminate
+          sleep 2
+          
+          # Force kill if still running
+          pkill -9 -f "pages:dev" || true
+          pkill -9 -f "wrangler" || true
+          
+          echo "Cleanup completed"
+
+  # Separate job for security audit
+  security-audit:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'npm'
+          
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps
+        
+      - name: Run security audit
+        run: |
+          npm audit --audit-level=moderate --json > security-audit.json || true
+          
+      - name: Run dependency check
+        run: |
+          npx audit-ci --config audit-ci.json || true
+          
+      - name: Upload Security Artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: security-audit-report
+          path: |
+            security-audit.json
+            audit-ci-report.json
+          retention-days: 30

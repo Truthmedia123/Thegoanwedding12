@@ -1,0 +1,7 @@
+# Redirects for Cloudflare Pages
+
+# Admin redirect to Directus
+/admin  https://your-directus-instance.railway.app/admin  302
+
+# SPA fallback - must be last
+/*                    /index.html                200

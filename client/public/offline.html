@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TheGoanWedding - Offline</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+            color: white;
+            text-align: center;
+        }
+        .container {
+            max-width: 500px;
+            padding: 2rem;
+        }
+        .logo {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 1rem;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: #dc2626;
+        }
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+        p {
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+        }
+        .retry-btn {
+            background: #dc2626;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 1rem;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .retry-btn:hover {
+            background: #b91c1c;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">
+            <span>💍</span>
+        </div>
+        <h1>You're Offline</h1>
+        <p>It seems you've lost your internet connection. Please check your network and try again.</p>
+        <button class="retry-btn" onclick="retryConnection()">Retry Connection</button>
+    </div>
+
+    <script>
+        function retryConnection() {
+            // Check if online
+            if (navigator.onLine) {
+                window.location.reload();
+            } else {
+                // Show alert if still offline
+                alert('You are still offline. Please check your internet connection.');
+            }
+        }
+
+        // Listen for online event
+        window.addEventListener('online', function() {
+            window.location.reload();
+        });
+    </script>
+</body>
+</html>
