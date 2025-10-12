@@ -69,10 +69,51 @@ This will:
 
 ### 2. Cloudflare Pages Integration
 
-- [x] Connected GitHub repo `Thegoanwedding12` to Cloudflare Pages
+#### **Step-by-Step Setup:**
+
+1. **Go to Cloudflare Dashboard**
+   - Navigate to [Cloudflare Dashboard](https://dash.cloudflare.com)
+   - Click on **Pages** in the left sidebar
+
+2. **Create New Project**
+   - Click **"Create a project"**
+   - Select **"Connect to Git"**
+
+3. **Authorize GitHub**
+   - Click **"Authorize GitHub"** 
+   - Grant Cloudflare access to your repositories
+   - Select **"Truthmedia123/Thegoanwedding12"**
+
+4. **Configure Build Settings**
+   - **Project name**: `thegoanwedding12`
+   - **Production branch**: `main`
+   - **Build command**: `npm run build`
+   - **Build output directory**: `dist/public`
+   - **Framework preset**: `None` or `Other`
+
+5. **Environment Variables Setup**
+   - Go to **Settings** → **Environment Variables**
+   - Add the following variables:
+
+```
+VITE_SUPABASE_URL = https://tugciyungdydnwsqzwok.supabase.co
+VITE_SUPABASE_ANON_KEY = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+VITE_GA_MEASUREMENT_ID = G-YBTQGR4T4Y
+VITE_CLARITY_PROJECT_ID = tnghvs6g11
+```
+
+6. **Enable Auto-Deploy**
+   - Go to **Settings** → **Builds & deployments**
+   - Ensure **"Deploy on push"** is enabled
+   - Set **Production branch** to `main`
+
+#### **Verification:**
+- [x] Repository connected: `Truthmedia123/Thegoanwedding12`
 - [x] Build command: `npm run build`
 - [x] Output directory: `dist/public`
 - [x] Framework preset: None/Other
+- [x] Environment variables configured
+- [x] Auto-deploy enabled
 
 ### 3. Environment Variables
 

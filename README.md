@@ -344,10 +344,20 @@ The project is configured for automatic deployment using Cloudflare Pages connec
 - **Default Branch**: `main`
 - **Auto-deploy**: Every commit to main triggers automatic build and deployment
 
-#### **Deployment Workflow**
-1. **Commit and push** to the `main` branch
-2. **Cloudflare Pages** automatically builds and deploys
-3. **Verify deployment** at https://thegoanwedding12.pages.dev
+#### **Auto-Deploy Workflow**
+1. **Commit and push** to the `main` branch:
+   ```bash
+   git add .
+   git commit -m "your commit message"
+   git push origin main
+   ```
+2. **Cloudflare Pages** automatically:
+   - Detects the push to main branch
+   - Builds the project (`npm run build`)
+   - Deploys to https://thegoanwedding12.pages.dev
+3. **Verify deployment** at the Pages URL
+
+**Note**: Every commit to main triggers a new build and deploy automatically.
 
 #### **Manual Deployment**
 You can still trigger manual deployments:
