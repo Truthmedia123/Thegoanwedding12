@@ -68,15 +68,18 @@ const RSVPCreator: React.FC = () => {
         // Generate admin secret key
         const admin_secret_key = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
 
+        // Convert date to proper timestamp format
+        const weddingDateTime = new Date(formData.wedding_date + 'T' + (formData.ceremony_time || '12:00')).toISOString();
+
         // Create wedding with only the fields we know exist
         const weddingData: any = {
           bride_name: formData.bride_name,
           groom_name: formData.groom_name,
-          wedding_date: formData.wedding_date,
+          wedding_date: weddingDateTime,
           venue: formData.venue,
           venue_address: formData.venue_address,
-          ceremony_time: formData.ceremony_time,
-          reception_time: formData.reception_time,
+          ceremony_time: formData.ceremony_time || '12:00',
+          reception_time: formData.reception_time || '',
           contact_email: formData.contact_email,
           slug,
           is_public: true
@@ -101,17 +104,22 @@ const RSVPCreator: React.FC = () => {
         }
 
         // Create events
-        const eventsToInsert = events.map((event, index) => ({
-          wedding_id: wedding.id,
-          name: event.name,
-          description: event.description || '',
-          date: event.date,
-          start_time: event.start_time,
-          end_time: event.end_time || '',
-          venue: event.venue,
-          address: event.address,
-          order_index: index
-        }));
+        const eventsToInsert = events.map((event, index) => {
+          // Convert event date to proper timestamp
+          const eventDateTime = new Date(event.date + 'T' + event.start_time).toISOString();
+          
+          return {
+            wedding_id: wedding.id,
+            name: event.name,
+            description: event.description || '',
+            date: eventDateTime,
+            start_time: event.start_time,
+            end_time: event.end_time || '',
+            venue: event.venue,
+            address: event.address,
+            order_index: index
+          };
+        });
 
         const { error: eventsError } = await supabase
           .from('wedding_events')
@@ -408,7 +416,11 @@ const RSVPCreator: React.FC = () => {
           <Button variant="outline" onClick={() => setStep(1)} className="flex-1">
             Back
           </Button>
-          <Button onClick={() => setStep(3)} className="flex-1">
+          <Button 
+            onClick={() => setStep(3)} 
+            className="flex-1"
+            disabled={events.some(e => !e.name || !e.date || !e.start_time || !e.venue || !e.address)}
+          >
             Next: Customize
           </Button>
         </div>
