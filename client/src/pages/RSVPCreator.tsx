@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, Heart, Copy, Check, QrCode } from 'lucide-react';
 import QRCode from 'qrcode';
@@ -23,15 +24,27 @@ const RSVPCreator: React.FC = () => {
     wedding_date: '',
     nuptial_venue: '',
     nuptial_address: '',
-    nuptial_time: '',
+    nuptial_hour: '10',
+    nuptial_minute: '00',
+    nuptial_ampm: 'AM',
     reception_venue: '',
     reception_address: '',
-    reception_time: '',
+    reception_hour: '06',
+    reception_minute: '00',
+    reception_ampm: 'PM',
     contact_email: '',
     contact_phone: '',
     custom_message: '',
     theme_color: '#FF6B9D'
   });
+
+  // Helper function to convert 12-hour time to 24-hour format
+  const convertTo24Hour = (hour: string, minute: string, ampm: string): string => {
+    let h = parseInt(hour);
+    if (ampm === 'PM' && h !== 12) h += 12;
+    if (ampm === 'AM' && h === 12) h = 0;
+    return `${h.toString().padStart(2, '0')}:${minute}`;
+  };
 
   const createWeddingMutation = useMutation({
     mutationFn: async () => {
@@ -44,8 +57,16 @@ const RSVPCreator: React.FC = () => {
         // Generate admin secret key
         const admin_secret_key = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
 
+        // Convert times to 24-hour format
+        const nuptialTime24 = convertTo24Hour(formData.nuptial_hour, formData.nuptial_minute, formData.nuptial_ampm);
+        const receptionTime24 = convertTo24Hour(formData.reception_hour, formData.reception_minute, formData.reception_ampm);
+        
+        // Format times for display (12-hour format)
+        const nuptialTimeDisplay = `${formData.nuptial_hour}:${formData.nuptial_minute} ${formData.nuptial_ampm}`;
+        const receptionTimeDisplay = `${formData.reception_hour}:${formData.reception_minute} ${formData.reception_ampm}`;
+
         // Convert date to proper timestamp format
-        const weddingDateTime = new Date(formData.wedding_date + 'T' + (formData.nuptial_time || '12:00')).toISOString();
+        const weddingDateTime = new Date(formData.wedding_date + 'T' + nuptialTime24).toISOString();
 
         // Create wedding
         const weddingData: any = {
@@ -54,8 +75,8 @@ const RSVPCreator: React.FC = () => {
           wedding_date: weddingDateTime,
           venue: formData.nuptial_venue,
           venue_address: formData.nuptial_address,
-          ceremony_time: formData.nuptial_time || '12:00',
-          reception_time: formData.reception_time || '',
+          ceremony_time: nuptialTimeDisplay,
+          reception_time: receptionTimeDisplay,
           contact_email: formData.contact_email,
           slug,
           is_public: true,
@@ -82,14 +103,14 @@ const RSVPCreator: React.FC = () => {
         const eventsToInsert = [];
         
         // Nuptial event
-        if (formData.nuptial_venue && formData.nuptial_time) {
-          const nuptialDateTime = new Date(formData.wedding_date + 'T' + formData.nuptial_time).toISOString();
+        if (formData.nuptial_venue) {
+          const nuptialDateTime = new Date(formData.wedding_date + 'T' + nuptialTime24).toISOString();
           eventsToInsert.push({
             wedding_id: wedding.id,
             name: 'Nuptial Ceremony',
             description: '',
             date: nuptialDateTime,
-            start_time: formData.nuptial_time,
+            start_time: nuptialTimeDisplay,
             end_time: '',
             venue: formData.nuptial_venue,
             address: formData.nuptial_address,
@@ -98,14 +119,14 @@ const RSVPCreator: React.FC = () => {
         }
         
         // Reception event
-        if (formData.reception_venue && formData.reception_time) {
-          const receptionDateTime = new Date(formData.wedding_date + 'T' + formData.reception_time).toISOString();
+        if (formData.reception_venue) {
+          const receptionDateTime = new Date(formData.wedding_date + 'T' + receptionTime24).toISOString();
           eventsToInsert.push({
             wedding_id: wedding.id,
             name: 'Reception',
             description: '',
             date: receptionDateTime,
-            start_time: formData.reception_time,
+            start_time: receptionTimeDisplay,
             end_time: '',
             venue: formData.reception_venue,
             address: formData.reception_address,
@@ -323,13 +344,39 @@ const RSVPCreator: React.FC = () => {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="nuptial_time">Time *</Label>
-                  <Input
-                    id="nuptial_time"
-                    type="time"
-                    value={formData.nuptial_time}
-                    onChange={(e) => setFormData({ ...formData, nuptial_time: e.target.value })}
-                  />
+                  <Label>Time *</Label>
+                  <div className="grid grid-cols-3 gap-2">
+                    <Select value={formData.nuptial_hour} onValueChange={(value) => setFormData({ ...formData, nuptial_hour: value })}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Hour" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {Array.from({ length: 12 }, (_, i) => {
+                          const hour = (i + 1).toString().padStart(2, '0');
+                          return <SelectItem key={hour} value={hour}>{hour}</SelectItem>;
+                        })}
+                      </SelectContent>
+                    </Select>
+                    <Select value={formData.nuptial_minute} onValueChange={(value) => setFormData({ ...formData, nuptial_minute: value })}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Min" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {['00', '15', '30', '45'].map(min => (
+                          <SelectItem key={min} value={min}>{min}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <Select value={formData.nuptial_ampm} onValueChange={(value) => setFormData({ ...formData, nuptial_ampm: value })}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="AM">AM</SelectItem>
+                        <SelectItem value="PM">PM</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
               </div>
             </div>
@@ -358,13 +405,39 @@ const RSVPCreator: React.FC = () => {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="reception_time">Time</Label>
-                  <Input
-                    id="reception_time"
-                    type="time"
-                    value={formData.reception_time}
-                    onChange={(e) => setFormData({ ...formData, reception_time: e.target.value })}
-                  />
+                  <Label>Time</Label>
+                  <div className="grid grid-cols-3 gap-2">
+                    <Select value={formData.reception_hour} onValueChange={(value) => setFormData({ ...formData, reception_hour: value })}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Hour" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {Array.from({ length: 12 }, (_, i) => {
+                          const hour = (i + 1).toString().padStart(2, '0');
+                          return <SelectItem key={hour} value={hour}>{hour}</SelectItem>;
+                        })}
+                      </SelectContent>
+                    </Select>
+                    <Select value={formData.reception_minute} onValueChange={(value) => setFormData({ ...formData, reception_minute: value })}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Min" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {['00', '15', '30', '45'].map(min => (
+                          <SelectItem key={min} value={min}>{min}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <Select value={formData.reception_ampm} onValueChange={(value) => setFormData({ ...formData, reception_ampm: value })}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="AM">AM</SelectItem>
+                        <SelectItem value="PM">PM</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
               </div>
             </div>
@@ -421,8 +494,7 @@ const RSVPCreator: React.FC = () => {
                 !formData.groom_name || 
                 !formData.wedding_date || 
                 !formData.nuptial_venue || 
-                !formData.nuptial_address || 
-                !formData.nuptial_time ||
+                !formData.nuptial_address ||
                 !formData.contact_email
               }
             >
