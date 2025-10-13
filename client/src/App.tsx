@@ -33,6 +33,7 @@ import HomeDebug from "@/pages/HomeDebug";
 import GuestRSVP from "@/pages/GuestRSVP";
 import RSVPCreator from "@/pages/RSVPCreator";
 import PublicWeddingPage from "@/pages/PublicWeddingPage";
+import WeddingAdmin from "@/pages/WeddingAdmin";
 
 // Import the new page components
 import SupabaseSearch from "@/components/SupabaseSearch";
@@ -96,6 +97,7 @@ function Router() {
           <Route path="/favorites" component={FavoritesPage} />
           <Route path="/rsvp" component={GuestRSVP} />
           <Route path="/tools/rsvp-creator" component={RSVPCreator} />
+          <Route path="/wedding/:slug/admin" component={WeddingAdmin} />
           <Route path="/wedding/:slug" component={PublicWeddingPage} />
           // Add routes for the new components
           <Route path="/enhanced-search" component={SupabaseSearch} />
