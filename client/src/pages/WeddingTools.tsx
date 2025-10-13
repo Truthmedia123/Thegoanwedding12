@@ -1,16 +1,9 @@
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import BudgetCalculator from '@/components/BudgetCalculator';
-import SeatingPlanner from '@/components/SeatingPlanner';
-import CoupleSiteGenerator from '@/components/CoupleSiteGenerator';
-import EnhancedVendorSearchFilters from '@/components/EnhancedVendorSearchFilters';
 import VendorSpotlightCarousel from '@/components/VendorSpotlightCarousel';
-import VendorSubscriptionManager from '@/components/vendor/VendorSubscriptionManager';
-import VendorChatSystem from '@/components/communication/VendorChatSystem';
 import GoanWeddingTimelinePlanner from '@/components/cultural/GoanWeddingTimelinePlanner';
-import { Calculator, Users, Globe, Search, Sparkles, Smartphone, CreditCard, MessageSquare, Calendar } from 'lucide-react';
+import { Calculator, Sparkles, Calendar, Users, Globe } from 'lucide-react';
 
 export default function WeddingTools() {
   const [activeTab, setActiveTab] = useState('budget');
@@ -31,46 +24,6 @@ export default function WeddingTools() {
       icon: Calendar,
       component: GoanWeddingTimelinePlanner,
       color: 'from-orange-500 to-orange-600'
-    },
-    {
-      id: 'seating',
-      title: 'Seating Planner',
-      description: 'Arrange your wedding seating with ease',
-      icon: Users,
-      component: SeatingPlanner,
-      color: 'from-green-500 to-green-600'
-    },
-    {
-      id: 'couple-site',
-      title: 'Couple Site Generator',
-      description: 'Create a beautiful wedding website in minutes',
-      icon: Globe,
-      component: CoupleSiteGenerator,
-      color: 'from-red-500 to-red-600'
-    },
-    {
-      id: 'vendor-search',
-      title: 'Enhanced Vendor Search',
-      description: 'Find the perfect vendors for your wedding',
-      icon: Search,
-      component: EnhancedVendorSearchFilters,
-      color: 'from-purple-500 to-purple-600'
-    },
-    {
-      id: 'vendor-subscription',
-      title: 'Vendor Subscription Manager',
-      description: 'Manage your vendor subscriptions with ease',
-      icon: CreditCard,
-      component: VendorSubscriptionManager,
-      color: 'from-yellow-500 to-yellow-600'
-    },
-    {
-      id: 'vendor-chat',
-      title: 'Vendor Chat System',
-      description: 'Communicate with vendors in real-time',
-      icon: MessageSquare,
-      component: VendorChatSystem,
-      color: 'from-blue-500 to-blue-600'
     }
   ];
 
