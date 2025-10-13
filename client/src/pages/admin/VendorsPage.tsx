@@ -68,23 +68,38 @@ const VendorsPage: React.FC = () => {
 
   const queryClient = useQueryClient();
 
+  // Debug: Check Supabase connection on mount
+  useEffect(() => {
+    console.log('VendorsPage mounted');
+    console.log('Supabase client:', supabase);
+    console.log('Supabase URL:', import.meta.env.VITE_SUPABASE_URL);
+  }, []);
+
   // Fetch vendors
   const { data: vendors, isLoading, isError, error: queryError } = useQuery({
     queryKey: ['vendors'],
     queryFn: async () => {
-      console.log('Fetching vendors...');
-      const { data, error } = await supabase
-        .from('vendors')
-        .select('*')
-        .order('created_at', { ascending: false });
-      
-      if (error) {
-        console.error('Vendor fetch error:', error);
-        throw error;
+      console.log('Fetching vendors from Supabase...');
+      try {
+        const { data, error } = await supabase
+          .from('vendors')
+          .select('*')
+          .order('created_at', { ascending: false });
+        
+        if (error) {
+          console.error('Vendor fetch error:', error);
+          throw new Error(`Supabase error: ${error.message}`);
+        }
+        console.log('Vendors fetched successfully:', data?.length);
+        return data as Vendor[];
+      } catch (err) {
+        console.error('Exception fetching vendors:', err);
+        throw err;
       }
-      console.log('Vendors fetched:', data?.length);
-      return data as Vendor[];
-    }
+    },
+    retry: false,
+    staleTime: 0,
+    gcTime: 0,
   });
 
   // Fetch categories

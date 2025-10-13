@@ -69,6 +69,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   }, []);
 
   const fetchProfile = async (userId: string) => {
+    console.log('Fetching profile for user:', userId);
     try {
       const { data, error } = await supabase
         .from('profiles')
@@ -78,14 +79,19 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
       if (error) {
         console.error('Error fetching profile:', error);
+        console.error('Error details:', error.message, error.code);
         setProfile(null);
-      } else {
-        setProfile(data);
+        setLoading(false);
+        return;
       }
+      
+      console.log('Profile fetched successfully:', data);
+      setProfile(data);
     } catch (error) {
-      console.error('Error fetching profile:', error);
+      console.error('Exception fetching profile:', error);
       setProfile(null);
     } finally {
+      console.log('Setting loading to false');
       setLoading(false);
     }
   };
