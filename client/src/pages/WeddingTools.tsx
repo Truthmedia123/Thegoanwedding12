@@ -14,7 +14,6 @@ import { Calculator, Users, Globe, Search, Sparkles, Smartphone, CreditCard, Mes
 
 export default function WeddingTools() {
   const [activeTab, setActiveTab] = useState('budget');
-  const [rsvpStatus, setRsvpStatus] = useState<'attending' | 'not-attending' | null>(null);
 
   const tools = [
     {
@@ -32,21 +31,50 @@ export default function WeddingTools() {
       icon: Calendar,
       component: GoanWeddingTimelinePlanner,
       color: 'from-orange-500 to-orange-600'
+    },
+    {
+      id: 'seating',
+      title: 'Seating Planner',
+      description: 'Arrange your wedding seating with ease',
+      icon: Users,
+      component: SeatingPlanner,
+      color: 'from-green-500 to-green-600'
+    },
+    {
+      id: 'couple-site',
+      title: 'Couple Site Generator',
+      description: 'Create a beautiful wedding website in minutes',
+      icon: Globe,
+      component: CoupleSiteGenerator,
+      color: 'from-red-500 to-red-600'
+    },
+    {
+      id: 'vendor-search',
+      title: 'Enhanced Vendor Search',
+      description: 'Find the perfect vendors for your wedding',
+      icon: Search,
+      component: EnhancedVendorSearchFilters,
+      color: 'from-purple-500 to-purple-600'
+    },
+    {
+      id: 'vendor-subscription',
+      title: 'Vendor Subscription Manager',
+      description: 'Manage your vendor subscriptions with ease',
+      icon: CreditCard,
+      component: VendorSubscriptionManager,
+      color: 'from-yellow-500 to-yellow-600'
+    },
+    {
+      id: 'vendor-chat',
+      title: 'Vendor Chat System',
+      description: 'Communicate with vendors in real-time',
+      icon: MessageSquare,
+      component: VendorChatSystem,
+      color: 'from-blue-500 to-blue-600'
     }
   ];
 
   const currentTool = tools.find(tool => tool.id === activeTab);
-
-  const handleRSVP = (status: 'attending' | 'not-attending') => {
-    setRsvpStatus(status);
-    // Add Umami tracking for RSVP click
-    if (typeof window !== 'undefined' && (window as any).umami) {
-      (window as any).umami('rsvp_click', { 
-        status: status,
-        wedding_id: 'goan_wedding_2024' // This would be dynamic in a real implementation
-      });
-    }
-  };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
@@ -61,50 +89,6 @@ export default function WeddingTools() {
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
             Comprehensive suite of tools to plan your perfect Goan wedding
           </p>
-        </div>
-
-        {/* RSVP Section */}
-        <div className="px-6 mb-8">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-center">Wedding RSVP</CardTitle>
-            </CardHeader>
-            <CardContent className="text-center">
-              {rsvpStatus ? (
-                <div>
-                  <p className="text-lg mb-4">
-                    Thank you for your response! You have indicated that you will 
-                    <span className="font-semibold"> {rsvpStatus === 'attending' ? 'attend' : 'not attend'} </span>
-                    the wedding.
-                  </p>
-                  <Button 
-                    onClick={() => setRsvpStatus(null)}
-                    variant="outline"
-                  >
-                    Change Response
-                  </Button>
-                </div>
-              ) : (
-                <div>
-                  <p className="text-lg mb-4">Will you be attending our wedding?</p>
-                  <div className="flex justify-center gap-4">
-                    <Button 
-                      onClick={() => handleRSVP('attending')}
-                      className="bg-green-500 hover:bg-green-600"
-                    >
-                      Yes, I'll Attend
-                    </Button>
-                    <Button 
-                      onClick={() => handleRSVP('not-attending')}
-                      variant="outline"
-                    >
-                      No, I Can't Make It
-                    </Button>
-                  </div>
-                </div>
-              )}
-            </CardContent>
-          </Card>
         </div>
 
         {/* Tool Navigation Cards */}
