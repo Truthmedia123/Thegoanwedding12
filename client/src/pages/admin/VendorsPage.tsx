@@ -69,15 +69,20 @@ const VendorsPage: React.FC = () => {
   const queryClient = useQueryClient();
 
   // Fetch vendors
-  const { data: vendors, isLoading } = useQuery({
+  const { data: vendors, isLoading, isError, error: queryError } = useQuery({
     queryKey: ['vendors'],
     queryFn: async () => {
+      console.log('Fetching vendors...');
       const { data, error } = await supabase
         .from('vendors')
         .select('*')
         .order('created_at', { ascending: false });
       
-      if (error) throw error;
+      if (error) {
+        console.error('Vendor fetch error:', error);
+        throw error;
+      }
+      console.log('Vendors fetched:', data?.length);
       return data as Vendor[];
     }
   });
@@ -325,6 +330,24 @@ const VendorsPage: React.FC = () => {
             <CardDescription>Manage your vendor listings</CardDescription>
           </CardHeader>
           <CardContent>
+            {isLoading && (
+              <div className="flex justify-center items-center py-8">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+                <span className="ml-2">Loading vendors...</span>
+              </div>
+            )}
+            {isError && (
+              <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
+                <p className="text-red-800 font-semibold">Error loading vendors</p>
+                <p className="text-red-600 text-sm mt-1">{queryError?.message || 'Unknown error'}</p>
+              </div>
+            )}
+            {!isLoading && !isError && filteredVendors?.length === 0 && (
+              <div className="text-center py-8 text-gray-500">
+                No vendors found. Click "Add Vendor" to get started.
+              </div>
+            )}
+            {!isLoading && !isError && filteredVendors && filteredVendors.length > 0 && (
             <Table>
               <TableHeader>
                 <TableRow>
@@ -395,6 +418,7 @@ const VendorsPage: React.FC = () => {
                 ))}
               </TableBody>
             </Table>
+            )}
           </CardContent>
         </Card>
 
