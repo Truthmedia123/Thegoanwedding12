@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams } from 'wouter';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
@@ -9,7 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Heart, Calendar, MapPin, Clock, Users, Check } from 'lucide-react';
+import { Loader2, Heart, Calendar, MapPin, Clock, Users, Check, Sparkles } from 'lucide-react';
 
 const PublicWeddingPage: React.FC = () => {
   const { slug } = useParams();
@@ -142,128 +142,235 @@ const PublicWeddingPage: React.FC = () => {
   const themeColor = wedding.theme_color || '#FF6B9D';
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-pink-50 to-white">
-      {/* Hero Section */}
+    <div className="min-h-screen bg-white">
+      {/* Elegant Hero Section */}
       <div 
-        className="relative h-[60vh] flex items-center justify-center text-white"
+        className="relative min-h-screen flex items-center justify-center overflow-hidden"
         style={{ 
-          background: `linear-gradient(135deg, ${themeColor}dd 0%, ${themeColor}99 100%)`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center'
+          background: `linear-gradient(135deg, ${themeColor}15 0%, ${themeColor}05 100%)`,
         }}
       >
-        <div className="absolute inset-0 bg-black/20"></div>
-        <div className="relative z-10 text-center px-4">
-          <Heart className="w-16 h-16 mx-auto mb-6 animate-pulse" />
-          <h1 className="text-5xl md:text-7xl font-bold mb-4">
-            {wedding.bride_name} & {wedding.groom_name}
-          </h1>
-          <p className="text-2xl md:text-3xl font-light">
-            {new Date(wedding.wedding_date).toLocaleDateString('en-US', { 
-              weekday: 'long', 
-              year: 'numeric', 
-              month: 'long', 
-              day: 'numeric' 
-            })}
+        {/* Decorative Elements */}
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute top-10 left-10 w-32 h-32 rounded-full opacity-20" 
+               style={{ background: `radial-gradient(circle, ${themeColor} 0%, transparent 70%)` }}></div>
+          <div className="absolute bottom-20 right-20 w-48 h-48 rounded-full opacity-20" 
+               style={{ background: `radial-gradient(circle, ${themeColor} 0%, transparent 70%)` }}></div>
+          <div className="absolute top-1/2 left-1/4 w-24 h-24 rounded-full opacity-10" 
+               style={{ background: `radial-gradient(circle, ${themeColor} 0%, transparent 70%)` }}></div>
+        </div>
+
+        <div className="relative z-10 text-center px-4 py-20">
+          {/* Decorative Line */}
+          <div className="flex items-center justify-center gap-4 mb-8">
+            <div className="w-16 h-px" style={{ backgroundColor: themeColor }}></div>
+            <Sparkles className="w-6 h-6" style={{ color: themeColor }} />
+            <div className="w-16 h-px" style={{ backgroundColor: themeColor }}></div>
+          </div>
+
+          {/* Save the Date */}
+          <p className="text-sm tracking-[0.3em] uppercase mb-6" style={{ color: themeColor }}>
+            Save the Date
           </p>
-          <div className="flex items-center justify-center gap-2 mt-4 text-xl">
-            <MapPin className="w-5 h-5" />
+
+          {/* Names */}
+          <h1 className="font-serif text-6xl md:text-8xl mb-6 text-gray-800" style={{ 
+            fontFamily: "'Playfair Display', 'Georgia', serif",
+            fontWeight: 400,
+            letterSpacing: '0.02em'
+          }}>
+            {wedding.bride_name}
+          </h1>
+          
+          <div className="flex items-center justify-center gap-6 mb-6">
+            <div className="w-12 h-px bg-gray-300"></div>
+            <Heart className="w-8 h-8 animate-pulse" style={{ color: themeColor }} />
+            <div className="w-12 h-px bg-gray-300"></div>
+          </div>
+
+          <h1 className="font-serif text-6xl md:text-8xl mb-12 text-gray-800" style={{ 
+            fontFamily: "'Playfair Display', 'Georgia', serif",
+            fontWeight: 400,
+            letterSpacing: '0.02em'
+          }}>
+            {wedding.groom_name}
+          </h1>
+
+          {/* Date */}
+          <div className="mb-8">
+            <p className="text-3xl md:text-4xl font-light text-gray-700 mb-2">
+              {new Date(wedding.wedding_date).toLocaleDateString('en-US', { 
+                month: 'long', 
+                day: 'numeric',
+                year: 'numeric'
+              })}
+            </p>
+            <p className="text-lg text-gray-600">
+              {new Date(wedding.wedding_date).toLocaleDateString('en-US', { 
+                weekday: 'long'
+              })}
+            </p>
+          </div>
+
+          {/* Venue */}
+          <div className="flex items-center justify-center gap-2 text-lg text-gray-600 mb-12">
+            <MapPin className="w-5 h-5" style={{ color: themeColor }} />
             <span>{wedding.venue}</span>
+          </div>
+
+          {/* Scroll Indicator */}
+          <div className="animate-bounce mt-12">
+            <div className="w-6 h-10 border-2 rounded-full mx-auto flex items-start justify-center p-2" 
+                 style={{ borderColor: themeColor }}>
+              <div className="w-1 h-2 rounded-full" style={{ backgroundColor: themeColor }}></div>
+            </div>
           </div>
         </div>
       </div>
 
-      <div className="max-w-4xl mx-auto px-4 py-12 space-y-8">
+      <div className="max-w-5xl mx-auto px-4 py-20 space-y-20">
         {/* Custom Message */}
         {wedding.custom_message && (
-          <Card>
-            <CardContent className="pt-6">
-              <p className="text-center text-lg text-gray-700 italic">
-                "{wedding.custom_message}"
-              </p>
-            </CardContent>
-          </Card>
+          <div className="text-center max-w-3xl mx-auto">
+            <div className="flex items-center justify-center gap-4 mb-8">
+              <div className="w-12 h-px" style={{ backgroundColor: themeColor }}></div>
+              <Heart className="w-5 h-5" style={{ color: themeColor }} />
+              <div className="w-12 h-px" style={{ backgroundColor: themeColor }}></div>
+            </div>
+            <p className="text-2xl md:text-3xl font-light text-gray-700 italic leading-relaxed" style={{
+              fontFamily: "'Playfair Display', 'Georgia', serif"
+            }}>
+              "{wedding.custom_message}"
+            </p>
+          </div>
         )}
 
         {/* Love Story */}
         {wedding.story && (
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Heart className="w-5 h-5" style={{ color: themeColor }} />
+          <div className="max-w-3xl mx-auto">
+            <div className="text-center mb-12">
+              <h2 className="text-4xl md:text-5xl font-serif mb-4 text-gray-800" style={{
+                fontFamily: "'Playfair Display', 'Georgia', serif"
+              }}>
                 Our Story
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-gray-700 whitespace-pre-line">{wedding.story}</p>
-            </CardContent>
-          </Card>
+              </h2>
+              <div className="flex items-center justify-center gap-4">
+                <div className="w-16 h-px" style={{ backgroundColor: themeColor }}></div>
+                <Heart className="w-5 h-5" style={{ color: themeColor }} />
+                <div className="w-16 h-px" style={{ backgroundColor: themeColor }}></div>
+              </div>
+            </div>
+            <p className="text-lg text-gray-700 leading-relaxed whitespace-pre-line text-center">
+              {wedding.story}
+            </p>
+          </div>
         )}
 
         {/* Events */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Calendar className="w-5 h-5" style={{ color: themeColor }} />
+        <div>
+          <div className="text-center mb-12">
+            <h2 className="text-4xl md:text-5xl font-serif mb-4 text-gray-800" style={{
+              fontFamily: "'Playfair Display', 'Georgia', serif"
+            }}>
               Wedding Events
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {wedding.events?.sort((a: any, b: any) => a.order_index - b.order_index).map((event: any) => (
-              <div key={event.id} className="border-l-4 pl-4 py-2" style={{ borderColor: themeColor }}>
-                <h3 className="text-xl font-semibold">{event.name}</h3>
-                {event.description && (
-                  <p className="text-gray-600 mt-1">{event.description}</p>
-                )}
-                <div className="flex flex-col gap-2 mt-3 text-sm text-gray-700">
-                  <div className="flex items-center gap-2">
-                    <Calendar className="w-4 h-4" />
-                    {new Date(event.date).toLocaleDateString('en-US', { 
-                      weekday: 'long', 
+            </h2>
+            <div className="flex items-center justify-center gap-4">
+              <div className="w-16 h-px" style={{ backgroundColor: themeColor }}></div>
+              <Calendar className="w-5 h-5" style={{ color: themeColor }} />
+              <div className="w-16 h-px" style={{ backgroundColor: themeColor }}></div>
+            </div>
+          </div>
+          
+          <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+            {wedding.events?.sort((a: any, b: any) => a.order_index - b.order_index).map((event: any, index: number) => (
+              <div 
+                key={event.id} 
+                className="bg-white border-2 rounded-lg p-8 text-center hover:shadow-xl transition-shadow duration-300"
+                style={{ borderColor: `${themeColor}30` }}
+              >
+                <div className="mb-4">
+                  <div className="w-16 h-16 rounded-full mx-auto mb-4 flex items-center justify-center"
+                       style={{ backgroundColor: `${themeColor}15` }}>
+                    <Calendar className="w-8 h-8" style={{ color: themeColor }} />
+                  </div>
+                  <h3 className="text-2xl font-serif mb-2 text-gray-800" style={{
+                    fontFamily: "'Playfair Display', 'Georgia', serif"
+                  }}>
+                    {event.name}
+                  </h3>
+                  {event.description && (
+                    <p className="text-gray-600 text-sm mb-4">{event.description}</p>
+                  )}
+                </div>
+                
+                <div className="space-y-3 text-sm text-gray-700">
+                  <div className="flex items-center justify-center gap-2">
+                    <Calendar className="w-4 h-4" style={{ color: themeColor }} />
+                    <span>{new Date(event.date).toLocaleDateString('en-US', { 
                       month: 'long', 
                       day: 'numeric',
                       year: 'numeric'
-                    })}
+                    })}</span>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <Clock className="w-4 h-4" />
-                    {event.start_time} {event.end_time && `- ${event.end_time}`}
+                  <div className="flex items-center justify-center gap-2">
+                    <Clock className="w-4 h-4" style={{ color: themeColor }} />
+                    <span>{event.start_time} {event.end_time && `- ${event.end_time}`}</span>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <MapPin className="w-4 h-4" />
-                    {event.venue}, {event.address}
+                  <div className="flex items-center justify-center gap-2">
+                    <MapPin className="w-4 h-4" style={{ color: themeColor }} />
+                    <span className="text-center">{event.venue}</span>
                   </div>
                 </div>
               </div>
             ))}
-          </CardContent>
-        </Card>
+          </div>
+        </div>
 
         {/* RSVP Section */}
         {!showRSVPForm && !submitted && (
-          <Card>
-            <CardContent className="pt-6 text-center">
-              <Button 
-                size="lg" 
-                className="text-lg px-8 py-6"
-                style={{ backgroundColor: themeColor }}
-                onClick={() => setShowRSVPForm(true)}
-              >
-                <Heart className="w-5 h-5 mr-2" />
-                RSVP Now
-              </Button>
-            </CardContent>
-          </Card>
+          <div className="text-center py-12">
+            <div className="mb-8">
+              <h2 className="text-4xl md:text-5xl font-serif mb-4 text-gray-800" style={{
+                fontFamily: "'Playfair Display', 'Georgia', serif"
+              }}>
+                Join Our Celebration
+              </h2>
+              <p className="text-gray-600 text-lg">We would be honored by your presence</p>
+            </div>
+            <Button 
+              size="lg" 
+              className="text-lg px-12 py-6 rounded-full font-light tracking-wide hover:scale-105 transition-transform duration-300"
+              style={{ 
+                backgroundColor: themeColor,
+                boxShadow: `0 10px 30px ${themeColor}40`
+              }}
+              onClick={() => setShowRSVPForm(true)}
+            >
+              <Heart className="w-5 h-5 mr-2" />
+              RSVP Now
+            </Button>
+          </div>
         )}
 
         {/* RSVP Form */}
         {showRSVPForm && !submitted && (
-          <Card>
-            <CardHeader>
-              <CardTitle>Please RSVP</CardTitle>
-              <CardDescription>We'd love to know if you can join us!</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
+          <div className="max-w-3xl mx-auto">
+            <div className="text-center mb-12">
+              <h2 className="text-4xl md:text-5xl font-serif mb-4 text-gray-800" style={{
+                fontFamily: "'Playfair Display', 'Georgia', serif"
+              }}>
+                Please RSVP
+              </h2>
+              <div className="flex items-center justify-center gap-4 mb-4">
+                <div className="w-16 h-px" style={{ backgroundColor: themeColor }}></div>
+                <Heart className="w-5 h-5" style={{ color: themeColor }} />
+                <div className="w-16 h-px" style={{ backgroundColor: themeColor }}></div>
+              </div>
+              <p className="text-gray-600">We'd love to know if you can join us!</p>
+            </div>
+            
+            <Card className="border-2" style={{ borderColor: `${themeColor}20` }}>
+              <CardContent className="pt-8 space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="guest_name">Your Name *</Label>
@@ -380,38 +487,58 @@ const PublicWeddingPage: React.FC = () => {
               </div>
             </CardContent>
           </Card>
+          </div>
         )}
 
         {/* Success Message */}
         {submitted && (
-          <Card>
-            <CardHeader className="text-center">
-              <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
-                <Check className="w-8 h-8 text-green-600" />
+          <div className="text-center py-12 max-w-2xl mx-auto">
+            <div className="mb-8">
+              <div className="w-20 h-20 rounded-full mx-auto mb-6 flex items-center justify-center"
+                   style={{ backgroundColor: `${themeColor}15` }}>
+                <Check className="w-10 h-10" style={{ color: themeColor }} />
               </div>
-              <CardTitle className="text-2xl">Thank You!</CardTitle>
-              <CardDescription className="text-lg">
+              <h2 className="text-4xl md:text-5xl font-serif mb-4 text-gray-800" style={{
+                fontFamily: "'Playfair Display', 'Georgia', serif"
+              }}>
+                Thank You!
+              </h2>
+              <div className="flex items-center justify-center gap-4 mb-6">
+                <div className="w-16 h-px" style={{ backgroundColor: themeColor }}></div>
+                <Heart className="w-5 h-5" style={{ color: themeColor }} />
+                <div className="w-16 h-px" style={{ backgroundColor: themeColor }}></div>
+              </div>
+              <p className="text-xl text-gray-700 leading-relaxed">
                 Your RSVP has been received. We can't wait to celebrate with you!
-              </CardDescription>
-            </CardHeader>
-          </Card>
+              </p>
+            </div>
+          </div>
         )}
 
         {/* Contact Info */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Contact</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            <p className="text-gray-700">
-              For any questions, please contact us at:
+        <div className="text-center py-12 border-t" style={{ borderColor: `${themeColor}20` }}>
+          <h3 className="text-2xl font-serif mb-4 text-gray-800" style={{
+            fontFamily: "'Playfair Display', 'Georgia', serif"
+          }}>
+            Questions?
+          </h3>
+          <p className="text-gray-600 mb-4">
+            For any questions, please contact us at:
+          </p>
+          <p className="text-lg font-semibold mb-2" style={{ color: themeColor }}>
+            {wedding.contact_email}
+          </p>
+          {wedding.contact_phone && (
+            <p className="text-lg font-semibold" style={{ color: themeColor }}>
+              {wedding.contact_phone}
             </p>
-            <p className="font-semibold">{wedding.contact_email}</p>
-            {wedding.contact_phone && (
-              <p className="font-semibold">{wedding.contact_phone}</p>
-            )}
-          </CardContent>
-        </Card>
+          )}
+        </div>
+      </div>
+
+      {/* Footer */}
+      <div className="text-center py-8 text-gray-500 text-sm">
+        <p>With love, {wedding.bride_name} & {wedding.groom_name}</p>
       </div>
     </div>
   );
