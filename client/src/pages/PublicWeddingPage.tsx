@@ -16,6 +16,8 @@ const PublicWeddingPage: React.FC = () => {
   const { toast } = useToast();
   const [showRSVPForm, setShowRSVPForm] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [countdown, setCountdown] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+  const timerRef = React.useRef<NodeJS.Timeout | null>(null);
 
   // RSVP Form Data
   const [rsvpData, setRsvpData] = useState({
@@ -52,6 +54,32 @@ const PublicWeddingPage: React.FC = () => {
       return data;
     }
   });
+
+  useEffect(() => {
+    if (wedding?.wedding_date) {
+      const targetDate = new Date(wedding.wedding_date).getTime();
+
+      timerRef.current = setInterval(() => {
+        const now = new Date().getTime();
+        const distance = targetDate - now;
+
+        if (distance < 0) {
+          if (timerRef.current) clearInterval(timerRef.current);
+          setCountdown({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+        } else {
+          const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+          const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+          const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+          const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+          setCountdown({ days, hours, minutes, seconds });
+        }
+      }, 1000);
+    }
+
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+    };
+  }, [wedding?.wedding_date]);
 
   // Submit RSVP
   const submitRSVPMutation = useMutation({
@@ -143,234 +171,127 @@ const PublicWeddingPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Elegant Hero Section */}
+      {/* Hero Section with Countdown */}
       <div 
-        className="relative min-h-screen flex items-center justify-center overflow-hidden"
-        style={{ 
-          background: `linear-gradient(135deg, ${themeColor}15 0%, ${themeColor}05 100%)`,
-        }}
+        className="relative min-h-screen flex items-center justify-center text-white bg-cover bg-center"
+        style={{ backgroundImage: `url('https://images.unsplash.com/photo-1519741497674-611481863552?q=80&w=2070&auto=format&fit=crop')` }}
       >
-        {/* Decorative Elements */}
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute top-10 left-10 w-32 h-32 rounded-full opacity-20" 
-               style={{ background: `radial-gradient(circle, ${themeColor} 0%, transparent 70%)` }}></div>
-          <div className="absolute bottom-20 right-20 w-48 h-48 rounded-full opacity-20" 
-               style={{ background: `radial-gradient(circle, ${themeColor} 0%, transparent 70%)` }}></div>
-          <div className="absolute top-1/2 left-1/4 w-24 h-24 rounded-full opacity-10" 
-               style={{ background: `radial-gradient(circle, ${themeColor} 0%, transparent 70%)` }}></div>
-        </div>
-
+        <div className="absolute inset-0 bg-black/50"></div>
         <div className="relative z-10 text-center px-4 py-20">
-          {/* Decorative Line */}
-          <div className="flex items-center justify-center gap-4 mb-8">
-            <div className="w-16 h-px" style={{ backgroundColor: themeColor }}></div>
-            <Sparkles className="w-6 h-6" style={{ color: themeColor }} />
-            <div className="w-16 h-px" style={{ backgroundColor: themeColor }}></div>
+          <div className="flex items-center justify-center gap-4 md:gap-8 mb-4 flex-wrap">
+            <h1 className="font-serif text-5xl md:text-7xl" style={{ fontFamily: "'Playfair Display', serif" }}>{wedding.bride_name}</h1>
+            <span className="font-serif text-5xl md:text-7xl text-amber-300">&</span>
+            <h1 className="font-serif text-5xl md:text-7xl" style={{ fontFamily: "'Playfair Display', serif" }}>{wedding.groom_name}</h1>
           </div>
 
-          {/* Save the Date */}
-          <p className="text-sm tracking-[0.3em] uppercase mb-6" style={{ color: themeColor }}>
-            Save the Date
+          <p className="text-lg md:text-xl tracking-widest uppercase mb-6 text-amber-200">We are getting married</p>
+
+          <p className="text-lg md:text-xl font-light mb-8">
+            {new Date(wedding.wedding_date).toLocaleDateString('en-US', { 
+              month: 'long', 
+              day: 'numeric',
+              year: 'numeric'
+            })}
           </p>
 
-          {/* Names */}
-          <h1 className="font-serif text-6xl md:text-8xl mb-6 text-gray-800" style={{ 
-            fontFamily: "'Playfair Display', 'Georgia', serif",
-            fontWeight: 400,
-            letterSpacing: '0.02em'
-          }}>
-            {wedding.bride_name}
-          </h1>
-          
-          <div className="flex items-center justify-center gap-6 mb-6">
-            <div className="w-12 h-px bg-gray-300"></div>
-            <Heart className="w-8 h-8 animate-pulse" style={{ color: themeColor }} />
-            <div className="w-12 h-px bg-gray-300"></div>
-          </div>
-
-          <h1 className="font-serif text-6xl md:text-8xl mb-12 text-gray-800" style={{ 
-            fontFamily: "'Playfair Display', 'Georgia', serif",
-            fontWeight: 400,
-            letterSpacing: '0.02em'
-          }}>
-            {wedding.groom_name}
-          </h1>
-
-          {/* Date */}
-          <div className="mb-8">
-            <p className="text-3xl md:text-4xl font-light text-gray-700 mb-2">
-              {new Date(wedding.wedding_date).toLocaleDateString('en-US', { 
-                month: 'long', 
-                day: 'numeric',
-                year: 'numeric'
-              })}
-            </p>
-            <p className="text-lg text-gray-600">
-              {new Date(wedding.wedding_date).toLocaleDateString('en-US', { 
-                weekday: 'long'
-              })}
-            </p>
-          </div>
-
-          {/* Venue */}
-          <div className="flex items-center justify-center gap-2 text-lg text-gray-600 mb-12">
-            <MapPin className="w-5 h-5" style={{ color: themeColor }} />
-            <span>{wedding.venue}</span>
-          </div>
-
-          {/* Scroll Indicator */}
-          <div className="animate-bounce mt-12">
-            <div className="w-6 h-10 border-2 rounded-full mx-auto flex items-start justify-center p-2" 
-                 style={{ borderColor: themeColor }}>
-              <div className="w-1 h-2 rounded-full" style={{ backgroundColor: themeColor }}></div>
+          {/* Countdown Timer */}
+          <div className="flex justify-center gap-4 md:gap-8 mb-12 flex-wrap">
+            <div className="text-center">
+              <p className="text-4xl md:text-6xl font-bold">{countdown.days}</p>
+              <p className="text-sm uppercase">Days</p>
+            </div>
+            <div className="text-center">
+              <p className="text-4xl md:text-6xl font-bold">{countdown.hours}</p>
+              <p className="text-sm uppercase">Hours</p>
+            </div>
+            <div className="text-center">
+              <p className="text-4xl md:text-6xl font-bold">{countdown.minutes}</p>
+              <p className="text-sm uppercase">Minutes</p>
+            </div>
+            <div className="text-center">
+              <p className="text-4xl md:text-6xl font-bold">{countdown.seconds}</p>
+              <p className="text-sm uppercase">Seconds</p>
             </div>
           </div>
+
+          <Button 
+            size="lg" 
+            className="text-lg px-12 py-6 rounded-full font-light tracking-wide bg-amber-400 text-black hover:bg-amber-500 transition-transform duration-300"
+            onClick={() => document.getElementById('rsvp-form')?.scrollIntoView({ behavior: 'smooth' })}
+          >
+            RSVP
+          </Button>
         </div>
       </div>
 
-      <div className="max-w-5xl mx-auto px-4 py-20 space-y-20">
-        {/* Custom Message */}
-        {wedding.custom_message && (
-          <div className="text-center max-w-3xl mx-auto">
-            <div className="flex items-center justify-center gap-4 mb-8">
-              <div className="w-12 h-px" style={{ backgroundColor: themeColor }}></div>
-              <Heart className="w-5 h-5" style={{ color: themeColor }} />
-              <div className="w-12 h-px" style={{ backgroundColor: themeColor }}></div>
-            </div>
-            <p className="text-2xl md:text-3xl font-light text-gray-700 italic leading-relaxed" style={{
-              fontFamily: "'Playfair Display', 'Georgia', serif"
-            }}>
-              "{wedding.custom_message}"
-            </p>
-          </div>
-        )}
-
-        {/* Love Story */}
-        {wedding.story && (
-          <div className="max-w-3xl mx-auto">
-            <div className="text-center mb-12">
-              <h2 className="text-4xl md:text-5xl font-serif mb-4 text-gray-800" style={{
-                fontFamily: "'Playfair Display', 'Georgia', serif"
-              }}>
+      {/* Our Story Section */}
+      {(wedding.story || wedding.custom_message) && (
+        <div className="bg-white py-20 px-4">
+          <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-12 items-center">
+            <div className="order-2 md:order-1">
+              <h2 className="font-serif text-4xl md:text-5xl text-gray-800 mb-6" style={{ fontFamily: "'Playfair Display', serif" }}>
                 Our Story
               </h2>
-              <div className="flex items-center justify-center gap-4">
-                <div className="w-16 h-px" style={{ backgroundColor: themeColor }}></div>
-                <Heart className="w-5 h-5" style={{ color: themeColor }} />
-                <div className="w-16 h-px" style={{ backgroundColor: themeColor }}></div>
-              </div>
+              {wedding.custom_message && (
+                <p className="text-lg text-gray-700 italic mb-6 leading-relaxed">
+                  "{wedding.custom_message}"
+                </p>
+              )}
+              {wedding.story && (
+                <p className="text-gray-600 leading-relaxed whitespace-pre-line">
+                  {wedding.story}
+                </p>
+              )}
             </div>
-            <p className="text-lg text-gray-700 leading-relaxed whitespace-pre-line text-center">
-              {wedding.story}
-            </p>
+            <div className="order-1 md:order-2">
+              <img 
+                src="https://images.unsplash.com/photo-1515934751635-c81c6bc9a2d8?q=80&w=2070&auto=format&fit=crop"
+                alt="Couple"
+                className="rounded-lg shadow-xl w-full h-full object-cover"
+              />
+            </div>
           </div>
-        )}
+        </div>
+      )}
 
-        {/* Events */}
-        <div>
+      {/* Events Section */}
+      <div className="bg-gray-50 py-20 px-4">
+        <div className="max-w-4xl mx-auto">
           <div className="text-center mb-12">
-            <h2 className="text-4xl md:text-5xl font-serif mb-4 text-gray-800" style={{
-              fontFamily: "'Playfair Display', 'Georgia', serif"
-            }}>
-              Wedding Events
+            <h2 className="font-serif text-4xl md:text-5xl text-gray-800 mb-4" style={{ fontFamily: "'Playfair Display', serif" }}>
+              The Wedding Day
             </h2>
-            <div className="flex items-center justify-center gap-4">
-              <div className="w-16 h-px" style={{ backgroundColor: themeColor }}></div>
-              <Calendar className="w-5 h-5" style={{ color: themeColor }} />
-              <div className="w-16 h-px" style={{ backgroundColor: themeColor }}></div>
-            </div>
+            <p className="text-gray-600">Here's what to expect during our wedding weekend.</p>
           </div>
-          
-          <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-            {wedding.events?.sort((a: any, b: any) => a.order_index - b.order_index).map((event: any, index: number) => (
-              <div 
-                key={event.id} 
-                className="bg-white border-2 rounded-lg p-8 text-center hover:shadow-xl transition-shadow duration-300"
-                style={{ borderColor: `${themeColor}30` }}
-              >
-                <div className="mb-4">
-                  <div className="w-16 h-16 rounded-full mx-auto mb-4 flex items-center justify-center"
-                       style={{ backgroundColor: `${themeColor}15` }}>
-                    <Calendar className="w-8 h-8" style={{ color: themeColor }} />
-                  </div>
-                  <h3 className="text-2xl font-serif mb-2 text-gray-800" style={{
-                    fontFamily: "'Playfair Display', 'Georgia', serif"
-                  }}>
-                    {event.name}
-                  </h3>
-                  {event.description && (
-                    <p className="text-gray-600 text-sm mb-4">{event.description}</p>
-                  )}
-                </div>
-                
-                <div className="space-y-3 text-sm text-gray-700">
-                  <div className="flex items-center justify-center gap-2">
-                    <Calendar className="w-4 h-4" style={{ color: themeColor }} />
-                    <span>{new Date(event.date).toLocaleDateString('en-US', { 
-                      month: 'long', 
-                      day: 'numeric',
-                      year: 'numeric'
-                    })}</span>
-                  </div>
-                  <div className="flex items-center justify-center gap-2">
-                    <Clock className="w-4 h-4" style={{ color: themeColor }} />
-                    <span>{event.start_time} {event.end_time && `- ${event.end_time}`}</span>
-                  </div>
-                  <div className="flex items-center justify-center gap-2">
-                    <MapPin className="w-4 h-4" style={{ color: themeColor }} />
-                    <span className="text-center">{event.venue}</span>
-                  </div>
-                </div>
+          <div className="grid md:grid-cols-2 gap-x-12 gap-y-8">
+            {wedding.events?.sort((a: any, b: any) => a.order_index - b.order_index).map((event: any) => (
+              <div key={event.id} className="text-center md:text-left">
+                <h3 className="font-serif text-2xl text-gray-800 mb-2" style={{ fontFamily: "'Playfair Display', serif" }}>
+                  {event.name}
+                </h3>
+                <p className="text-amber-600 font-semibold mb-2">
+                  {new Date(event.date).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })} at {event.start_time}
+                </p>
+                <p className="text-gray-600 mb-1">{event.venue}</p>
+                <p className="text-gray-500 text-sm">{event.address}</p>
               </div>
             ))}
           </div>
         </div>
+      </div>
 
-        {/* RSVP Section */}
-        {!showRSVPForm && !submitted && (
-          <div className="text-center py-12">
-            <div className="mb-8">
-              <h2 className="text-4xl md:text-5xl font-serif mb-4 text-gray-800" style={{
-                fontFamily: "'Playfair Display', 'Georgia', serif"
-              }}>
-                Join Our Celebration
-              </h2>
-              <p className="text-gray-600 text-lg">We would be honored by your presence</p>
-            </div>
-            <Button 
-              size="lg" 
-              className="text-lg px-12 py-6 rounded-full font-light tracking-wide hover:scale-105 transition-transform duration-300"
-              style={{ 
-                backgroundColor: themeColor,
-                boxShadow: `0 10px 30px ${themeColor}40`
-              }}
-              onClick={() => setShowRSVPForm(true)}
-            >
-              <Heart className="w-5 h-5 mr-2" />
-              RSVP Now
-            </Button>
+      {/* RSVP Form Section */}
+      <div id="rsvp-form" className="bg-amber-50 py-20 px-4">
+        <div className="max-w-2xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="font-serif text-4xl md:text-5xl text-gray-800 mb-4" style={{ fontFamily: "'Playfair Display', serif" }}>
+              Will You Be Attending?
+            </h2>
+            <p className="text-gray-600">Please RSVP by the 25th of December</p>
           </div>
-        )}
-
-        {/* RSVP Form */}
-        {showRSVPForm && !submitted && (
-          <div className="max-w-3xl mx-auto">
-            <div className="text-center mb-12">
-              <h2 className="text-4xl md:text-5xl font-serif mb-4 text-gray-800" style={{
-                fontFamily: "'Playfair Display', 'Georgia', serif"
-              }}>
-                Please RSVP
-              </h2>
-              <div className="flex items-center justify-center gap-4 mb-4">
-                <div className="w-16 h-px" style={{ backgroundColor: themeColor }}></div>
-                <Heart className="w-5 h-5" style={{ color: themeColor }} />
-                <div className="w-16 h-px" style={{ backgroundColor: themeColor }}></div>
-              </div>
-              <p className="text-gray-600">We'd love to know if you can join us!</p>
-            </div>
-            
-            <Card className="border-2" style={{ borderColor: `${themeColor}20` }}>
-              <CardContent className="pt-8 space-y-6">
+          {!submitted ? (
+            <Card className="bg-white shadow-xl rounded-lg">
+              <CardContent className="p-8 space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="guest_name">Your Name *</Label>
@@ -487,58 +408,21 @@ const PublicWeddingPage: React.FC = () => {
               </div>
             </CardContent>
           </Card>
-          </div>
-        )}
-
-        {/* Success Message */}
-        {submitted && (
-          <div className="text-center py-12 max-w-2xl mx-auto">
-            <div className="mb-8">
-              <div className="w-20 h-20 rounded-full mx-auto mb-6 flex items-center justify-center"
-                   style={{ backgroundColor: `${themeColor}15` }}>
-                <Check className="w-10 h-10" style={{ color: themeColor }} />
-              </div>
-              <h2 className="text-4xl md:text-5xl font-serif mb-4 text-gray-800" style={{
-                fontFamily: "'Playfair Display', 'Georgia', serif"
-              }}>
-                Thank You!
-              </h2>
-              <div className="flex items-center justify-center gap-4 mb-6">
-                <div className="w-16 h-px" style={{ backgroundColor: themeColor }}></div>
-                <Heart className="w-5 h-5" style={{ color: themeColor }} />
-                <div className="w-16 h-px" style={{ backgroundColor: themeColor }}></div>
-              </div>
-              <p className="text-xl text-gray-700 leading-relaxed">
-                Your RSVP has been received. We can't wait to celebrate with you!
-              </p>
+          ) : (
+            <div className="text-center py-12">
+              <Check className="w-16 h-16 mx-auto mb-4 text-green-500" />
+              <h3 className="font-serif text-3xl text-gray-800 mb-2" style={{ fontFamily: "'Playfair Display', serif" }}>Thank You!</h3>
+              <p className="text-gray-600">Your RSVP has been submitted. We can't wait to celebrate with you!</p>
             </div>
-          </div>
-        )}
-
-        {/* Contact Info */}
-        <div className="text-center py-12 border-t" style={{ borderColor: `${themeColor}20` }}>
-          <h3 className="text-2xl font-serif mb-4 text-gray-800" style={{
-            fontFamily: "'Playfair Display', 'Georgia', serif"
-          }}>
-            Questions?
-          </h3>
-          <p className="text-gray-600 mb-4">
-            For any questions, please contact us at:
-          </p>
-          <p className="text-lg font-semibold mb-2" style={{ color: themeColor }}>
-            {wedding.contact_email}
-          </p>
-          {wedding.contact_phone && (
-            <p className="text-lg font-semibold" style={{ color: themeColor }}>
-              {wedding.contact_phone}
-            </p>
           )}
         </div>
       </div>
 
       {/* Footer */}
-      <div className="text-center py-8 text-gray-500 text-sm">
-        <p>With love, {wedding.bride_name} & {wedding.groom_name}</p>
+      <div className="bg-gray-800 text-white py-12 px-4 text-center">
+        <h3 className="font-serif text-3xl mb-4" style={{ fontFamily: "'Playfair Display', serif" }}>{wedding.bride_name} & {wedding.groom_name}</h3>
+        <p className="mb-4">{new Date(wedding.wedding_date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+        <p className="text-gray-400 text-sm">For any questions, contact us at {wedding.contact_email}</p>
       </div>
     </div>
   );
