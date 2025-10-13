@@ -184,7 +184,7 @@ const VendorsPage: React.FC = () => {
   const filteredVendors = vendors?.filter(vendor => {
     const matchesSearch = vendor.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                           vendor.description?.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = !selectedCategory || vendor.category === selectedCategory;
+    const matchesCategory = !selectedCategory || selectedCategory === 'all' || vendor.category === selectedCategory;
     return matchesSearch && matchesCategory;
   });
 
@@ -294,7 +294,7 @@ const VendorsPage: React.FC = () => {
                     <SelectValue placeholder="All categories" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">All categories</SelectItem>
+                    <SelectItem value="all">All categories</SelectItem>
                     {categories?.map((category) => (
                       <SelectItem key={category.id} value={category.name}>
                         {category.name}
