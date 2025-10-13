@@ -59,42 +59,74 @@ const RSVPCreator: React.FC = () => {
 
   const createWeddingMutation = useMutation({
     mutationFn: async () => {
-      // Generate unique slug
-      const slug = `${formData.bride_name.toLowerCase()}-${formData.groom_name.toLowerCase()}-${new Date().getFullYear()}`
-        .replace(/[^a-z0-9-]/g, '-')
-        .replace(/-+/g, '-');
+      try {
+        // Generate unique slug
+        const slug = `${formData.bride_name.toLowerCase()}-${formData.groom_name.toLowerCase()}-${new Date().getFullYear()}`
+          .replace(/[^a-z0-9-]/g, '-')
+          .replace(/-+/g, '-');
 
-      // Generate admin secret key
-      const admin_secret_key = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+        // Generate admin secret key
+        const admin_secret_key = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
 
-      // Create wedding
-      const { data: wedding, error: weddingError } = await supabase
-        .from('weddings')
-        .insert({
-          ...formData,
+        // Create wedding with only the fields we know exist
+        const weddingData: any = {
+          bride_name: formData.bride_name,
+          groom_name: formData.groom_name,
+          wedding_date: formData.wedding_date,
+          venue: formData.venue,
+          venue_address: formData.venue_address,
+          ceremony_time: formData.ceremony_time,
+          reception_time: formData.reception_time,
+          contact_email: formData.contact_email,
           slug,
-          admin_secret_key,
           is_public: true
-        })
-        .select()
-        .single();
+        };
 
-      if (weddingError) throw weddingError;
+        // Add optional fields if they exist in the table
+        if (formData.contact_phone) weddingData.contact_phone = formData.contact_phone;
+        if (formData.story) weddingData.story = formData.story;
+        if (formData.custom_message) weddingData.custom_message = formData.custom_message;
+        if (formData.theme_color) weddingData.theme_color = formData.theme_color;
+        weddingData.admin_secret_key = admin_secret_key;
 
-      // Create events
-      const eventsToInsert = events.map((event, index) => ({
-        wedding_id: wedding.id,
-        ...event,
-        order_index: index
-      }));
+        const { data: wedding, error: weddingError } = await supabase
+          .from('weddings')
+          .insert(weddingData)
+          .select()
+          .single();
 
-      const { error: eventsError } = await supabase
-        .from('wedding_events')
-        .insert(eventsToInsert);
+        if (weddingError) {
+          console.error('Wedding creation error:', weddingError);
+          throw new Error(weddingError.message || 'Failed to create wedding');
+        }
 
-      if (eventsError) throw eventsError;
+        // Create events
+        const eventsToInsert = events.map((event, index) => ({
+          wedding_id: wedding.id,
+          name: event.name,
+          description: event.description || '',
+          date: event.date,
+          start_time: event.start_time,
+          end_time: event.end_time || '',
+          venue: event.venue,
+          address: event.address,
+          order_index: index
+        }));
 
-      return wedding;
+        const { error: eventsError } = await supabase
+          .from('wedding_events')
+          .insert(eventsToInsert);
+
+        if (eventsError) {
+          console.error('Events creation error:', eventsError);
+          throw new Error(eventsError.message || 'Failed to create events');
+        }
+
+        return wedding;
+      } catch (error) {
+        console.error('Mutation error:', error);
+        throw error;
+      }
     },
     onSuccess: async (wedding) => {
       setCreatedWedding(wedding);
