@@ -21,7 +21,6 @@ import AdminDashboard from "@/pages/AdminDashboard";
 import VendorsPage from "@/pages/admin/VendorsPage";
 import AnalyticsPage from "@/pages/admin/AnalyticsPage";
 import BlogsPage from "@/pages/admin/BlogsPage";
-import InvitationsPage from "@/pages/admin/InvitationsPage";
 import SettingsPage from "@/pages/admin/SettingsPage";
 import WeddingTools from "@/pages/WeddingTools";
 import VendorSubscription from "@/pages/VendorSubscription";
@@ -31,9 +30,9 @@ import MobileAnalytics from "@/pages/MobileAnalytics";
 import NotFound from "@/pages/not-found";
 import FavoritesPage from "@/pages/Favorites";
 import HomeDebug from "@/pages/HomeDebug";
+import GuestRSVP from "@/pages/GuestRSVP";
 
 // Import the new page components
-import InvitationsPage from "@/pages/Invitations";
 import SupabaseSearch from "@/components/SupabaseSearch";
 import VendorAvailabilityPage from "@/pages/VendorAvailabilityPage";
 import TestImportsPage from "@/pages/TestImportsPage";
@@ -87,19 +86,14 @@ function Router() {
               <BlogsPage />
             </ProtectedRoute>
           )} />
-          <Route path="/admin/invitations" component={() => (
-            <ProtectedRoute requireAdmin>
-              <InvitationsPage />
-            </ProtectedRoute>
-          )} />
           <Route path="/admin/settings" component={() => (
             <ProtectedRoute requireAdmin>
               <SettingsPage />
             </ProtectedRoute>
           )} />
           <Route path="/favorites" component={FavoritesPage} />
+          <Route path="/rsvp" component={GuestRSVP} />
           // Add routes for the new components
-          <Route path="/invitations" component={InvitationsPage} />
           <Route path="/enhanced-search" component={SupabaseSearch} />
           <Route path="/vendor-availability" component={VendorAvailabilityPage} />
           <Route path="/test-imports" component={TestImportsPage} />

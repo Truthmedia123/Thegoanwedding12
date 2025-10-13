@@ -353,3 +353,165 @@ export const businessSubmissionService = {
     }
   }
 }
+
+// RSVP Service Functions
+export const rsvpService = {
+  // Get guest by RSVP code
+  async getGuestByCode(rsvpCode: string) {
+    try {
+      const { data, error } = await supabase
+        .from('wedding_guests')
+        .select(`
+          *,
+          wedding:weddings(*),
+          invited_events:guest_event_invites(
+            event:wedding_events(*)
+          ),
+          rsvps:guest_rsvps(*)
+        `)
+        .eq('rsvp_code', rsvpCode.toUpperCase())
+        .single()
+      
+      if (error) throw error
+      return { data, error: null }
+    } catch (error: any) {
+      return { data: null, error: error.message }
+    }
+  },
+
+  // Submit RSVP for a guest
+  async submitRSVP(guestId: string, eventRsvps: Array<{ event_id: number; status: string; plus_ones_attending: number; dietary_restrictions?: string }>) {
+    try {
+      // Delete existing RSVPs for this guest
+      await supabase
+        .from('guest_rsvps')
+        .delete()
+        .eq('guest_id', guestId)
+
+      // Insert new RSVPs
+      const { data, error } = await supabase
+        .from('guest_rsvps')
+        .insert(eventRsvps.map(rsvp => ({
+          guest_id: guestId,
+          ...rsvp
+        })))
+        .select()
+
+      if (error) throw error
+
+      // Update guest status to 'Responded'
+      await supabase
+        .from('wedding_guests')
+        .update({ status: 'Responded' })
+        .eq('id', guestId)
+
+      return { data, error: null }
+    } catch (error: any) {
+      return { data: null, error: error.message }
+    }
+  },
+
+  // Get all guests for a wedding (Admin)
+  async getWeddingGuests(weddingId: number) {
+    try {
+      const { data, error } = await supabase
+        .from('wedding_guests')
+        .select(`
+          *,
+          invited_events:guest_event_invites(
+            event:wedding_events(*)
+          ),
+          rsvps:guest_rsvps(*)
+        `)
+        .eq('wedding_id', weddingId)
+        .order('name')
+
+      if (error) throw error
+      return { data, error: null }
+    } catch (error: any) {
+      return { data: null, error: error.message }
+    }
+  },
+
+  // Add a new guest (Admin)
+  async addGuest(guest: any) {
+    try {
+      const { data, error } = await supabase
+        .from('wedding_guests')
+        .insert(guest)
+        .select()
+        .single()
+
+      if (error) throw error
+      return { data, error: null }
+    } catch (error: any) {
+      return { data: null, error: error.message }
+    }
+  },
+
+  // Update guest (Admin)
+  async updateGuest(guestId: string, updates: any) {
+    try {
+      const { data, error } = await supabase
+        .from('wedding_guests')
+        .update(updates)
+        .eq('id', guestId)
+        .select()
+        .single()
+
+      if (error) throw error
+      return { data, error: null }
+    } catch (error: any) {
+      return { data: null, error: error.message }
+    }
+  },
+
+  // Delete guest (Admin)
+  async deleteGuest(guestId: string) {
+    try {
+      const { error } = await supabase
+        .from('wedding_guests')
+        .delete()
+        .eq('id', guestId)
+
+      if (error) throw error
+      return { data: true, error: null }
+    } catch (error: any) {
+      return { data: null, error: error.message }
+    }
+  },
+
+  // Get RSVP summary for a wedding (Admin)
+  async getRSVPSummary(weddingId: number) {
+    try {
+      const { data: guests, error } = await supabase
+        .from('wedding_guests')
+        .select(`
+          *,
+          rsvps:guest_rsvps(*)
+        `)
+        .eq('wedding_id', weddingId)
+
+      if (error) throw error
+
+      const summary = {
+        total: guests?.length || 0,
+        responded: guests?.filter(g => g.status === 'Responded').length || 0,
+        pending: guests?.filter(g => g.status === 'Pending').length || 0,
+        attending: 0,
+        notAttending: 0
+      }
+
+      guests?.forEach(guest => {
+        guest.rsvps?.forEach((rsvp: any) => {
+          if (rsvp.status === 'Attending') summary.attending++
+          if (rsvp.status === 'Not Attending') summary.notAttending++
+        })
+      })
+
+      return { data: summary, error: null }
+    } catch (error: any) {
+      return { data: null, error: error.message }
+    }
+  }
+}
