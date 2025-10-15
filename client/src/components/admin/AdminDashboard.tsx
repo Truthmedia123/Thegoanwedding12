@@ -815,22 +815,23 @@ export default function AdminDashboard() {
               {/* Vendor Management Tab */}
               <TabsContent value="vendors" className="space-y-6">
                 <Card>
-                  <CardHeader className="flex flex-row items-center justify-between">
-                    <CardTitle>Vendor Management</CardTitle>
-                    {checkPermissions(adminToken, 'vendors') && (
-                      <div className="flex space-x-2">
-                        <Dialog open={isBulkImportModalOpen} onOpenChange={setIsBulkImportModalOpen}>
-                          <DialogTrigger asChild>
-                            <Button variant="outline">
-                              <Upload className="h-4 w-4 mr-2" />
-                              Bulk Import
-                            </Button>
-                          </DialogTrigger>
-                          <DialogContent className="max-w-2xl">
-                            <DialogHeader>
-                              <DialogTitle>Bulk Import Vendors</DialogTitle>
-                            </DialogHeader>
-                            <div className="space-y-4">
+                  <CardHeader>
+                    <div className="flex flex-row items-center justify-between">
+                      <CardTitle>Vendor Management</CardTitle>
+                      {checkPermissions(adminToken, 'vendors') && (
+                        <div className="flex gap-2">
+                          <Dialog open={isBulkImportModalOpen} onOpenChange={setIsBulkImportModalOpen}>
+                            <DialogTrigger asChild>
+                              <Button variant="outline">
+                                <Upload className="h-4 w-4 mr-2" />
+                                Bulk Import
+                              </Button>
+                            </DialogTrigger>
+                            <DialogContent className="max-w-2xl">
+                              <DialogHeader>
+                                <DialogTitle>Bulk Import Vendors</DialogTitle>
+                              </DialogHeader>
+                              <div className="space-y-4">
                               <div>
                                 <p className="text-sm text-gray-600 mb-2">
                                   Download the <a 
@@ -1156,6 +1157,7 @@ export default function AdminDashboard() {
                         </Dialog>
                       </div>
                     )}
+                    </div>
                   </CardHeader>
                   <CardContent>
                     {vendorsLoading ? (
