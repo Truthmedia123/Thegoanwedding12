@@ -3,7 +3,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import BudgetCalculator from '@/components/BudgetCalculator';
 import VendorSpotlightCarousel from '@/components/VendorSpotlightCarousel';
 import GoanWeddingTimelinePlanner from '@/components/cultural/GoanWeddingTimelinePlanner';
-import { Calculator, Sparkles, Calendar, Users, Globe } from 'lucide-react';
+import RSVPCreator from '@/pages/RSVPCreator';
+import { Calculator, Sparkles, Calendar, Users, Globe, Mail } from 'lucide-react';
 
 export default function WeddingTools() {
   const [activeTab, setActiveTab] = useState('budget');
@@ -24,6 +25,14 @@ export default function WeddingTools() {
       icon: Calendar,
       component: GoanWeddingTimelinePlanner,
       color: 'from-orange-500 to-orange-600'
+    },
+    {
+      id: 'rsvp',
+      title: 'RSVP Generator',
+      description: 'Create a beautiful RSVP page with QR codes for your guests',
+      icon: Mail,
+      component: RSVPCreator,
+      color: 'from-pink-500 to-pink-600'
     }
   ];
 
