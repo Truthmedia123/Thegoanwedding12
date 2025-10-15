@@ -822,7 +822,13 @@ export default function AdminDashboard() {
                         <div className="flex gap-2">
                           <Dialog open={isBulkImportModalOpen} onOpenChange={setIsBulkImportModalOpen}>
                             <DialogTrigger asChild>
-                              <Button variant="outline">
+                              <Button 
+                                variant="outline"
+                                onClick={() => {
+                                  console.log('Bulk Import button clicked');
+                                  setIsBulkImportModalOpen(true);
+                                }}
+                              >
                                 <Upload className="h-4 w-4 mr-2" />
                                 Bulk Import
                               </Button>

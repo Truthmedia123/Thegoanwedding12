@@ -1,6 +1,6 @@
 import { Hono } from 'hono';
 import { getDb } from './db';
-import { eq } from 'drizzle-orm';
+import { eq, or, like } from 'drizzle-orm';
 import { 
   vendors, 
   reviews, 
@@ -108,17 +108,61 @@ export function registerRoutes(app: Hono<{ Bindings: Env }>) {
   });
 
   // Vendors API with caching and rate limiting
-  app.get("/api/vendors", cache(900000), apiRateLimit({ maxRequests: 100 }), async (c) => {
+  app.get("/api/vendors", cache(30000), apiRateLimit({ maxRequests: 100 }), async (c) => {
     try {
+      const category = c.req.query('category');
+      const search = c.req.query('search');
+      const location = c.req.query('location');
+      
       if (shouldUseDirectus(c.env)) {
         // Use Directus API
         const { getVendors } = await import('./directus');
-        const allVendors = await getVendors();
+        let allVendors = await getVendors();
+        
+        // Apply filters
+        if (category && category !== 'all') {
+          allVendors = allVendors.filter((v: any) => 
+            v.category?.toLowerCase() === category.toLowerCase()
+          );
+        }
+        if (search) {
+          const searchLower = search.toLowerCase();
+          allVendors = allVendors.filter((v: any) => 
+            v.name?.toLowerCase().includes(searchLower) ||
+            v.category?.toLowerCase().includes(searchLower) ||
+            v.location?.toLowerCase().includes(searchLower)
+          );
+        }
+        if (location && location !== 'all') {
+          allVendors = allVendors.filter((v: any) => 
+            v.location?.toLowerCase().includes(location.toLowerCase())
+          );
+        }
+        
         return c.json(allVendors);
       } else {
         // Fallback to D1
         const db = getDb(c.env);
-        const allVendors = await db.select().from(vendors).all();
+        let query = db.select().from(vendors);
+        
+        // Apply filters using SQL
+        if (category && category !== 'all') {
+          query = query.where(eq(vendors.category, category));
+        }
+        if (search) {
+          query = query.where(
+            or(
+              like(vendors.name, `%${search}%`),
+              like(vendors.category, `%${search}%`),
+              like(vendors.location, `%${search}%`)
+            )
+          );
+        }
+        if (location && location !== 'all') {
+          query = query.where(like(vendors.location, `%${location}%`));
+        }
+        
+        const allVendors = await query.all();
         return c.json(allVendors);
       }
     } catch (error) {
