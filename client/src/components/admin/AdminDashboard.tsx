@@ -833,26 +833,26 @@ export default function AdminDashboard() {
                               </DialogHeader>
                               <div className="space-y-4">
                                 <div>
-                                <p className="text-sm text-gray-600 mb-2">
-                                  Download the <a 
-                                    href="/vendor-import-template.csv" 
-                                    target="_blank" 
-                                    rel="noopener noreferrer"
-                                    className="text-blue-600 hover:underline"
-                                  >
-                                    CSV template
-                                  </a> to see the required format.
-                                </p>
-                              </div>
-                              <div>
-                                <label className="text-sm font-medium">Upload CSV File</label>
-                                <Input
-                                  type="file"
-                                  accept=".csv"
-                                  ref={fileInputRef}
-                                  onChange={handleFileUpload}
-                                />
-                              </div>
+                                  <p className="text-sm text-gray-600 mb-2">
+                                    Download the <a 
+                                      href="/vendor-import-template.csv" 
+                                      target="_blank" 
+                                      rel="noopener noreferrer"
+                                      className="text-blue-600 hover:underline"
+                                    >
+                                      CSV template
+                                    </a> to see the required format.
+                                  </p>
+                                </div>
+                                <div>
+                                  <label className="text-sm font-medium">Upload CSV File</label>
+                                  <Input
+                                    type="file"
+                                    accept=".csv"
+                                    ref={fileInputRef}
+                                    onChange={handleFileUpload}
+                                  />
+                                </div>
                               
                               {parsedData.length > 0 && (
                                 <div>

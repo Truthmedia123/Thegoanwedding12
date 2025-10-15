@@ -34,6 +34,9 @@ export default function VendorCategory() {
       if (!response.ok) throw new Error('Failed to fetch vendors');
       return response.json();
     },
+    staleTime: 0, // Always fetch fresh data
+    refetchOnMount: true, // Refetch when component mounts
+    refetchOnWindowFocus: true, // Refetch when window regains focus
   });
 
   const sortedVendors = vendors?.sort((a: Vendor, b: Vendor) => {
