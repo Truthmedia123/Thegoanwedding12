@@ -718,24 +718,47 @@ export default function AdminDashboard() {
       return;
     }
 
+    const bulkImportMutation = useMutation({
+      mutationFn: async (vendors: any[]) => {
+        // Get existing vendors from localStorage
+        const existingVendors = JSON.parse(localStorage.getItem('vendors') || '[]');
+        
+        // Add new vendors with IDs
+        const newVendors = vendors.map(vendor => ({
+          ...vendor,
+          id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
+          createdAt: new Date().toISOString(),
+        }));
+        
+        // Combine and save
+        const allVendors = [...existingVendors, ...newVendors];
+        localStorage.setItem('vendors', JSON.stringify(allVendors));
+        
+        return { vendors: newVendors, imported: newVendors.length };
+      },
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ['/api/vendors'] });
+        toast({
+          title: "Success",
+          description: "Vendors imported successfully",
+        });
+        setParsedData([]);
+        setIsBulkImportModalOpen(false);
+      },
+      onError: (error: any) => {
+        toast({
+          title: "Error",
+          description: error.message || "Failed to import vendors",
+          variant: "destructive",
+        });
+      },
+    });
+
     try {
-      const response = await fetch('/api/vendors/bulk', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-admin-token': adminToken,
-        },
-        body: JSON.stringify({ vendors: parsedData }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to import vendors');
-      }
-
-      const result = await response.json();
+      const response = await bulkImportMutation.mutate(parsedData);
       toast({
         title: 'Success',
-        description: `Imported ${result.imported} vendors successfully`,
+        description: `Imported ${response.imported} vendors successfully`,
       });
 
       // Refresh vendors list

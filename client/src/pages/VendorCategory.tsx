@@ -25,14 +25,31 @@ export default function VendorCategory() {
   const { data: vendors, isLoading } = useQuery<Vendor[]>({
     queryKey: ["/api/vendors", category, search, selectedLocation],
     queryFn: async () => {
-      const params = new URLSearchParams();
-      if (category && category !== 'all') params.append('category', category);
-      if (search) params.append('search', search);
-      if (selectedLocation) params.append('location', selectedLocation);
+      // Get vendors from localStorage for now
+      const storedVendors = JSON.parse(localStorage.getItem('vendors') || '[]');
+      let filteredVendors = storedVendors;
       
-      const response = await fetch(`/api/vendors?${params.toString()}`);
-      if (!response.ok) throw new Error('Failed to fetch vendors');
-      return response.json();
+      // Apply filters
+      if (category && category !== 'all') {
+        filteredVendors = filteredVendors.filter((v: any) => 
+          v.category?.toLowerCase() === category.toLowerCase()
+        );
+      }
+      if (search) {
+        const searchLower = search.toLowerCase();
+        filteredVendors = filteredVendors.filter((v: any) => 
+          v.name?.toLowerCase().includes(searchLower) ||
+          v.category?.toLowerCase().includes(searchLower) ||
+          v.location?.toLowerCase().includes(searchLower)
+        );
+      }
+      if (selectedLocation && selectedLocation !== 'all') {
+        filteredVendors = filteredVendors.filter((v: any) => 
+          v.location?.toLowerCase().includes(selectedLocation.toLowerCase())
+        );
+      }
+      
+      return filteredVendors;
     },
     staleTime: 0, // Always fetch fresh data
     refetchOnMount: true, // Refetch when component mounts
