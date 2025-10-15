@@ -832,7 +832,7 @@ export default function AdminDashboard() {
                                 <DialogTitle>Bulk Import Vendors</DialogTitle>
                               </DialogHeader>
                               <div className="space-y-4">
-                              <div>
+                                <div>
                                 <p className="text-sm text-gray-600 mb-2">
                                   Download the <a 
                                     href="/vendor-import-template.csv" 

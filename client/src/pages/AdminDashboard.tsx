@@ -1,5 +1,6 @@
 import React from 'react';
 import { useLocation } from 'wouter';
+import { useQuery } from '@tanstack/react-query';
 import AdminLayout from '@/components/admin/AdminLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -18,10 +19,47 @@ import {
 const AdminDashboard: React.FC = () => {
   const [, setLocation] = useLocation();
 
+  // Fetch real data from API
+  const { data: vendors } = useQuery({
+    queryKey: ['vendors'],
+    queryFn: async () => {
+      const response = await fetch('/api/vendors');
+      if (!response.ok) return [];
+      return response.json();
+    }
+  });
+
+  const { data: analytics } = useQuery({
+    queryKey: ['analytics'],
+    queryFn: async () => {
+      const response = await fetch('/api/analytics/summary');
+      if (!response.ok) return { pageViews: 0, contactClicks: 0 };
+      return response.json();
+    }
+  });
+
+  const { data: weddings } = useQuery({
+    queryKey: ['weddings'],
+    queryFn: async () => {
+      const response = await fetch('/api/weddings');
+      if (!response.ok) return [];
+      return response.json();
+    }
+  });
+
+  const { data: recentActivity } = useQuery({
+    queryKey: ['recentActivity'],
+    queryFn: async () => {
+      const response = await fetch('/api/admin/recent-activity');
+      if (!response.ok) return [];
+      return response.json();
+    }
+  });
+
   const stats = [
     {
       title: 'Total Vendors',
-      value: '500+',
+      value: vendors?.length || 0,
       description: 'Wedding professionals',
       icon: Store,
       color: 'text-green-600',
@@ -29,7 +67,7 @@ const AdminDashboard: React.FC = () => {
     },
     {
       title: 'Page Views',
-      value: '12.5K',
+      value: analytics?.pageViews || 0,
       description: 'This month',
       icon: Eye,
       color: 'text-blue-600',
@@ -37,7 +75,7 @@ const AdminDashboard: React.FC = () => {
     },
     {
       title: 'Contact Clicks',
-      value: '1.2K',
+      value: analytics?.contactClicks || 0,
       description: 'Vendor inquiries',
       icon: MessageSquare,
       color: 'text-purple-600',
@@ -45,7 +83,7 @@ const AdminDashboard: React.FC = () => {
     },
     {
       title: 'Invitations',
-      value: '89',
+      value: weddings?.length || 0,
       description: 'Wedding invitations sent',
       icon: Mail,
       color: 'text-pink-600',
@@ -154,36 +192,24 @@ const AdminDashboard: React.FC = () => {
               <CardDescription>Latest system events</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
-                <div className="flex items-center space-x-3">
-                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                  <div className="flex-1">
-                    <p className="text-sm font-medium text-gray-900">New vendor added</p>
-                    <p className="text-xs text-gray-500">2 hours ago</p>
-                  </div>
+              {recentActivity && recentActivity.length > 0 ? (
+                <div className="space-y-4">
+                  {recentActivity.slice(0, 5).map((activity: any, index: number) => (
+                    <div key={index} className="flex items-center space-x-3">
+                      <div className={`w-2 h-2 rounded-full ${activity.color || 'bg-gray-500'}`}></div>
+                      <div className="flex-1">
+                        <p className="text-sm font-medium text-gray-900">{activity.message}</p>
+                        <p className="text-xs text-gray-500">{activity.timestamp}</p>
+                      </div>
+                    </div>
+                  ))}
                 </div>
-                <div className="flex items-center space-x-3">
-                  <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                  <div className="flex-1">
-                    <p className="text-sm font-medium text-gray-900">Blog post published</p>
-                    <p className="text-xs text-gray-500">4 hours ago</p>
-                  </div>
+              ) : (
+                <div className="text-center py-8 text-gray-500">
+                  <p>No recent activity</p>
+                  <p className="text-sm mt-2">Activity will appear here as you use the system</p>
                 </div>
-                <div className="flex items-center space-x-3">
-                  <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
-                  <div className="flex-1">
-                    <p className="text-sm font-medium text-gray-900">Analytics updated</p>
-                    <p className="text-xs text-gray-500">6 hours ago</p>
-                  </div>
-                </div>
-                <div className="flex items-center space-x-3">
-                  <div className="w-2 h-2 bg-pink-500 rounded-full"></div>
-                  <div className="flex-1">
-                    <p className="text-sm font-medium text-gray-900">Invitation sent</p>
-                    <p className="text-xs text-gray-500">8 hours ago</p>
-                  </div>
-                </div>
-              </div>
+              )}
             </CardContent>
           </Card>
         </div>
