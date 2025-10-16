@@ -177,18 +177,17 @@ export default function AdminDashboard() {
   // Query client for invalidating queries
   const queryClient = useQueryClient();
 
-  // Enhanced data fetching with better error handling
+  // Enhanced data fetching with better error handling - using localStorage
   const { data: vendors, isLoading: vendorsLoading, error: vendorsError } = useQuery<Vendor[]>({
     queryKey: ['vendors'],
     queryFn: async () => {
       try {
-        const response = await fetch('/api/vendors', { headers });
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        return await response.json();
+        // Get vendors from localStorage
+        const storedVendors = JSON.parse(localStorage.getItem('vendors') || '[]');
+        console.log('Loaded vendors from localStorage:', storedVendors);
+        return storedVendors.length > 0 ? storedVendors : mockVendors;
       } catch (error) {
-        console.error('Error fetching vendors:', error);
+        console.error('Error loading vendors from localStorage:', error);
         // Return mock data as fallback
         return mockVendors;
       }
@@ -219,15 +218,27 @@ export default function AdminDashboard() {
   });
 
 
-  // Mutations
+  // Mutations - using localStorage
   const createVendorMutation = useMutation({
-    mutationFn: (newVendor: Omit<Vendor, 'id'>) => 
-      fetch('/api/vendors', {
-        method: 'POST',
-        headers,
-        body: JSON.stringify(newVendor),
-      }).then(res => res.json()),
+    mutationFn: async (newVendor: Omit<Vendor, 'id'>) => {
+      // Get existing vendors from localStorage
+      const existingVendors = JSON.parse(localStorage.getItem('vendors') || '[]');
+      
+      // Create new vendor with ID
+      const vendorWithId = {
+        ...newVendor,
+        id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
+        createdAt: new Date().toISOString(),
+      };
+      
+      // Add to existing vendors
+      const allVendors = [...existingVendors, vendorWithId];
+      localStorage.setItem('vendors', JSON.stringify(allVendors));
+      
+      return vendorWithId;
+    },
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/vendors'] });
       queryClient.invalidateQueries({ queryKey: ['vendors'] });
       toast({
         title: 'Success',
@@ -244,13 +255,20 @@ export default function AdminDashboard() {
   });
 
   const updateVendorMutation = useMutation({
-    mutationFn: (updatedVendor: Vendor) => 
-      fetch(`/api/vendors/${updatedVendor.id}`, {
-        method: 'PUT',
-        headers,
-        body: JSON.stringify(updatedVendor),
-      }).then(res => res.json()),
+    mutationFn: async (updatedVendor: Vendor) => {
+      // Get existing vendors from localStorage
+      const existingVendors = JSON.parse(localStorage.getItem('vendors') || '[]');
+      
+      // Update the vendor
+      const updatedVendors = existingVendors.map((v: any) => 
+        v.id === updatedVendor.id ? updatedVendor : v
+      );
+      
+      localStorage.setItem('vendors', JSON.stringify(updatedVendors));
+      return updatedVendor;
+    },
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/vendors'] });
       queryClient.invalidateQueries({ queryKey: ['vendors'] });
       toast({
         title: 'Success',
@@ -267,12 +285,18 @@ export default function AdminDashboard() {
   });
 
   const deleteVendorMutation = useMutation({
-    mutationFn: (id: string) => 
-      fetch(`/api/vendors/${id}`, {
-        method: 'DELETE',
-        headers,
-      }),
+    mutationFn: async (id: string) => {
+      // Get existing vendors from localStorage
+      const existingVendors = JSON.parse(localStorage.getItem('vendors') || '[]');
+      
+      // Remove the vendor
+      const filteredVendors = existingVendors.filter((v: any) => v.id !== id);
+      
+      localStorage.setItem('vendors', JSON.stringify(filteredVendors));
+      return id;
+    },
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/vendors'] });
       queryClient.invalidateQueries({ queryKey: ['vendors'] });
       toast({
         title: 'Success',
