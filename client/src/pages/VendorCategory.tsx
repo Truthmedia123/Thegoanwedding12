@@ -7,13 +7,19 @@ import { Button } from "@/components/ui/button";
 import SimplifiedVendorCard from "@/components/vendor/SimplifiedVendorCard";
 import type { Vendor } from "@shared/schema";
 import NewsletterSignup from "@/components/engagement/NewsletterSignup";
+import { mockVendors } from "@/data/mockVendors";
+import { supabase, isSupabaseConfigured } from "@/lib/supabase";
 
 export default function VendorCategory() {
+  console.log('VendorCategory component loaded');
+  
   const { category } = useParams();
   const [location] = useLocation();
   const [search, setSearch] = useState("");
   const [selectedLocation, setSelectedLocation] = useState("");
   const [sortBy, setSortBy] = useState("rating");
+  
+  console.log('Category:', category);
 
   // Parse URL parameters
   useEffect(() => {
@@ -22,39 +28,71 @@ export default function VendorCategory() {
     setSelectedLocation(urlParams.get('location') || '');
   }, [location]);
 
-  const { data: vendors, isLoading } = useQuery<Vendor[]>({
-    queryKey: ["/api/vendors", category, search, selectedLocation],
+  const { data: vendors, isLoading, error } = useQuery<Vendor[]>({
+    queryKey: ['vendors', category, search, selectedLocation], // Use consistent key
     queryFn: async () => {
-      // Get vendors from localStorage for now
-      const storedVendors = JSON.parse(localStorage.getItem('vendors') || '[]');
-      let filteredVendors = storedVendors;
-      
-      // Apply filters
-      if (category && category !== 'all') {
-        filteredVendors = filteredVendors.filter((v: any) => 
-          v.category?.toLowerCase() === category.toLowerCase()
-        );
+      try {
+        console.log('Query function started');
+        let allVendors: any[] = [];
+        
+        if (isSupabaseConfigured) {
+          console.log('Loading vendors from Supabase...');
+          const { data, error: supabaseError } = await supabase
+            .from('vendors')
+            .select('*');
+          
+          if (supabaseError) {
+            console.error('Supabase error:', supabaseError);
+            throw new Error(`Failed to fetch vendors: ${supabaseError.message}`);
+          }
+          
+          allVendors = data || [];
+          console.log('Vendors loaded from Supabase:', allVendors.length);
+        } else {
+          console.log('Supabase not configured, using localStorage + mock data');
+          const storedVendors = JSON.parse(localStorage.getItem('vendors') || '[]');
+          allVendors = [...mockVendors, ...storedVendors];
+          console.log('Total vendors loaded (mock + stored):', allVendors.length);
+        }
+        
+        console.log('Category filter:', category);
+        
+        let filteredVendors = allVendors;
+        
+        // Apply filters
+        if (category && category !== 'all') {
+          filteredVendors = filteredVendors.filter((v: any) => 
+            v.category?.toLowerCase() === category.toLowerCase()
+          );
+          console.log(`Vendors in category "${category}":`, filteredVendors.length);
+        }
+        if (search) {
+          const searchLower = search.toLowerCase();
+          filteredVendors = filteredVendors.filter((v: any) => 
+            v.name?.toLowerCase().includes(searchLower) ||
+            v.category?.toLowerCase().includes(searchLower) ||
+            v.location?.toLowerCase().includes(searchLower)
+          );
+        }
+        if (selectedLocation && selectedLocation !== 'all') {
+          filteredVendors = filteredVendors.filter((v: any) => 
+            v.location?.toLowerCase().includes(selectedLocation.toLowerCase())
+          );
+        }
+        
+        console.log('Returning filtered vendors:', filteredVendors);
+        return filteredVendors;
+      } catch (err) {
+        console.error('Query function error:', err);
+        throw err;
       }
-      if (search) {
-        const searchLower = search.toLowerCase();
-        filteredVendors = filteredVendors.filter((v: any) => 
-          v.name?.toLowerCase().includes(searchLower) ||
-          v.category?.toLowerCase().includes(searchLower) ||
-          v.location?.toLowerCase().includes(searchLower)
-        );
-      }
-      if (selectedLocation && selectedLocation !== 'all') {
-        filteredVendors = filteredVendors.filter((v: any) => 
-          v.location?.toLowerCase().includes(selectedLocation.toLowerCase())
-        );
-      }
-      
-      return filteredVendors;
     },
-    staleTime: 0, // Always fetch fresh data
-    refetchOnMount: true, // Refetch when component mounts
-    refetchOnWindowFocus: true, // Refetch when window regains focus
+    staleTime: 30000, // Cache for 30 seconds
+    refetchOnMount: true,
+    refetchOnWindowFocus: false
   });
+  
+  console.log('Query result - vendors:', vendors, 'isLoading:', isLoading, 'error:', error);
 
   const sortedVendors = vendors?.sort((a: Vendor, b: Vendor) => {
     switch (sortBy) {
@@ -73,6 +111,19 @@ export default function VendorCategory() {
     ? 'All Vendors' 
     : category?.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ') || 'Vendors';
 
+  // Show error if query failed
+  if (error) {
+    return (
+      <div className="min-h-screen bg-slate-50 p-8">
+        <div className="max-w-4xl mx-auto bg-red-50 border border-red-200 rounded-lg p-6">
+          <h2 className="text-2xl font-bold text-red-800 mb-2">Error Loading Vendors</h2>
+          <p className="text-red-600">{error.toString()}</p>
+          <pre className="mt-4 p-4 bg-white rounded text-sm overflow-auto">{JSON.stringify(error, null, 2)}</pre>
+        </div>
+      </div>
+    );
+  }
+  
   return (
     <div className="min-h-screen bg-slate-50">
       {/* Hero Section */}

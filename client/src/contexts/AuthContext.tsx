@@ -38,8 +38,34 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    // Get initial session
+  const checkAuth = () => {
+    // Check for sessionStorage token first (our custom auth)
+    const adminToken = sessionStorage.getItem('adminToken');
+    console.log('AuthContext checking token:', adminToken);
+    
+    if (adminToken) {
+      // Create a mock user for our token-based auth
+      const mockUser = {
+        id: 'admin-user',
+        email: 'admin@goanwedding.com',
+        role: 'admin'
+      } as any;
+      
+      const mockProfile = {
+        id: 'admin-user',
+        role: 'admin',
+        email: 'admin@goanwedding.com',
+        full_name: 'Admin User'
+      };
+      
+      setUser(mockUser);
+      setProfile(mockProfile);
+      setLoading(false);
+      console.log('AuthContext: Token auth successful');
+      return;
+    }
+    
+    // Fallback to Supabase auth if no token
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
@@ -49,24 +75,52 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         setLoading(false);
       }
     });
+  };
 
-    // Listen for auth changes
+  useEffect(() => {
+    checkAuth();
+    
+    // Listen for storage changes (when token is set from login)
+    const handleStorageChange = () => {
+      console.log('Storage changed, rechecking auth...');
+      checkAuth();
+    };
+    
+    window.addEventListener('storage', handleStorageChange);
+    
+    // Also listen for manual token changes (same tab)
+    const interval = setInterval(() => {
+      const currentToken = sessionStorage.getItem('adminToken');
+      if (currentToken && !user) {
+        console.log('Token detected, rechecking auth...');
+        checkAuth();
+      }
+    }, 1000);
+    
+    // Listen for Supabase auth changes
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      
-      if (session?.user) {
-        await fetchProfile(session.user.id);
-      } else {
-        setProfile(null);
-        setLoading(false);
+      // Only handle Supabase auth if no token exists
+      if (!sessionStorage.getItem('adminToken')) {
+        setSession(session);
+        setUser(session?.user ?? null);
+        
+        if (session?.user) {
+          await fetchProfile(session.user.id);
+        } else {
+          setProfile(null);
+          setLoading(false);
+        }
       }
     });
 
-    return () => subscription.unsubscribe();
-  }, []);
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      clearInterval(interval);
+      subscription.unsubscribe();
+    };
+  }, [user]); // Add user as dependency
 
   const fetchProfile = async (userId: string) => {
     console.log('Fetching profile for user:', userId);
@@ -97,7 +151,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   const signOut = async () => {
+    // Clear our custom token
+    sessionStorage.removeItem('adminToken');
+    
+    // Also clear Supabase auth if it exists
     await supabase.auth.signOut();
+    
     setUser(null);
     setSession(null);
     setProfile(null);

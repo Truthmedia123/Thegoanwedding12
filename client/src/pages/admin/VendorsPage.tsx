@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/lib/supabase';
+import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 import AdminLayout from '@/components/admin/AdminLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -37,25 +37,24 @@ import {
   MoreHorizontal
 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
+import { mockVendors as defaultMockVendors } from '@/data/mockVendors';
 
 interface Vendor {
-  id: number;
+  id: string;
   name: string;
-  description: string | null;
-  category: string | null;
-  location: string | null;
-  address: string | null;
-  phone: string | null;
-  email: string | null;
-  website: string | null;
-  rating: number | null;
-  featured_image: string | null;
-  images: string[] | null;
-  services: string[] | null;
-  price_range: string | null;
-  availability: string | null;
-  created_at: string;
-  updated_at: string;
+  description?: string;
+  category?: string;
+  location?: string;
+  address?: string;
+  phone?: string;
+  email?: string;
+  website?: string;
+  rating?: number;
+  price_range?: string;
+  availability?: string;
+  isVerified?: boolean;
+  created_at?: string;
+  updated_at?: string;
 }
 
 const VendorsPage: React.FC = () => {
@@ -63,119 +62,222 @@ const VendorsPage: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState('');
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [editingVendor, setEditingVendor] = useState<Vendor | null>(null);
-  const [selectedVendors, setSelectedVendors] = useState<number[]>([]);
+  const [selectedVendors, setSelectedVendors] = useState<string[]>([]);
   const [bulkAction, setBulkAction] = useState('');
+  const [isImporting, setIsImporting] = useState(false);
+  const [showImportDialog, setShowImportDialog] = useState(false);
+  const [pendingCsvData, setPendingCsvData] = useState<any[]>([]);
+  const [isClearing, setIsClearing] = useState(false);
 
   const queryClient = useQueryClient();
 
-  // Debug: Check Supabase connection on mount
+  const STORAGE_KEY = 'vendors';
+  const toVendorId = (value: unknown) => String(value ?? Date.now().toString());
+
+  // Debug: Log mounting
   useEffect(() => {
     console.log('VendorsPage mounted');
-    console.log('Supabase client:', supabase);
-    console.log('Supabase URL:', import.meta.env.VITE_SUPABASE_URL);
+    console.log('Supabase configured:', isSupabaseConfigured);
   }, []);
 
-  // Fetch vendors
-  const { data: vendors, isLoading, isError, error: queryError } = useQuery({
-    queryKey: ['vendors'],
+  // Fetch vendors with consistent query key
+  const { data: vendors, isLoading, isError, error: queryError, refetch } = useQuery({
+    queryKey: ['vendors'], // Use same key as public pages
     queryFn: async () => {
-      console.log('Fetching vendors from Supabase...');
-      try {
+      if (isSupabaseConfigured) {
+        console.log('Loading vendors from Supabase...');
         const { data, error } = await supabase
           .from('vendors')
           .select('*')
           .order('created_at', { ascending: false });
         
         if (error) {
-          console.error('Vendor fetch error:', error);
-          throw new Error(`Supabase error: ${error.message}`);
+          console.error('Supabase error:', error);
+          throw new Error(`Failed to fetch vendors: ${error.message}`);
         }
-        console.log('Vendors fetched successfully:', data?.length);
-        return data as Vendor[];
-      } catch (err) {
-        console.error('Exception fetching vendors:', err);
-        throw err;
+        
+        const normalized = (data || []).map((vendor: any) => ({
+          ...vendor,
+          id: toVendorId(vendor.id),
+          rating: typeof vendor.rating === 'number' ? vendor.rating : Number(vendor.rating) || undefined,
+        })) as Vendor[];
+        
+        console.log('Vendors loaded from Supabase:', normalized.length);
+        return normalized;
+      } else {
+        console.log('Supabase not configured, using localStorage + mock data...');
+        const storedVendors = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+        const combined = [...defaultMockVendors, ...storedVendors];
+        const normalized = combined.map((vendor: any) => ({
+          ...vendor,
+          id: toVendorId(vendor.id),
+          rating: typeof vendor.rating === 'number' ? vendor.rating : Number(vendor.rating) || undefined,
+          price_range: vendor.price_range || (Array.isArray(vendor.priceRange) ? `${vendor.priceRange[0]} - ${vendor.priceRange[1]}` : vendor.priceRange),
+        })) as Vendor[];
+        console.log('Vendors loaded (mock + stored):', normalized.length);
+        return normalized;
       }
     },
-    retry: false,
+    retry: 1,
     staleTime: 0,
     gcTime: 0,
+    refetchOnWindowFocus: false,
   });
 
-  // Fetch categories
-  const { data: categories } = useQuery({
-    queryKey: ['categories'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('categories')
-        .select('*')
-        .order('name');
-      
-      if (error) throw error;
-      return data;
-    }
-  });
+  const categories = useMemo(() => {
+    if (!vendors) return [];
+    const unique = new Set<string>();
+    vendors.forEach((vendor) => {
+      if (vendor.category) {
+        unique.add(vendor.category);
+      }
+    });
+    return Array.from(unique).sort();
+  }, [vendors]);
 
   // Add vendor mutation
   const addVendorMutation = useMutation({
     mutationFn: async (vendorData: Partial<Vendor>) => {
-      const { data, error } = await supabase
-        .from('vendors')
-        .insert([vendorData])
-        .select()
-        .single();
-      
-      if (error) throw error;
-      return data;
+      if (isSupabaseConfigured) {
+        const { data, error } = await supabase
+          .from('vendors')
+          .insert([vendorData])
+          .select()
+          .single();
+        
+        if (error) throw new Error(`Failed to add vendor: ${error.message}`);
+        return data;
+      } else {
+        const existing = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+        const newVendor: Vendor = {
+          ...vendorData,
+          id: Date.now().toString(),
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        } as Vendor;
+        localStorage.setItem(STORAGE_KEY, JSON.stringify([newVendor, ...existing]));
+        return newVendor;
+      }
     },
     onSuccess: () => {
+      // Invalidate all vendor-related queries
       queryClient.invalidateQueries({ queryKey: ['vendors'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/vendors'] });
       setIsAddDialogOpen(false);
+      refetch(); // Force immediate refetch
       toast({
         title: 'Success',
         description: 'Vendor added successfully',
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: 'Error',
+        description: error.message || 'Failed to add vendor',
+        variant: 'destructive',
       });
     }
   });
 
   // Update vendor mutation
   const updateVendorMutation = useMutation({
-    mutationFn: async ({ id, ...vendorData }: Partial<Vendor> & { id: number }) => {
-      const { data, error } = await supabase
-        .from('vendors')
-        .update(vendorData)
-        .eq('id', id)
-        .select()
-        .single();
-      
-      if (error) throw error;
-      return data;
+    mutationFn: async ({ id, ...vendorData }: Partial<Vendor> & { id: string }) => {
+      if (isSupabaseConfigured) {
+        const { data, error } = await supabase
+          .from('vendors')
+          .update(vendorData)
+          .eq('id', id)
+          .select()
+          .single();
+        
+        if (error) throw new Error(`Failed to update vendor: ${error.message}`);
+        return data;
+      } else {
+        const existing: Vendor[] = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+        const updated = existing.map((vendor) =>
+          vendor.id === id
+            ? {
+                ...vendor,
+                ...vendorData,
+                updated_at: new Date().toISOString(),
+              }
+            : vendor
+        );
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+        return { id, ...vendorData };
+      }
     },
     onSuccess: () => {
+      // Invalidate all vendor-related queries
       queryClient.invalidateQueries({ queryKey: ['vendors'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/vendors'] });
       setEditingVendor(null);
+      refetch(); // Force immediate refetch
       toast({
         title: 'Success',
         description: 'Vendor updated successfully',
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: 'Error',
+        description: error.message || 'Failed to update vendor',
+        variant: 'destructive',
       });
     }
   });
 
   // Delete vendor mutation
   const deleteVendorMutation = useMutation({
-    mutationFn: async (id: number) => {
-      const { error } = await supabase
-        .from('vendors')
-        .delete()
-        .eq('id', id);
+    mutationFn: async (id: string) => {
+      console.log('Deleting vendor with ID:', id, 'Type:', typeof id);
       
-      if (error) throw error;
+      if (isSupabaseConfigured) {
+        // Try both string and number ID formats
+        const numericId = parseInt(id);
+        const { data: deletedData, error } = await supabase
+          .from('vendors')
+          .delete()
+          .or(`id.eq.${id},id.eq.${numericId}`)
+          .select();
+        
+        console.log('Delete result:', { deletedData, error });
+        
+        if (error) {
+          console.error('Supabase delete error:', error);
+          throw new Error(`Failed to delete vendor: ${error.message}`);
+        }
+        
+        if (!deletedData || deletedData.length === 0) {
+          console.warn('No vendor was deleted - ID might not exist');
+        }
+        
+        return deletedData;
+      } else {
+        const existing: Vendor[] = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+        const remaining = existing.filter((vendor) => vendor.id !== id);
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(remaining));
+      }
     },
-    onSuccess: () => {
+    onSuccess: (deletedData) => {
+      console.log('Delete mutation successful:', deletedData);
+      // Invalidate all vendor-related queries
       queryClient.invalidateQueries({ queryKey: ['vendors'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/vendors'] });
+      // Force immediate refetch with a small delay to ensure DB consistency
+      setTimeout(() => {
+        refetch();
+      }, 100);
       toast({
         title: 'Success',
         description: 'Vendor deleted successfully',
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: 'Error',
+        description: error.message || 'Failed to delete vendor',
+        variant: 'destructive',
       });
     }
   });
@@ -211,43 +313,177 @@ const VendorsPage: React.FC = () => {
     }
   };
 
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      try {
-        const csv = e.target?.result as string;
-        const lines = csv.split('\n');
-        const headers = lines[0].split(',');
-        const vendors = lines.slice(1).map(line => {
-          const values = line.split(',');
-          const vendor: any = {};
-          headers.forEach((header, index) => {
-            vendor[header.trim()] = values[index]?.trim() || null;
-          });
-          return vendor;
+    try {
+      const text = await file.text();
+      const lines = text.split('\n').filter(line => line.trim());
+      
+      if (lines.length < 2) {
+        throw new Error('CSV file must have at least a header and one data row');
+      }
+      
+      const headers = lines[0].split(',').map(h => h.trim());
+      const vendorRows = lines.slice(1);
+      
+      const vendors = vendorRows.map(line => {
+        const values = line.split(',').map(v => v.trim().replace(/^"|"$/g, ''));
+        const vendor: any = {};
+        
+        headers.forEach((header, index) => {
+          const value = values[index] || null;
+          const cleanHeader = header.toLowerCase().replace(/[^a-z0-9]/g, '_');
+          vendor[cleanHeader] = value;
         });
+        
+        return vendor;
+      });
+      
+      console.log('Parsed CSV vendors:', vendors);
+      setPendingCsvData(vendors);
+      setShowImportDialog(true);
+      
+      // Clear the file input
+      event.target.value = '';
+      
+    } catch (error: any) {
+      console.error('CSV parsing error:', error);
+      toast({
+        title: 'CSV Parse Failed',
+        description: error.message || 'Failed to parse CSV file',
+        variant: 'destructive',
+      });
+    }
+  };
 
-        // Process bulk insert
-        vendors.forEach(vendor => {
-          addVendorMutation.mutate(vendor);
-        });
+  const handleImportConfirm = async (replaceAll: boolean) => {
+    setIsImporting(true);
+    setShowImportDialog(false);
+    
+    try {
+      let successCount = 0;
+      let errorCount = 0;
+      
+      // If replacing all, delete existing vendors first
+      if (replaceAll && isSupabaseConfigured) {
+        console.log('Deleting all existing vendors...');
+        
+        // First, get all vendor IDs
+        const { data: existingVendors, error: fetchError } = await supabase
+          .from('vendors')
+          .select('id');
+        
+        if (fetchError) {
+          console.error('Failed to fetch existing vendors:', fetchError);
+          throw new Error('Failed to fetch existing vendors for deletion');
+        }
+        
+        console.log('Found vendors to delete:', existingVendors?.length || 0);
+        
+        if (existingVendors && existingVendors.length > 0) {
+          // Delete all vendors using a proper condition
+          const { data: deletedData, error: deleteError } = await supabase
+            .from('vendors')
+            .delete()
+            .gte('id', 0) // Delete all records where id >= 0 (should catch all)
+            .select();
+          
+          console.log('Bulk delete result:', { deletedCount: deletedData?.length, error: deleteError });
+          
+          if (deleteError) {
+            console.error('Failed to delete existing vendors:', deleteError);
+            throw new Error(`Failed to clear existing vendors: ${deleteError.message}`);
+          }
+          
+          console.log(`Successfully deleted ${deletedData?.length || 0} existing vendors`);
+        } else {
+          console.log('No existing vendors to delete');
+        }
+      }
+      
+      // Import new vendors
+      for (const vendor of pendingCsvData) {
+        try {
+          await addVendorMutation.mutateAsync(vendor);
+          successCount++;
+        } catch (error) {
+          console.error('Failed to import vendor:', vendor, error);
+          errorCount++;
+        }
+      }
+      
+      toast({
+        title: replaceAll ? 'Vendors Replaced' : 'Vendors Added',
+        description: `${successCount} vendors imported successfully${errorCount > 0 ? `, ${errorCount} failed` : ''}${replaceAll ? ' (Previous vendors removed)' : ''}`,
+      });
+      
+    } catch (error: any) {
+      console.error('CSV import error:', error);
+      toast({
+        title: 'Import Failed',
+        description: error.message || 'Failed to import vendors',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsImporting(false);
+      setPendingCsvData([]);
+    }
+  };
 
+  // Clear all vendors function for debugging
+  const handleClearAllVendors = async () => {
+    if (!confirm('⚠️ This will DELETE ALL VENDORS permanently. Are you sure?')) {
+      return;
+    }
+    
+    setIsClearing(true);
+    
+    try {
+      if (isSupabaseConfigured) {
+        console.log('🗑️ Clearing all vendors from Supabase...');
+        
+        // Get count first
+        const { count } = await supabase
+          .from('vendors')
+          .select('*', { count: 'exact', head: true });
+        
+        console.log('Vendors to delete:', count);
+        
+        // Delete all
+        const { data: deletedData, error } = await supabase
+          .from('vendors')
+          .delete()
+          .gte('id', 0)
+          .select();
+        
+        console.log('Clear all result:', { deletedCount: deletedData?.length, error });
+        
+        if (error) {
+          throw new Error(`Failed to clear vendors: ${error.message}`);
+        }
+        
+        // Force refresh
+        queryClient.invalidateQueries({ queryKey: ['vendors'] });
+        queryClient.invalidateQueries({ queryKey: ['/api/vendors'] });
+        setTimeout(() => refetch(), 100);
+        
         toast({
-          title: 'Success',
-          description: `${vendors.length} vendors imported`,
-        });
-      } catch (error) {
-        toast({
-          title: 'Error',
-          description: 'Failed to parse CSV file',
-          variant: 'destructive',
+          title: 'All Vendors Cleared',
+          description: `Successfully deleted ${deletedData?.length || 0} vendors`,
         });
       }
-    };
-    reader.readAsText(file);
+    } catch (error: any) {
+      console.error('Clear all error:', error);
+      toast({
+        title: 'Clear Failed',
+        description: error.message || 'Failed to clear vendors',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsClearing(false);
+    }
   };
 
   return (
@@ -263,10 +499,30 @@ const VendorsPage: React.FC = () => {
               <Plus className="w-4 h-4 mr-2" />
               Add Vendor
             </Button>
-            <Button variant="outline">
+            <Button 
+              variant="outline" 
+              onClick={() => document.getElementById('csv-upload')?.click()}
+              disabled={isImporting}
+            >
               <Upload className="w-4 h-4 mr-2" />
-              Import CSV
+              {isImporting ? 'Importing...' : 'Import CSV'}
             </Button>
+            <Button 
+              variant="destructive" 
+              onClick={handleClearAllVendors}
+              disabled={isClearing}
+              size="sm"
+            >
+              <Trash2 className="w-4 h-4 mr-2" />
+              {isClearing ? 'Clearing...' : 'Clear All'}
+            </Button>
+            <input
+              id="csv-upload"
+              type="file"
+              accept=".csv"
+              onChange={handleFileSelect}
+              style={{ display: 'none' }}
+            />
           </div>
         </div>
 
@@ -295,9 +551,9 @@ const VendorsPage: React.FC = () => {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">All categories</SelectItem>
-                    {categories?.map((category) => (
-                      <SelectItem key={category.id} value={category.name}>
-                        {category.name}
+                    {categories.map((category) => (
+                      <SelectItem key={category} value={category}>
+                        {category}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -407,7 +663,7 @@ const VendorsPage: React.FC = () => {
                       <Badge variant="secondary">{vendor.category}</Badge>
                     </TableCell>
                     <TableCell>{vendor.location}</TableCell>
-                    <TableCell>{vendor.rating || 'N/A'}</TableCell>
+                    <TableCell>{vendor.rating ?? 'N/A'}</TableCell>
                     <TableCell>
                       <Badge variant="outline">Active</Badge>
                     </TableCell>
@@ -468,6 +724,51 @@ const VendorsPage: React.FC = () => {
               onSubmit={(data) => editingVendor && updateVendorMutation.mutate({ id: editingVendor.id, ...data })}
               onCancel={() => setEditingVendor(null)}
             />
+          </DialogContent>
+        </Dialog>
+
+        {/* CSV Import Confirmation Dialog */}
+        <Dialog open={showImportDialog} onOpenChange={setShowImportDialog}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Import CSV Vendors</DialogTitle>
+              <DialogDescription>
+                Found {pendingCsvData.length} vendors in your CSV file. How would you like to import them?
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                <p className="text-sm text-yellow-800">
+                  <strong>Current vendors:</strong> {vendors?.length || 0} in database
+                </p>
+              </div>
+              <div className="space-y-2">
+                <p className="text-sm text-gray-600">Choose import method:</p>
+                <div className="grid grid-cols-1 gap-2">
+                  <Button 
+                    variant="destructive" 
+                    onClick={() => handleImportConfirm(true)}
+                    disabled={isImporting}
+                  >
+                    🗑️ Replace All Vendors
+                    <span className="text-xs ml-2">(Delete existing + import new)</span>
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    onClick={() => handleImportConfirm(false)}
+                    disabled={isImporting}
+                  >
+                    ➕ Add to Existing Vendors
+                    <span className="text-xs ml-2">(Keep existing + add new)</span>
+                  </Button>
+                </div>
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="ghost" onClick={() => setShowImportDialog(false)}>
+                Cancel
+              </Button>
+            </DialogFooter>
           </DialogContent>
         </Dialog>
       </div>

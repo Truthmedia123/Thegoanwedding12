@@ -3,11 +3,17 @@ import { createClient } from '@supabase/supabase-js'
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
 
+// Make Supabase optional - use dummy values if not configured
+const url = supabaseUrl || 'https://placeholder.supabase.co'
+const key = supabaseAnonKey || 'placeholder-key'
+
+// Only warn in development, don't crash the app
 if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error('Missing Supabase environment variables. Please check VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.')
+  console.warn('⚠️ Supabase not configured. Using localStorage fallback for data storage.')
 }
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey)
+export const supabase = createClient(url, key)
+export const isSupabaseConfigured = !!(supabaseUrl && supabaseAnonKey)
 
 // Database types for TypeScript support
 export interface Database {

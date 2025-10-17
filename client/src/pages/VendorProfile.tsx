@@ -15,6 +15,8 @@ import NewsletterSignup from "@/components/engagement/NewsletterSignup";
 import { vendorJSONLD } from "@/utils/seoStructuredData";
 import { Helmet } from "react-helmet";
 import type { Review } from "@shared/schema";
+import { mockVendors } from "@/data/mockVendors";
+import { supabase, isSupabaseConfigured } from "@/lib/supabase";
 
 // Extend window interface for social media SDKs
 declare global {
@@ -68,7 +70,49 @@ export default function VendorProfile() {
   });
 
   const { data: vendor, isLoading } = useQuery<any>({
-    queryKey: [`/api/vendors/${id}`],
+    queryKey: ['vendors', id], // Use consistent key
+    queryFn: async () => {
+      console.log('Fetching vendor with ID:', id);
+      
+      if (isSupabaseConfigured) {
+        console.log('Loading vendor from Supabase...');
+        const { data, error } = await supabase
+          .from('vendors')
+          .select('*')
+          .eq('id', id)
+          .single();
+        
+        if (error) {
+          console.error('Supabase error:', error);
+          if (error.code === 'PGRST116') {
+            // Not found
+            return null;
+          }
+          throw new Error(`Failed to fetch vendor: ${error.message}`);
+        }
+        
+        console.log('Vendor loaded from Supabase:', data);
+        return data;
+      } else {
+        console.log('Supabase not configured, using localStorage + mock data');
+        const storedVendors = JSON.parse(localStorage.getItem('vendors') || '[]');
+        const allVendors = [...mockVendors, ...storedVendors];
+        
+        console.log('Total vendors available:', allVendors.length);
+        
+        // Find vendor by ID (convert to number for comparison)
+        const vendorId = Number(id);
+        const foundVendor = allVendors.find((v: any) => Number(v.id) === vendorId);
+        
+        console.log('Found vendor:', foundVendor);
+        
+        if (!foundVendor) {
+          return null;
+        }
+        
+        return foundVendor;
+      }
+    },
   });
 
   // Add Umami tracking for vendor page views
@@ -84,6 +128,10 @@ export default function VendorProfile() {
 
   const { data: reviews } = useQuery<Review[]>({
     queryKey: [`/api/vendors/${id}/reviews`],
+    queryFn: async () => {
+      // Return empty reviews for now - can be extended to use localStorage
+      return [];
+    },
   });
 
   // Add Umami tracking for vendor page views

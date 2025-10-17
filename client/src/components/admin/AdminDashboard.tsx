@@ -16,6 +16,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { toast } from '@/hooks/use-toast';
 import { Edit, Trash2, Plus, FileText, BarChart2, Eye, Calendar, Upload } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { mockVendors as defaultMockVendors } from '@/data/mockVendors';
 
 import { Calendar as CalendarIcon } from 'lucide-react';
 import { format } from 'date-fns';
@@ -177,15 +178,17 @@ export default function AdminDashboard() {
   // Query client for invalidating queries
   const queryClient = useQueryClient();
 
-  // Enhanced data fetching with better error handling - using localStorage
+  // Enhanced data fetching with better error handling - using localStorage + mock data
   const { data: vendors, isLoading: vendorsLoading, error: vendorsError } = useQuery<Vendor[]>({
     queryKey: ['vendors'],
     queryFn: async () => {
       try {
-        // Get vendors from localStorage
+        // Get vendors from localStorage and combine with mock vendors
         const storedVendors = JSON.parse(localStorage.getItem('vendors') || '[]');
-        console.log('Loaded vendors from localStorage:', storedVendors);
-        return storedVendors.length > 0 ? storedVendors : mockVendors;
+        const allVendors = [...defaultMockVendors, ...storedVendors];
+        console.log('Loaded vendors from localStorage:', storedVendors.length);
+        console.log('Total vendors (mock + localStorage):', allVendors.length);
+        return allVendors;
       } catch (error) {
         console.error('Error loading vendors from localStorage:', error);
         // Return mock data as fallback
