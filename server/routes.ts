@@ -915,6 +915,201 @@ export function registerRoutes(app: Hono<{ Bindings: Env }>) {
       return c.json({ error: "Failed to submit business listing to Directus" }, 500);
     }
   });
+
+  // ============================================
+  // YOUTUBE GALLERY SYNC ROUTES
+  // ============================================
+
+  /**
+   * Sync vendor gallery from YouTube channel
+   * POST /api/vendors/:id/sync-youtube
+   */
+  app.post("/api/vendors/:id/sync-youtube", authenticateAdmin('vendors'), async (c) => {
+    const vendorId = parseInt(c.req.param('id'));
+    
+    try {
+      const db = getDb(c.env);
+      
+      // Get vendor
+      const vendor = await db.query.vendors.findFirst({
+        where: eq(vendors.id, vendorId),
+      });
+
+      if (!vendor) {
+        return c.json({ error: 'Vendor not found' }, 404);
+      }
+
+      if (!vendor.youtube) {
+        return c.json({ error: 'No YouTube channel configured for this vendor' }, 400);
+      }
+
+      console.log(`📺 Syncing YouTube gallery for vendor ${vendorId}: ${vendor.name}`);
+
+      // Fetch videos from YouTube
+      const result = await fetchYouTubeVideos(vendor.youtube, c.env.YOUTUBE_API_KEY);
+
+      if (!result.success) {
+        return c.json({ error: result.error || 'Failed to fetch YouTube videos' }, 500);
+      }
+
+      // Update vendor images with YouTube thumbnails
+      const existingImages = vendor.images || [];
+      const newImages = [...result.thumbnails, ...existingImages].slice(0, 20); // Keep max 20 images
+
+      await db.update(vendors)
+        .set({
+          images: newImages,
+          updated_at: new Date().toISOString(),
+        })
+        .where(eq(vendors.id, vendorId));
+
+      console.log(`✅ Synced ${result.thumbnails.length} YouTube thumbnails for vendor ${vendorId}`);
+
+      return c.json({
+        success: true,
+        videosFound: result.videos.length,
+        thumbnailsAdded: result.thumbnails.length,
+        totalImages: newImages.length,
+        videos: result.videos,
+      });
+    } catch (error: any) {
+      console.error('❌ YouTube sync error:', error);
+      return c.json({ error: error.message || 'Failed to sync YouTube gallery' }, 500);
+    }
+  });
+
+  /**
+   * Preview YouTube videos for a channel (without saving)
+   * GET /api/youtube/preview?channelId=UCxxx
+   */
+  app.get("/api/youtube/preview", authenticateAdmin('vendors'), async (c) => {
+    const channelId = c.req.query('channelId');
+
+    if (!channelId) {
+      return c.json({ error: 'channelId parameter is required' }, 400);
+    }
+
+    try {
+      const result = await fetchYouTubeVideos(channelId, c.env.YOUTUBE_API_KEY);
+
+      if (!result.success) {
+        return c.json({ error: result.error || 'Failed to fetch YouTube videos' }, 500);
+      }
+
+      return c.json({
+        success: true,
+        channelId,
+        videosFound: result.videos.length,
+        videos: result.videos,
+        thumbnails: result.thumbnails,
+      });
+    } catch (error: any) {
+      console.error('❌ YouTube preview error:', error);
+      return c.json({ error: error.message || 'Failed to preview YouTube channel' }, 500);
+    }
+  });
+
+  // ============================================
+  // YOUTUBE SYNC HELPER FUNCTIONS
+  // ============================================
+
+  interface YouTubeVideo {
+    videoId: string;
+    title: string;
+    description: string;
+    thumbnail: string;
+    thumbnailHigh: string;
+    publishedAt: string;
+  }
+
+  interface YouTubeSyncResult {
+    success: boolean;
+    videos: YouTubeVideo[];
+    thumbnails: string[];
+    error?: string;
+  }
+
+  /**
+   * Fetch videos from YouTube channel
+   */
+  async function fetchYouTubeVideos(
+    channelId: string,
+    apiKey?: string,
+    maxResults: number = 12
+  ): Promise<YouTubeSyncResult> {
+    if (!apiKey) {
+      return {
+        success: false,
+        videos: [],
+        thumbnails: [],
+        error: 'YouTube API key not configured. Set YOUTUBE_API_KEY environment variable.',
+      };
+    }
+
+    try {
+      console.log(`📺 Fetching videos for channel: ${channelId}`);
+
+      const response = await fetch(
+        `https://www.googleapis.com/youtube/v3/search?` +
+        `key=${apiKey}&` +
+        `channelId=${channelId}&` +
+        `part=snippet&` +
+        `order=date&` +
+        `maxResults=${maxResults}&` +
+        `type=video`
+      );
+
+      if (!response.ok) {
+        const error = await response.json();
+        console.error('❌ YouTube API error:', error);
+        return {
+          success: false,
+          videos: [],
+          thumbnails: [],
+          error: error.error?.message || 'YouTube API request failed',
+        };
+      }
+
+      const data = await response.json();
+
+      if (!data.items || data.items.length === 0) {
+        console.log('⚠️ No videos found for channel');
+        return {
+          success: true,
+          videos: [],
+          thumbnails: [],
+        };
+      }
+
+      const videos: YouTubeVideo[] = data.items.map((item: any) => ({
+        videoId: item.id.videoId,
+        title: item.snippet.title,
+        description: item.snippet.description,
+        thumbnail: item.snippet.thumbnails.default.url,
+        thumbnailHigh: item.snippet.thumbnails.high?.url || item.snippet.thumbnails.medium.url,
+        publishedAt: item.snippet.publishedAt,
+      }));
+
+      const thumbnails = videos.map(v => v.thumbnailHigh);
+
+      console.log(`✅ Fetched ${videos.length} videos from YouTube`);
+
+      return {
+        success: true,
+        videos,
+        thumbnails,
+      };
+    } catch (error: any) {
+      console.error('❌ YouTube fetch error:', error);
+      return {
+        success: false,
+        videos: [],
+        thumbnails: [],
+        error: error.message,
+      };
+    }
+  }
+
 }
 
 export { registerRoutes as setupRoutes };
