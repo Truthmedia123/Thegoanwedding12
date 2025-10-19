@@ -274,7 +274,10 @@ export default function VendorProfile() {
 
   // Determine gallery images based on available fields
   let galleryImages: string[] = [];
-  if (vendor.gallery_image_urls && Array.isArray(vendor.gallery_image_urls)) {
+  if (vendor.images && Array.isArray(vendor.images)) {
+    // Supabase stores images as array (used by YouTube sync)
+    galleryImages = vendor.images;
+  } else if (vendor.gallery_image_urls && Array.isArray(vendor.gallery_image_urls)) {
     galleryImages = vendor.gallery_image_urls;
   } else if (vendor.gallery && typeof vendor.gallery === 'string') {
     try {
