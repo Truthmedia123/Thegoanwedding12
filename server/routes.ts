@@ -928,6 +928,16 @@ export function registerRoutes(app: Hono<{ Bindings: Env }>) {
     const vendorId = parseInt(c.req.param('id'));
     
     try {
+      console.log('🔍 YouTube sync request received for vendor:', vendorId);
+      
+      // Check if YouTube API key is configured
+      if (!c.env.YOUTUBE_API_KEY) {
+        console.error('❌ YouTube API key not configured');
+        return c.json({ 
+          error: 'YouTube API key not configured. Please add YOUTUBE_API_KEY to environment variables.' 
+        }, 500);
+      }
+      
       const db = getDb(c.env);
       
       // Get vendor
@@ -936,19 +946,23 @@ export function registerRoutes(app: Hono<{ Bindings: Env }>) {
       });
 
       if (!vendor) {
+        console.error('❌ Vendor not found:', vendorId);
         return c.json({ error: 'Vendor not found' }, 404);
       }
 
       if (!vendor.youtube) {
+        console.error('❌ No YouTube channel for vendor:', vendor.name);
         return c.json({ error: 'No YouTube channel configured for this vendor' }, 400);
       }
 
       console.log(`📺 Syncing YouTube gallery for vendor ${vendorId}: ${vendor.name}`);
+      console.log(`📺 YouTube Channel ID: ${vendor.youtube}`);
 
       // Fetch videos from YouTube
       const result = await fetchYouTubeVideos(vendor.youtube, c.env.YOUTUBE_API_KEY);
 
       if (!result.success) {
+        console.error('❌ YouTube fetch failed:', result.error);
         return c.json({ error: result.error || 'Failed to fetch YouTube videos' }, 500);
       }
 
