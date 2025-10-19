@@ -394,6 +394,45 @@ const VendorsPage: React.FC = () => {
     return matchesSearch && matchesCategory;
   });
 
+  // Sync YouTube gallery
+  const syncYouTubeGallery = async (vendorId: string, channelId: string) => {
+    try {
+      console.log(`📺 Syncing YouTube gallery for vendor ${vendorId}, channel: ${channelId}`);
+      
+      const response = await fetch(`/api/vendors/${vendorId}/sync-youtube`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${sessionStorage.getItem('adminToken')}`,
+        },
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to sync YouTube gallery');
+      }
+
+      const result = await response.json();
+      
+      console.log(`✅ YouTube sync successful:`, result);
+      
+      toast({
+        title: 'YouTube Gallery Synced',
+        description: `Added ${result.thumbnailsAdded} video thumbnails from ${result.videosFound} videos`,
+      });
+
+      // Refresh vendors list
+      refetch();
+    } catch (error: any) {
+      console.error('❌ YouTube sync error:', error);
+      toast({
+        title: 'Sync Failed',
+        description: error.message || 'Failed to sync YouTube gallery. Check console for details.',
+        variant: 'destructive',
+      });
+    }
+  };
+
   const handleBulkAction = async () => {
     if (!bulkAction || selectedVendors.length === 0) {
       console.warn('⚠️ Bulk action called with no action or no vendors selected');
