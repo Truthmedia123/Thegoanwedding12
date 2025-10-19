@@ -1,8 +1,5 @@
-import { eq } from 'drizzle-orm';
-import { vendors } from '@shared/schema';
-
 interface Env {
-  DB: D1Database;
+  DB: any; // Cloudflare D1 Database
   YOUTUBE_API_KEY: string;
 }
 
