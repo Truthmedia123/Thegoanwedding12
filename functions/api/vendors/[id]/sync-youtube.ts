@@ -1,6 +1,7 @@
 interface Env {
-  DB: any; // Cloudflare D1 Database
   YOUTUBE_API_KEY: string;
+  SUPABASE_URL: string;
+  SUPABASE_ANON_KEY: string;
 }
 
 interface YouTubeVideo {
@@ -106,9 +107,34 @@ export async function onRequestPost(context: { request: Request; env: Env; param
       );
     }
 
-    // Get vendor from D1
-    const stmt = env.DB.prepare('SELECT * FROM vendors WHERE id = ?').bind(vendorId);
-    const vendor = await stmt.first();
+    // Check Supabase configuration
+    if (!env.SUPABASE_URL || !env.SUPABASE_ANON_KEY) {
+      console.error('❌ Supabase not configured');
+      return new Response(
+        JSON.stringify({ error: 'Supabase configuration missing' }),
+        { status: 500, headers: { 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Get vendor from Supabase
+    const supabaseUrl = `${env.SUPABASE_URL}/rest/v1/vendors?id=eq.${vendorId}&select=*`;
+    const vendorResponse = await fetch(supabaseUrl, {
+      headers: {
+        'apikey': env.SUPABASE_ANON_KEY,
+        'Authorization': `Bearer ${env.SUPABASE_ANON_KEY}`,
+      },
+    });
+
+    if (!vendorResponse.ok) {
+      console.error('❌ Failed to fetch vendor from Supabase');
+      return new Response(
+        JSON.stringify({ error: 'Failed to fetch vendor' }),
+        { status: 500, headers: { 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const vendors = await vendorResponse.json();
+    const vendor = vendors[0];
 
     if (!vendor) {
       console.error('❌ Vendor not found:', vendorId);
@@ -130,7 +156,7 @@ export async function onRequestPost(context: { request: Request; env: Env; param
     console.log(`📺 YouTube Channel ID: ${vendor.youtube}`);
 
     // Fetch videos from YouTube
-    const result = await fetchYouTubeVideos(vendor.youtube as string, env.YOUTUBE_API_KEY);
+    const result = await fetchYouTubeVideos(vendor.youtube, env.YOUTUBE_API_KEY);
 
     if (!result.success) {
       console.error('❌ YouTube fetch failed:', result.error);
@@ -140,15 +166,32 @@ export async function onRequestPost(context: { request: Request; env: Env; param
       );
     }
 
-    // Update vendor images with YouTube thumbnails
-    const existingImages = vendor.images ? JSON.parse(vendor.images as string) : [];
+    // Update vendor images with YouTube thumbnails in Supabase
+    const existingImages = vendor.images || [];
     const newImages = [...result.thumbnails, ...existingImages].slice(0, 20);
 
-    const updateStmt = env.DB.prepare(
-      'UPDATE vendors SET images = ?, updated_at = ? WHERE id = ?'
-    ).bind(JSON.stringify(newImages), new Date().toISOString(), vendorId);
+    const updateUrl = `${env.SUPABASE_URL}/rest/v1/vendors?id=eq.${vendorId}`;
+    const updateResponse = await fetch(updateUrl, {
+      method: 'PATCH',
+      headers: {
+        'apikey': env.SUPABASE_ANON_KEY,
+        'Authorization': `Bearer ${env.SUPABASE_ANON_KEY}`,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=minimal',
+      },
+      body: JSON.stringify({
+        images: newImages,
+        updated_at: new Date().toISOString(),
+      }),
+    });
 
-    await updateStmt.run();
+    if (!updateResponse.ok) {
+      console.error('❌ Failed to update vendor in Supabase');
+      return new Response(
+        JSON.stringify({ error: 'Failed to update vendor images' }),
+        { status: 500, headers: { 'Content-Type': 'application/json' } }
+      );
+    }
 
     console.log(`✅ Synced ${result.thumbnails.length} YouTube thumbnails for vendor ${vendorId}`);
 
