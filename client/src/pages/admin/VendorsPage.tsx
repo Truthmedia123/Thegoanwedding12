@@ -74,10 +74,50 @@ const VendorsPage: React.FC = () => {
   const STORAGE_KEY = 'vendors';
   const toVendorId = (value: unknown) => String(value ?? Date.now().toString());
 
-  // Debug: Log mounting
+  // Debug: Log mounting and check authentication
   useEffect(() => {
     console.log('VendorsPage mounted');
     console.log('Supabase configured:', isSupabaseConfigured);
+    
+    // Check authentication status
+    const checkAuth = async () => {
+      if (isSupabaseConfigured) {
+        const { data: { session }, error } = await supabase.auth.getSession();
+        
+        if (error) {
+          console.error('Auth check error:', error);
+          return;
+        }
+        
+        if (!session) {
+          console.warn('⚠️ Not authenticated - vendor operations may fail');
+          toast({
+            title: 'Authentication Required',
+            description: 'Please log in to manage vendors',
+            variant: 'destructive',
+          });
+        } else {
+          console.log('✅ Authenticated as:', session.user.email);
+          
+          // Check if user has admin profile
+          const { data: profile, error: profileError } = await supabase
+            .from('profiles')
+            .select('role')
+            .eq('id', session.user.id)
+            .single();
+          
+          if (profileError) {
+            console.warn('⚠️ Profile not found:', profileError.message);
+          } else if (profile.role !== 'admin') {
+            console.warn('⚠️ User role is not admin:', profile.role);
+          } else {
+            console.log('✅ Admin role confirmed');
+          }
+        }
+      }
+    };
+    
+    checkAuth();
   }, []);
 
   // Fetch vendors with consistent query key
@@ -138,6 +178,8 @@ const VendorsPage: React.FC = () => {
   // Add vendor mutation
   const addVendorMutation = useMutation({
     mutationFn: async (vendorData: Partial<Vendor>) => {
+      console.log('➕ Adding vendor:', vendorData);
+      
       if (isSupabaseConfigured) {
         const { data, error } = await supabase
           .from('vendors')
@@ -145,7 +187,17 @@ const VendorsPage: React.FC = () => {
           .select()
           .single();
         
-        if (error) throw new Error(`Failed to add vendor: ${error.message}`);
+        if (error) {
+          console.error('❌ Supabase insert error:', {
+            message: error.message,
+            code: error.code,
+            details: error.details,
+            hint: error.hint,
+          });
+          throw new Error(`Failed to add vendor: ${error.message}`);
+        }
+        
+        console.log('✅ Vendor added successfully:', data);
         return data;
       } else {
         const existing = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
@@ -156,6 +208,7 @@ const VendorsPage: React.FC = () => {
           updated_at: new Date().toISOString(),
         } as Vendor;
         localStorage.setItem(STORAGE_KEY, JSON.stringify([newVendor, ...existing]));
+        console.log('✅ Vendor added to localStorage:', newVendor);
         return newVendor;
       }
     },
@@ -171,9 +224,15 @@ const VendorsPage: React.FC = () => {
       });
     },
     onError: (error: any) => {
+      console.error('❌ Add mutation error:', {
+        message: error.message,
+        stack: error.stack,
+        isSupabaseConfigured,
+      });
+      
       toast({
-        title: 'Error',
-        description: error.message || 'Failed to add vendor',
+        title: 'Add Failed',
+        description: error.message || 'Failed to add vendor. Check console for details.',
         variant: 'destructive',
       });
     }
@@ -182,15 +241,33 @@ const VendorsPage: React.FC = () => {
   // Update vendor mutation
   const updateVendorMutation = useMutation({
     mutationFn: async ({ id, ...vendorData }: Partial<Vendor> & { id: string }) => {
+      console.log('✏️ Updating vendor:', { id, vendorData });
+      
       if (isSupabaseConfigured) {
+        const numericId = parseInt(id, 10);
+        
+        if (isNaN(numericId)) {
+          throw new Error(`Invalid vendor ID: ${id}`);
+        }
+        
         const { data, error } = await supabase
           .from('vendors')
           .update(vendorData)
-          .eq('id', id)
+          .eq('id', numericId)
           .select()
           .single();
         
-        if (error) throw new Error(`Failed to update vendor: ${error.message}`);
+        if (error) {
+          console.error('❌ Supabase update error:', {
+            message: error.message,
+            code: error.code,
+            details: error.details,
+            hint: error.hint,
+          });
+          throw new Error(`Failed to update vendor: ${error.message}`);
+        }
+        
+        console.log('✅ Vendor updated successfully:', data);
         return data;
       } else {
         const existing: Vendor[] = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
@@ -204,6 +281,7 @@ const VendorsPage: React.FC = () => {
             : vendor
         );
         localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+        console.log('✅ Vendor updated in localStorage');
         return { id, ...vendorData };
       }
     },
@@ -219,9 +297,15 @@ const VendorsPage: React.FC = () => {
       });
     },
     onError: (error: any) => {
+      console.error('❌ Update mutation error:', {
+        message: error.message,
+        stack: error.stack,
+        isSupabaseConfigured,
+      });
+      
       toast({
-        title: 'Error',
-        description: error.message || 'Failed to update vendor',
+        title: 'Update Failed',
+        description: error.message || 'Failed to update vendor. Check console for details.',
         variant: 'destructive',
       });
     }
@@ -230,33 +314,48 @@ const VendorsPage: React.FC = () => {
   // Delete vendor mutation
   const deleteVendorMutation = useMutation({
     mutationFn: async (id: string) => {
-      console.log('Deleting vendor with ID:', id, 'Type:', typeof id);
+      console.log('🗑️ Deleting vendor:', { id, type: typeof id });
       
       if (isSupabaseConfigured) {
-        // Try both string and number ID formats
-        const numericId = parseInt(id);
+        // Convert to number for Supabase (vendors table uses integer IDs)
+        const numericId = parseInt(id, 10);
+        
+        if (isNaN(numericId)) {
+          throw new Error(`Invalid vendor ID: ${id}`);
+        }
+        
+        console.log('Attempting delete with numeric ID:', numericId);
+        
         const { data: deletedData, error } = await supabase
           .from('vendors')
           .delete()
-          .or(`id.eq.${id},id.eq.${numericId}`)
+          .eq('id', numericId)
           .select();
         
-        console.log('Delete result:', { deletedData, error });
+        console.log('Delete response:', { deletedData, error });
         
         if (error) {
-          console.error('Supabase delete error:', error);
+          console.error('❌ Supabase delete error:', {
+            message: error.message,
+            code: error.code,
+            details: error.details,
+            hint: error.hint,
+          });
           throw new Error(`Failed to delete vendor: ${error.message}`);
         }
         
         if (!deletedData || deletedData.length === 0) {
-          console.warn('No vendor was deleted - ID might not exist');
+          console.warn('⚠️ No vendor was deleted - ID might not exist:', numericId);
+          throw new Error('Vendor not found or already deleted');
         }
         
+        console.log('✅ Vendor deleted successfully:', deletedData[0]);
         return deletedData;
       } else {
         const existing: Vendor[] = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
         const remaining = existing.filter((vendor) => vendor.id !== id);
         localStorage.setItem(STORAGE_KEY, JSON.stringify(remaining));
+        console.log('✅ Vendor deleted from localStorage');
       }
     },
     onSuccess: (deletedData) => {
@@ -274,9 +373,15 @@ const VendorsPage: React.FC = () => {
       });
     },
     onError: (error: any) => {
+      console.error('❌ Delete mutation error:', {
+        message: error.message,
+        stack: error.stack,
+        isSupabaseConfigured,
+      });
+      
       toast({
-        title: 'Error',
-        description: error.message || 'Failed to delete vendor',
+        title: 'Delete Failed',
+        description: error.message || 'Failed to delete vendor. Check console for details.',
         variant: 'destructive',
       });
     }
