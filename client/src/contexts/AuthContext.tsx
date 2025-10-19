@@ -41,7 +41,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const checkAuth = () => {
     // Check for sessionStorage token first (our custom auth)
     const adminToken = sessionStorage.getItem('adminToken');
-    console.log('AuthContext checking token:', adminToken);
     
     if (adminToken) {
       // Create a mock user for our token-based auth
@@ -61,7 +60,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setUser(mockUser);
       setProfile(mockProfile);
       setLoading(false);
-      console.log('AuthContext: Token auth successful');
+      console.log('✅ AuthContext: Token authentication successful');
       return;
     }
     
@@ -82,20 +81,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     
     // Listen for storage changes (when token is set from login)
     const handleStorageChange = () => {
-      console.log('Storage changed, rechecking auth...');
       checkAuth();
     };
     
     window.addEventListener('storage', handleStorageChange);
-    
-    // Also listen for manual token changes (same tab)
-    const interval = setInterval(() => {
-      const currentToken = sessionStorage.getItem('adminToken');
-      if (currentToken && !user) {
-        console.log('Token detected, rechecking auth...');
-        checkAuth();
-      }
-    }, 1000);
     
     // Listen for Supabase auth changes
     const {
@@ -117,13 +106,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     return () => {
       window.removeEventListener('storage', handleStorageChange);
-      clearInterval(interval);
       subscription.unsubscribe();
     };
-  }, [user]); // Add user as dependency
+  }, []); // Empty dependency array - only run once on mount
 
   const fetchProfile = async (userId: string) => {
-    console.log('Fetching profile for user:', userId);
     try {
       const { data, error } = await supabase
         .from('profiles')
@@ -132,20 +119,18 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         .single();
 
       if (error) {
-        console.error('Error fetching profile:', error);
-        console.error('Error details:', error.message, error.code);
+        console.error('❌ Error fetching profile:', error.message);
         setProfile(null);
         setLoading(false);
         return;
       }
       
-      console.log('Profile fetched successfully:', data);
+      console.log('✅ Profile loaded:', data.role);
       setProfile(data);
     } catch (error) {
-      console.error('Exception fetching profile:', error);
+      console.error('❌ Exception fetching profile:', error);
       setProfile(null);
     } finally {
-      console.log('Setting loading to false');
       setLoading(false);
     }
   };

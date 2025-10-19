@@ -395,23 +395,55 @@ const VendorsPage: React.FC = () => {
   });
 
   const handleBulkAction = async () => {
-    if (!bulkAction || selectedVendors.length === 0) return;
+    if (!bulkAction || selectedVendors.length === 0) {
+      console.warn('⚠️ Bulk action called with no action or no vendors selected');
+      return;
+    }
+
+    console.log(`🔄 Starting bulk action: ${bulkAction} for ${selectedVendors.length} vendors`);
 
     try {
       if (bulkAction === 'delete') {
+        let successCount = 0;
+        let errorCount = 0;
+        const errors: string[] = [];
+
         for (const id of selectedVendors) {
-          await deleteVendorMutation.mutateAsync(id);
+          try {
+            await deleteVendorMutation.mutateAsync(id);
+            successCount++;
+            console.log(`✅ Deleted vendor ${id} (${successCount}/${selectedVendors.length})`);
+          } catch (error: any) {
+            errorCount++;
+            const errorMsg = `Vendor ${id}: ${error.message}`;
+            errors.push(errorMsg);
+            console.error(`❌ Failed to delete vendor ${id}:`, error);
+          }
         }
+
         setSelectedVendors([]);
-        toast({
-          title: 'Success',
-          description: `${selectedVendors.length} vendors deleted`,
-        });
+
+        if (errorCount === 0) {
+          toast({
+            title: 'Success',
+            description: `${successCount} vendors deleted successfully`,
+          });
+        } else if (successCount > 0) {
+          toast({
+            title: 'Partial Success',
+            description: `${successCount} deleted, ${errorCount} failed. Check console for details.`,
+            variant: 'default',
+          });
+          console.error('❌ Bulk delete errors:', errors);
+        } else {
+          throw new Error(`All ${errorCount} deletions failed. ${errors[0]}`);
+        }
       }
-    } catch (error) {
+    } catch (error: any) {
+      console.error('❌ Bulk action error:', error);
       toast({
-        title: 'Error',
-        description: 'Failed to perform bulk action',
+        title: 'Bulk Action Failed',
+        description: error.message || 'Failed to perform bulk action. Check console for details.',
         variant: 'destructive',
       });
     }
@@ -466,13 +498,16 @@ const VendorsPage: React.FC = () => {
     setIsImporting(true);
     setShowImportDialog(false);
     
+    console.log(`📥 Starting CSV import: ${pendingCsvData.length} vendors, replaceAll: ${replaceAll}`);
+    
     try {
       let successCount = 0;
       let errorCount = 0;
+      const errors: string[] = [];
       
       // If replacing all, delete existing vendors first
       if (replaceAll && isSupabaseConfigured) {
-        console.log('Deleting all existing vendors...');
+        console.log('🗑️ Deleting all existing vendors...');
         
         // First, get all vendor IDs
         const { data: existingVendors, error: fetchError } = await supabase
@@ -480,11 +515,11 @@ const VendorsPage: React.FC = () => {
           .select('id');
         
         if (fetchError) {
-          console.error('Failed to fetch existing vendors:', fetchError);
-          throw new Error('Failed to fetch existing vendors for deletion');
+          console.error('❌ Failed to fetch existing vendors:', fetchError);
+          throw new Error(`Failed to fetch existing vendors: ${fetchError.message}`);
         }
         
-        console.log('Found vendors to delete:', existingVendors?.length || 0);
+        console.log(`Found ${existingVendors?.length || 0} vendors to delete`);
         
         if (existingVendors && existingVendors.length > 0) {
           // Delete all vendors using a proper condition
@@ -494,40 +529,62 @@ const VendorsPage: React.FC = () => {
             .gte('id', 0) // Delete all records where id >= 0 (should catch all)
             .select();
           
-          console.log('Bulk delete result:', { deletedCount: deletedData?.length, error: deleteError });
-          
           if (deleteError) {
-            console.error('Failed to delete existing vendors:', deleteError);
+            console.error('❌ Failed to delete existing vendors:', {
+              message: deleteError.message,
+              code: deleteError.code,
+              details: deleteError.details,
+              hint: deleteError.hint,
+            });
             throw new Error(`Failed to clear existing vendors: ${deleteError.message}`);
           }
           
-          console.log(`Successfully deleted ${deletedData?.length || 0} existing vendors`);
+          console.log(`✅ Successfully deleted ${deletedData?.length || 0} existing vendors`);
         } else {
           console.log('No existing vendors to delete');
         }
       }
       
       // Import new vendors
-      for (const vendor of pendingCsvData) {
+      console.log(`📤 Importing ${pendingCsvData.length} vendors...`);
+      for (let i = 0; i < pendingCsvData.length; i++) {
+        const vendor = pendingCsvData[i];
         try {
           await addVendorMutation.mutateAsync(vendor);
           successCount++;
-        } catch (error) {
-          console.error('Failed to import vendor:', vendor, error);
+          console.log(`✅ Imported vendor ${i + 1}/${pendingCsvData.length}: ${vendor.name || 'Unnamed'}`);
+        } catch (error: any) {
           errorCount++;
+          const errorMsg = `Row ${i + 2}: ${vendor.name || 'Unnamed'} - ${error.message}`;
+          errors.push(errorMsg);
+          console.error(`❌ Failed to import vendor ${i + 1}:`, vendor, error);
         }
+      }
+      
+      console.log(`📊 Import complete: ${successCount} success, ${errorCount} failed`);
+      
+      if (errorCount > 0) {
+        console.error('❌ Import errors:', errors);
+      }
+      
+      if (successCount === 0 && errorCount > 0) {
+        throw new Error(`All ${errorCount} vendors failed to import. First error: ${errors[0]}`);
       }
       
       toast({
         title: replaceAll ? 'Vendors Replaced' : 'Vendors Added',
-        description: `${successCount} vendors imported successfully${errorCount > 0 ? `, ${errorCount} failed` : ''}${replaceAll ? ' (Previous vendors removed)' : ''}`,
+        description: `${successCount} vendors imported successfully${errorCount > 0 ? `, ${errorCount} failed. Check console for details.` : ''}${replaceAll ? ' (Previous vendors removed)' : ''}`,
+        variant: errorCount > 0 ? 'default' : 'default',
       });
       
     } catch (error: any) {
-      console.error('CSV import error:', error);
+      console.error('❌ CSV import error:', {
+        message: error.message,
+        stack: error.stack,
+      });
       toast({
         title: 'Import Failed',
-        description: error.message || 'Failed to import vendors',
+        description: error.message || 'Failed to import vendors. Check console for details.',
         variant: 'destructive',
       });
     } finally {
