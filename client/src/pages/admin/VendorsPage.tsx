@@ -1007,6 +1007,8 @@ const VendorForm: React.FC<VendorFormProps> = ({ vendor, onSubmit, onCancel }) =
     website: vendor?.website || '',
     price_range: vendor?.price_range || '',
     availability: vendor?.availability || '',
+    youtube: vendor?.youtube || '',
+    instagram: vendor?.instagram || '',
   });
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -1100,6 +1102,36 @@ const VendorForm: React.FC<VendorFormProps> = ({ vendor, onSubmit, onCancel }) =
             value={formData.website}
             onChange={(e) => setFormData({ ...formData, website: e.target.value })}
           />
+        </div>
+      </div>
+
+      <div className="space-y-4 mt-6">
+        <h3 className="text-sm font-semibold text-gray-700">Social Media & Gallery Sync</h3>
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <Label htmlFor="youtube">YouTube Channel ID</Label>
+            <Input
+              id="youtube"
+              value={formData.youtube || ''}
+              onChange={(e) => setFormData({ ...formData, youtube: e.target.value })}
+              placeholder="UCxxxxxxxxxxxxxxxxxx"
+            />
+            <p className="text-xs text-gray-500 mt-1">
+              Enter channel ID (starts with UC) to auto-sync video thumbnails to gallery
+            </p>
+          </div>
+          <div>
+            <Label htmlFor="instagram">Instagram Username</Label>
+            <Input
+              id="instagram"
+              value={formData.instagram || ''}
+              onChange={(e) => setFormData({ ...formData, instagram: e.target.value })}
+              placeholder="@username"
+            />
+            <p className="text-xs text-gray-500 mt-1">
+              Instagram username for social media links
+            </p>
+          </div>
         </div>
       </div>
 
