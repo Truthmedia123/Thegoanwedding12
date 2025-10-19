@@ -79,7 +79,7 @@ const VendorsPage: React.FC = () => {
     console.log('VendorsPage mounted');
     console.log('Supabase configured:', isSupabaseConfigured);
     
-    // Check authentication status
+    // Check authentication status (silent check - only log to console)
     const checkAuth = async () => {
       if (isSupabaseConfigured) {
         const { data: { session }, error } = await supabase.auth.getSession();
@@ -91,11 +91,8 @@ const VendorsPage: React.FC = () => {
         
         if (!session) {
           console.warn('⚠️ Not authenticated - vendor operations may fail');
-          toast({
-            title: 'Authentication Required',
-            description: 'Please log in to manage vendors',
-            variant: 'destructive',
-          });
+          console.log('   Please log in to manage vendors');
+          // Don't show toast on mount - only show errors when operations fail
         } else {
           console.log('✅ Authenticated as:', session.user.email);
           
@@ -108,8 +105,10 @@ const VendorsPage: React.FC = () => {
           
           if (profileError) {
             console.warn('⚠️ Profile not found:', profileError.message);
+            console.log('   Some operations may require a profile record');
           } else if (profile.role !== 'admin') {
             console.warn('⚠️ User role is not admin:', profile.role);
+            console.log('   Some operations may be restricted');
           } else {
             console.log('✅ Admin role confirmed');
           }
