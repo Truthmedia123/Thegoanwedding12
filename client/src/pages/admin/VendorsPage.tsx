@@ -1009,6 +1009,8 @@ const VendorForm: React.FC<VendorFormProps> = ({ vendor, onSubmit, onCancel }) =
     availability: vendor?.availability || '',
     youtube: vendor?.youtube || '',
     instagram: vendor?.instagram || '',
+    facebook: vendor?.facebook || '',
+    google_maps_place_id: vendor?.google_maps_place_id || '',
   });
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -1130,6 +1132,34 @@ const VendorForm: React.FC<VendorFormProps> = ({ vendor, onSubmit, onCancel }) =
             />
             <p className="text-xs text-gray-500 mt-1">
               Instagram username for social media links
+            </p>
+          </div>
+        </div>
+
+        {/* Facebook & Google Maps */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <Label htmlFor="facebook">Facebook Page ID</Label>
+            <Input
+              id="facebook"
+              value={formData.facebook || ''}
+              onChange={(e) => setFormData({ ...formData, facebook: e.target.value })}
+              placeholder="Page ID or username"
+            />
+            <p className="text-xs text-gray-500 mt-1">
+              Facebook Page ID for auto-syncing public photos
+            </p>
+          </div>
+          <div>
+            <Label htmlFor="google_maps_place_id">Google Maps Place ID</Label>
+            <Input
+              id="google_maps_place_id"
+              value={formData.google_maps_place_id || ''}
+              onChange={(e) => setFormData({ ...formData, google_maps_place_id: e.target.value })}
+              placeholder="ChIJ..."
+            />
+            <p className="text-xs text-gray-500 mt-1">
+              Google Maps Place ID for auto-syncing location photos
             </p>
           </div>
         </div>
