@@ -907,7 +907,7 @@ const VendorsPage: React.FC = () => {
 
         {/* Add Vendor Dialog */}
         <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-          <DialogContent className="max-w-2xl">
+          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>Add New Vendor</DialogTitle>
               <DialogDescription>
@@ -924,7 +924,7 @@ const VendorsPage: React.FC = () => {
 
         {/* Edit Vendor Dialog */}
         <Dialog open={!!editingVendor} onOpenChange={() => setEditingVendor(null)}>
-          <DialogContent className="max-w-2xl">
+          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>Edit Vendor</DialogTitle>
               <DialogDescription>
