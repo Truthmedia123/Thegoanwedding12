@@ -394,6 +394,45 @@ const VendorsPage: React.FC = () => {
     return matchesSearch && matchesCategory;
   });
 
+  // Sync all social media (YouTube + Google Maps via Cloudflare Worker)
+  const syncAllSocialMedia = async () => {
+    try {
+      console.log(`🔄 Triggering full social media sync for all vendors...`);
+      
+      toast({
+        title: 'Sync Started',
+        description: 'Syncing YouTube and Google Maps for all vendors...',
+      });
+
+      const response = await fetch('https://social-media-sync.truthmedianetworks.workers.dev', {
+        method: 'POST',
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to trigger sync');
+      }
+
+      const result = await response.json();
+      
+      console.log(`✅ Full sync completed:`, result);
+      
+      toast({
+        title: 'Sync Complete!',
+        description: `Synced ${result.successful_syncs} vendors, added ${result.total_images_added} images`,
+      });
+
+      // Refresh vendors list
+      queryClient.invalidateQueries({ queryKey: ['/api/vendors'] });
+    } catch (error: any) {
+      console.error('❌ Sync error:', error);
+      toast({
+        title: 'Sync Failed',
+        description: error.message || 'Failed to sync social media',
+        variant: 'destructive',
+      });
+    }
+  };
+
   // Sync YouTube gallery
   const syncYouTubeGallery = async (vendorId: string, channelId: string) => {
     try {
@@ -698,6 +737,16 @@ const VendorsPage: React.FC = () => {
             <Button onClick={() => setIsAddDialogOpen(true)}>
               <Plus className="w-4 h-4 mr-2" />
               Add Vendor
+            </Button>
+            <Button 
+              variant="outline" 
+              onClick={syncAllSocialMedia}
+              className="bg-gradient-to-r from-blue-500 to-purple-500 text-white hover:from-blue-600 hover:to-purple-600"
+            >
+              <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+              Sync All Media
             </Button>
             <Button 
               variant="outline" 
@@ -1011,6 +1060,8 @@ const VendorForm: React.FC<VendorFormProps> = ({ vendor, onSubmit, onCancel }) =
     instagram: vendor?.instagram || '',
     facebook: vendor?.facebook || '',
     google_maps_place_id: vendor?.google_maps_place_id || '',
+    auto_update_main_image: vendor?.auto_update_main_image !== false,
+    main_image_selection: vendor?.main_image_selection || 'first',
   });
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -1161,6 +1212,46 @@ const VendorForm: React.FC<VendorFormProps> = ({ vendor, onSubmit, onCancel }) =
             <p className="text-xs text-gray-500 mt-1">
               Google Maps Place ID for auto-syncing location photos
             </p>
+          </div>
+        </div>
+
+        {/* Main Image Auto-Update Settings */}
+        <div className="border-t pt-4">
+          <h3 className="font-semibold mb-3">Main Image Auto-Update</h3>
+          <div className="space-y-4">
+            <div className="flex items-center space-x-2">
+              <input
+                type="checkbox"
+                id="auto_update_main_image"
+                checked={formData.auto_update_main_image}
+                onChange={(e) => setFormData({ ...formData, auto_update_main_image: e.target.checked })}
+                className="w-4 h-4 text-blue-600 rounded"
+              />
+              <Label htmlFor="auto_update_main_image" className="cursor-pointer">
+                Automatically update main/cover images during sync
+              </Label>
+            </div>
+            
+            {formData.auto_update_main_image && (
+              <div>
+                <Label htmlFor="main_image_selection">Image Selection Strategy</Label>
+                <select
+                  id="main_image_selection"
+                  value={formData.main_image_selection}
+                  onChange={(e) => setFormData({ ...formData, main_image_selection: e.target.value })}
+                  className="w-full mt-1 px-3 py-2 border rounded-md"
+                >
+                  <option value="first">First (Newest)</option>
+                  <option value="random">Random</option>
+                  <option value="highest_quality">Highest Quality</option>
+                </select>
+                <p className="text-xs text-gray-500 mt-1">
+                  {formData.main_image_selection === 'first' && 'Uses the most recent image from sync'}
+                  {formData.main_image_selection === 'random' && 'Randomly selects from synced images'}
+                  {formData.main_image_selection === 'highest_quality' && 'Selects highest resolution image available'}
+                </p>
+              </div>
+            )}
           </div>
         </div>
       </div>

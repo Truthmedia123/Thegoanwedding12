@@ -15,6 +15,27 @@ interface Vendor {
   youtube?: string;
   google_maps_place_id?: string;
   images?: string[];
+  auto_update_main_image?: boolean;
+  main_image_selection?: 'first' | 'random' | 'highest_quality';
+}
+
+// Select main image based on strategy
+function selectMainImage(images: string[], strategy: 'first' | 'random' | 'highest_quality' = 'first'): string {
+  if (images.length === 0) return '';
+  
+  switch (strategy) {
+    case 'random':
+      return images[Math.floor(Math.random() * images.length)];
+    
+    case 'highest_quality':
+      // Prefer maxresdefault for YouTube, larger sizes for others
+      const highQuality = images.find(img => img.includes('maxresdefault') || img.includes('maxwidth=1600'));
+      return highQuality || images[0];
+    
+    case 'first':
+    default:
+      return images[0];
+  }
 }
 
 // YouTube RSS Fetcher (no API key needed)
@@ -41,22 +62,50 @@ async function fetchYouTubeRSS(channelId: string): Promise<string[]> {
 // Google Maps Photos
 async function fetchGoogleMapsPhotos(placeId: string, apiKey: string): Promise<string[]> {
   try {
+    console.log(`📍 Fetching Google Maps photos for place: ${placeId}`);
+    
     const response = await fetch(
       `https://maps.googleapis.com/maps/api/place/details/json?` +
-      `place_id=${placeId}&fields=photos&key=${apiKey}`
+      `place_id=${placeId}&fields=photos&key=${apiKey}`,
+      {
+        headers: {
+          'Accept': 'application/json',
+        }
+      }
     );
     
-    if (!response.ok) return [];
+    console.log(`📍 Google Maps API response status: ${response.status}`);
+    
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error(`❌ Google Maps API error: ${response.status} - ${errorText}`);
+      return [];
+    }
     
     const data = await response.json();
-    const photos = data.result?.photos || [];
+    console.log(`📍 Google Maps API response:`, JSON.stringify(data).substring(0, 200));
     
-    return photos.slice(0, 10).map((photo: any) => 
+    if (data.error_message) {
+      console.error(`❌ Google Maps API error message: ${data.error_message}`);
+      return [];
+    }
+    
+    const photos = data.result?.photos || [];
+    console.log(`📍 Found ${photos.length} photos`);
+    
+    if (photos.length === 0) {
+      return [];
+    }
+    
+    const photoUrls = photos.slice(0, 10).map((photo: any) => 
       `https://maps.googleapis.com/maps/api/place/photo?` +
       `maxwidth=1600&photo_reference=${photo.photo_reference}&key=${apiKey}`
     );
-  } catch (error) {
-    console.error('Google Maps error:', error);
+    
+    console.log(`✅ Generated ${photoUrls.length} photo URLs`);
+    return photoUrls;
+  } catch (error: any) {
+    console.error('❌ Google Maps fetch error:', error.message);
     return [];
   }
 }
@@ -76,15 +125,39 @@ async function syncVendor(vendor: Vendor, env: Env) {
 
   // Google Maps
   if (vendor.google_maps_place_id && env.GOOGLE_MAPS_API_KEY) {
+    console.log(`📍 Attempting to fetch Google Maps photos for vendor ${vendor.id}: ${vendor.name}`);
     const images = await fetchGoogleMapsPhotos(vendor.google_maps_place_id, env.GOOGLE_MAPS_API_KEY);
     newImages.push(...images);
     mapsCount = images.length;
+    console.log(`📍 Google Maps returned ${mapsCount} images for ${vendor.name}`);
+  } else if (vendor.google_maps_place_id) {
+    console.log(`⚠️ Google Maps Place ID found but API key missing for vendor ${vendor.name}`);
   }
 
   // Update Supabase
   if (newImages.length > 0) {
     const existingImages = vendor.images || [];
     const combinedImages = [...newImages, ...existingImages].slice(0, 50);
+    
+    // Prepare update data
+    const updateData: any = {
+      images: combinedImages,
+      last_synced_at: new Date().toISOString(),
+    };
+    
+    // Update main image only if auto_update_main_image is enabled (default true)
+    if (vendor.auto_update_main_image !== false) {
+      const strategy = vendor.main_image_selection || 'first';
+      const mainImage = selectMainImage(newImages, strategy);
+      
+      updateData.profile_image_url = mainImage;
+      updateData.cover_image_url = mainImage;
+      
+      console.log(`🖼️ Auto-updating main images for ${vendor.name} using strategy: ${strategy}`);
+      console.log(`   Selected image: ${mainImage.substring(0, 60)}...`);
+    } else {
+      console.log(`⏭️ Skipping main image update for ${vendor.name} (auto-update disabled)`);
+    }
     
     await fetch(`${env.SUPABASE_URL}/rest/v1/vendors?id=eq.${vendor.id}`, {
       method: 'PATCH',
@@ -93,10 +166,7 @@ async function syncVendor(vendor: Vendor, env: Env) {
         'Authorization': `Bearer ${env.SUPABASE_ANON_KEY}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        images: combinedImages,
-        last_synced_at: new Date().toISOString(),
-      }),
+      body: JSON.stringify(updateData),
     });
   }
 
@@ -112,7 +182,7 @@ async function syncVendor(vendor: Vendor, env: Env) {
 // Main sync
 async function syncAllVendors(env: Env) {
   const response = await fetch(
-    `${env.SUPABASE_URL}/rest/v1/vendors?select=id,name,youtube,google_maps_place_id,images`,
+    `${env.SUPABASE_URL}/rest/v1/vendors?select=id,name,youtube,google_maps_place_id,images,auto_update_main_image,main_image_selection`,
     {
       headers: {
         'apikey': env.SUPABASE_ANON_KEY,
