@@ -232,12 +232,42 @@ export default {
 
   // Manual trigger
   async fetch(request: Request, env: Env): Promise<Response> {
-    if (request.method === 'POST') {
-      const results = await syncAllVendors(env);
-      return new Response(JSON.stringify({ success: true, ...results }), {
-        headers: { 'Content-Type': 'application/json' },
-      });
+    // CORS headers for browser requests
+    const corsHeaders = {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type',
+      'Content-Type': 'application/json',
+    };
+
+    // Handle OPTIONS preflight request
+    if (request.method === 'OPTIONS') {
+      return new Response(null, { headers: corsHeaders });
     }
-    return new Response('Social Media Sync Worker - Ready');
+
+    if (request.method === 'POST') {
+      try {
+        console.log('🔄 Manual sync triggered via POST request');
+        const results = await syncAllVendors(env);
+        console.log('✅ Manual sync complete:', results);
+        
+        return new Response(JSON.stringify({ success: true, ...results }), {
+          headers: corsHeaders,
+        });
+      } catch (error: any) {
+        console.error('❌ Sync error:', error);
+        return new Response(JSON.stringify({ 
+          success: false, 
+          error: error.message || 'Sync failed' 
+        }), {
+          status: 500,
+          headers: corsHeaders,
+        });
+      }
+    }
+    
+    return new Response('Social Media Sync Worker - Ready', {
+      headers: corsHeaders,
+    });
   },
 };
