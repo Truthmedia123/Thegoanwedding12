@@ -403,13 +403,13 @@ export default function VendorProfile() {
             )}
 
             {/* Social Media Content */}
-            {(vendor.instagram || vendor.youtube) && (
+            {(vendor.instagram || vendor.youtube || vendor.facebook) && (
               <Card>
                 <CardHeader>
                   <CardTitle>Follow</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     {/* Instagram Integration */}
                     {vendor.instagram && (
                       <div className="space-y-4">
@@ -419,32 +419,48 @@ export default function VendorProfile() {
                         </div>
                         <div className="bg-gradient-to-r from-pink-50 to-purple-50 p-4 rounded-xl border">
                           <p className="text-sm text-gray-600 mb-3">
-                            Follow on Instagram for the latest updates and behind-the-scenes content
+                            Follow on Instagram for the latest updates
                           </p>
-                          
-                          {/* Instagram profile preview */}
-                          <div className="mt-4 bg-white rounded-lg p-6 border text-center">
-                            <div className="mb-4">
-                              <i className="fab fa-instagram text-5xl text-pink-500 mb-3"></i>
-                              <h4 className="font-semibold text-lg">@{vendor.instagram.replace('@', '').replace('https://instagram.com/', '').replace('https://www.instagram.com/', '')}</h4>
-                            </div>
-                            <a 
-                              href={vendor.instagram.startsWith('http') ? vendor.instagram : `https://instagram.com/${vendor.instagram.replace('@', '')}`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="inline-flex items-center gap-2 bg-gradient-to-r from-pink-500 to-purple-500 text-white px-6 py-3 rounded-lg font-medium hover:shadow-lg transition-all transform hover:scale-105"
-                            >
-                              <i className="fab fa-instagram"></i>
-                              View Instagram Profile
-                            </a>
-                          </div>
+                          <a 
+                            href={vendor.instagram.startsWith('http') ? vendor.instagram : `https://instagram.com/${vendor.instagram.replace('@', '')}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-2 bg-gradient-to-r from-pink-500 to-purple-500 text-white px-4 py-2 rounded-lg font-medium hover:shadow-lg transition-all w-full justify-center"
+                          >
+                            <i className="fab fa-instagram"></i>
+                            View Profile
+                          </a>
                         </div>
                       </div>
                     )}
 
-                    {/* YouTube Integration */}
-                    {vendor.youtube && (
+                    {/* Facebook Integration */}
+                    {vendor.facebook && (
                       <div className="space-y-4">
+                        <div className="flex items-center gap-2">
+                          <i className="fab fa-facebook text-blue-500 text-xl"></i>
+                          <h3 className="font-semibold">Facebook</h3>
+                        </div>
+                        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-xl border">
+                          <p className="text-sm text-gray-600 mb-3">
+                            Follow on Facebook for updates
+                          </p>
+                          <a 
+                            href={vendor.facebook.startsWith('http') ? vendor.facebook : `https://facebook.com/${vendor.facebook}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:shadow-lg transition-all w-full justify-center"
+                          >
+                            <i className="fab fa-facebook"></i>
+                            View Page
+                          </a>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* YouTube Integration - Scrollable Gallery */}
+                    {vendor.youtube && vendor.images && vendor.images.length > 0 && (
+                      <div className="space-y-4 lg:col-span-3">
                         <div className="flex items-center gap-2">
                           <i className="fab fa-youtube text-red-500 text-xl"></i>
                           <h3 className="font-semibold">YouTube</h3>
@@ -454,36 +470,37 @@ export default function VendorProfile() {
                             Watch video portfolio and client testimonials
                           </p>
                           
-                          {/* YouTube channel preview */}
-                          <div className="mt-4 bg-white rounded-lg p-6 border text-center">
-                            <div className="mb-4">
-                              <i className="fab fa-youtube text-5xl text-red-500 mb-3"></i>
-                              <h4 className="font-semibold text-lg">YouTube Channel</h4>
+                          {/* Scrollable YouTube Video Gallery */}
+                          <div className="relative">
+                            <div className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory" style={{scrollbarWidth: 'none', msOverflowStyle: 'none'}}>
+                              {vendor.images.filter((img: string) => img.includes('ytimg.com')).slice(0, 10).map((thumbnail: string, index: number) => {
+                                const videoId = thumbnail.match(/\/vi\/([^\/]+)\//)?.[1];
+                                return videoId ? (
+                                  <div key={index} className="flex-shrink-0 w-80 snap-start">
+                                    <iframe
+                                      width="320"
+                                      height="180"
+                                      src={`https://www.youtube.com/embed/${videoId}`}
+                                      frameBorder="0"
+                                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                      allowFullScreen
+                                      className="rounded-lg"
+                                    ></iframe>
+                                  </div>
+                                ) : null;
+                              })}
                             </div>
-                            {vendor.youtube.startsWith('UC') ? (
-                              // Channel ID - embed latest video player
-                              <div className="mb-4">
-                                <iframe
-                                  width="100%"
-                                  height="315"
-                                  src={`https://www.youtube.com/embed?listType=playlist&list=UU${vendor.youtube.substring(2)}`}
-                                  frameBorder="0"
-                                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                  allowFullScreen
-                                  className="rounded-lg"
-                                ></iframe>
-                              </div>
-                            ) : null}
-                            <a 
-                              href={vendor.youtube.startsWith('http') ? vendor.youtube : vendor.youtube.startsWith('UC') ? `https://youtube.com/channel/${vendor.youtube}` : `https://youtube.com/${vendor.youtube}`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="inline-flex items-center gap-2 bg-gradient-to-r from-red-500 to-red-600 text-white px-6 py-3 rounded-lg font-medium hover:shadow-lg transition-all transform hover:scale-105"
-                            >
-                              <i className="fab fa-youtube"></i>
-                              View YouTube Channel
-                            </a>
                           </div>
+                          
+                          <a 
+                            href={vendor.youtube.startsWith('http') ? vendor.youtube : vendor.youtube.startsWith('UC') ? `https://youtube.com/channel/${vendor.youtube}` : `https://youtube.com/${vendor.youtube}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-2 bg-gradient-to-r from-red-500 to-red-600 text-white px-6 py-3 rounded-lg font-medium hover:shadow-lg transition-all mt-4"
+                          >
+                            <i className="fab fa-youtube"></i>
+                            View YouTube Channel
+                          </a>
                         </div>
                       </div>
                     )}
