@@ -181,7 +181,12 @@ async function syncVendor(vendor: Vendor, env: Env) {
 
 // Main sync
 async function syncAllVendors(env: Env) {
-  const response = await fetch(
+  console.log('🔄 Starting syncAllVendors...');
+  console.log('📡 Fetching vendors from Supabase...');
+  console.log('🔗 Supabase URL:', env.SUPABASE_URL);
+  
+  // Try with all fields first, fall back to basic fields if columns don't exist
+  let response = await fetch(
     `${env.SUPABASE_URL}/rest/v1/vendors?select=id,name,youtube,google_maps_place_id,images,auto_update_main_image,main_image_selection`,
     {
       headers: {
@@ -191,7 +196,33 @@ async function syncAllVendors(env: Env) {
     }
   );
 
+  // If query fails (columns might not exist), try with basic fields only
+  if (!response.ok) {
+    console.warn('⚠️ Full query failed, trying with basic fields only...');
+    response = await fetch(
+      `${env.SUPABASE_URL}/rest/v1/vendors?select=id,name,youtube,google_maps_place_id,images`,
+      {
+        headers: {
+          'apikey': env.SUPABASE_ANON_KEY,
+          'Authorization': `Bearer ${env.SUPABASE_ANON_KEY}`,
+        },
+      }
+    );
+  }
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error('❌ Supabase fetch error:', response.status, errorText);
+    throw new Error(`Failed to fetch vendors: ${response.status} - ${errorText}`);
+  }
+
   const vendors: Vendor[] = await response.json();
+  console.log(`📊 Found ${vendors.length} vendors to sync`);
+  
+  // Log first vendor for debugging
+  if (vendors.length > 0) {
+    console.log('🔍 Sample vendor:', JSON.stringify(vendors[0]).substring(0, 200));
+  }
   const results = [];
 
   for (const vendor of vendors) {
@@ -209,16 +240,30 @@ async function syncAllVendors(env: Env) {
     results: results,
   };
 
-  await fetch(`${env.SUPABASE_URL}/rest/v1/sync_logs`, {
-    method: 'POST',
-    headers: {
-      'apikey': env.SUPABASE_ANON_KEY,
-      'Authorization': `Bearer ${env.SUPABASE_ANON_KEY}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(summary),
-  });
+  console.log('📝 Logging sync results to Supabase...');
+  try {
+    const logResponse = await fetch(`${env.SUPABASE_URL}/rest/v1/sync_logs`, {
+      method: 'POST',
+      headers: {
+        'apikey': env.SUPABASE_ANON_KEY,
+        'Authorization': `Bearer ${env.SUPABASE_ANON_KEY}`,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=minimal',
+      },
+      body: JSON.stringify(summary),
+    });
+    
+    if (!logResponse.ok) {
+      const errorText = await logResponse.text();
+      console.error('⚠️ Failed to log sync results:', logResponse.status, errorText);
+    } else {
+      console.log('✅ Sync results logged successfully');
+    }
+  } catch (error: any) {
+    console.error('⚠️ Error logging sync results:', error.message);
+  }
 
+  console.log('🎉 Sync complete!', summary);
   return summary;
 }
 
