@@ -7,11 +7,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Loader2, Lock, Mail } from 'lucide-react';
 
-// Admin credentials - for demo/development
+// Admin credentials - SECURE: Change these passwords in production
 const ADMIN_CREDENTIALS: Record<string, { password: string; role: string }> = {
-  'admin@goanwedding.com': { password: 'admin123', role: 'full-access' },
-  'vendor@goanwedding.com': { password: 'vendor123', role: 'vendor-only' },
-  'editor@goanwedding.com': { password: 'editor123', role: 'blog-only' }
+  'admin@thegoanwedding.com': { password: 'SecureAdmin2025!', role: 'full-access' },
+  'noel@thegoanwedding.com': { password: 'NoelSecure2025!', role: 'full-access' },
 };
 
 const Login: React.FC = () => {
@@ -27,46 +26,31 @@ const Login: React.FC = () => {
     setError('');
 
     try {
-      console.log('=== LOGIN DEBUG ===');
-      console.log('Raw email:', `"${email}"`);
-      console.log('Raw password:', `"${password}"`);
-      console.log('Email length:', email.length);
-      console.log('Password length:', password.length);
-      
       const trimmedEmail = email.trim().toLowerCase();
       const trimmedPassword = password.trim();
       
-      console.log('Trimmed email:', `"${trimmedEmail}"`);
-      console.log('Trimmed password:', `"${trimmedPassword}"`);
-      console.log('Email === "admin@goanwedding.com":', trimmedEmail === 'admin@goanwedding.com');
-      console.log('Password === "admin123":', trimmedPassword === 'admin123');
+      // Check credentials against ADMIN_CREDENTIALS
+      const userCredentials = ADMIN_CREDENTIALS[trimmedEmail];
       
-      // TEMPORARY: Allow any login for testing
-      if (email.length > 0 && password.length > 0) {
-        console.log('🎉 BYPASS LOGIN - Any credentials accepted for testing');
-        sessionStorage.setItem('adminToken', 'admin-2025-goa');
-        setLocation('/admin/vendors');
-        return;
-      }
-      
-      // Original validation (commented out for now)
-      /*
-      if ((trimmedEmail === 'admin@goanwedding.com' && trimmedPassword === 'admin123') ||
-          (trimmedEmail === 'vendor@goanwedding.com' && trimmedPassword === 'vendor123') ||
-          (trimmedEmail === 'editor@goanwedding.com' && trimmedPassword === 'editor123')) {
+      if (userCredentials && userCredentials.password === trimmedPassword) {
+        console.log('✅ Login successful for:', trimmedEmail);
         
-        console.log('Login successful!');
-        let token = 'admin-2025-goa';
-        if (trimmedEmail === 'vendor@goanwedding.com') token = 'vendor-manager';
-        if (trimmedEmail === 'editor@goanwedding.com') token = 'content-editor';
-        
+        // Set admin token
+        const token = 'admin-2025-secure-' + Date.now();
         sessionStorage.setItem('adminToken', token);
-        setLocation('/admin/vendors');
+        
+        // Trigger custom auth event for AuthContext to pick up the token
+        window.dispatchEvent(new Event('auth-changed'));
+        window.dispatchEvent(new Event('storage'));
+        
+        // Navigate to admin panel
+        setTimeout(() => {
+          setLocation('/admin/vendors');
+        }, 150);
       } else {
-        console.log('Login failed - credentials do not match');
-        setError('Invalid email or password. Please try again.');
+        console.log('❌ Login failed - invalid credentials');
+        setError('Invalid email or password. Please check your credentials and try again.');
       }
-      */
     } catch (err) {
       console.error('Login error:', err);
       setError('An unexpected error occurred');
@@ -102,7 +86,7 @@ const Login: React.FC = () => {
                 <Input
                   id="email"
                   type="email"
-                  placeholder="admin@goanwedding.com"
+                  placeholder="admin@thegoanwedding.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="pl-10"
@@ -128,7 +112,7 @@ const Login: React.FC = () => {
                 />
               </div>
               <p className="text-xs text-gray-500 mt-1">
-                Demo: admin@goanwedding.com / admin123
+                Contact admin for credentials
               </p>
             </div>
             

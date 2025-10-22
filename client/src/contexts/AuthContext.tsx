@@ -81,10 +81,18 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     
     // Listen for storage changes (when token is set from login)
     const handleStorageChange = () => {
+      console.log('🔄 Storage event detected, re-checking auth...');
+      checkAuth();
+    };
+    
+    // Listen for custom auth event
+    const handleAuthChange = () => {
+      console.log('🔄 Custom auth event detected, re-checking auth...');
       checkAuth();
     };
     
     window.addEventListener('storage', handleStorageChange);
+    window.addEventListener('auth-changed', handleAuthChange);
     
     // Listen for Supabase auth changes
     const {
@@ -106,6 +114,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     return () => {
       window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('auth-changed', handleAuthChange);
       subscription.unsubscribe();
     };
   }, []); // Empty dependency array - only run once on mount
