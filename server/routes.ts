@@ -966,9 +966,23 @@ export function registerRoutes(app: Hono<{ Bindings: Env }>) {
         return c.json({ error: result.error || 'Failed to fetch YouTube videos' }, 500);
       }
 
+      // Filter out placeholder images (YouTube gray boxes)
+      const filterPlaceholders = (images: string[]) => {
+        return images.filter(img => {
+          // Remove known placeholder patterns
+          const isPlaceholder = 
+            img.includes('mqdefault.jpg') || // Low quality placeholder
+            img.includes('default.jpg') ||   // Default placeholder
+            img === '' ||                     // Empty string
+            !img.startsWith('http');          // Invalid URL
+          return !isPlaceholder;
+        });
+      };
+
       // Update vendor images with YouTube thumbnails
-      const existingImages = vendor.images || [];
-      const newImages = [...result.thumbnails, ...existingImages].slice(0, 20); // Keep max 20 images
+      const existingImages = filterPlaceholders(vendor.images || []);
+      const newThumbnails = filterPlaceholders(result.thumbnails);
+      const newImages = [...newThumbnails, ...existingImages].slice(0, 20); // Keep max 20 images
 
       await db.update(vendors)
         .set({
@@ -989,6 +1003,61 @@ export function registerRoutes(app: Hono<{ Bindings: Env }>) {
     } catch (error: any) {
       console.error('❌ YouTube sync error:', error);
       return c.json({ error: error.message || 'Failed to sync YouTube gallery' }, 500);
+    }
+  });
+
+  /**
+   * Clean placeholder images from all vendor galleries
+   * POST /api/vendors/clean-placeholders
+   */
+  app.post("/api/vendors/clean-placeholders", authenticateAdmin('vendors'), async (c) => {
+    try {
+      console.log('🧹 Starting placeholder cleanup for all vendors...');
+
+      // Get all vendors with images
+      const allVendors = await db.select().from(vendors).where(sql`images IS NOT NULL`);
+      
+      let cleanedCount = 0;
+      let totalRemoved = 0;
+
+      for (const vendor of allVendors) {
+        const images = vendor.images || [];
+        const originalCount = images.length;
+
+        // Filter out placeholder images
+        const cleanedImages = images.filter(img => {
+          const isPlaceholder = 
+            img.includes('mqdefault.jpg') ||
+            img.includes('default.jpg') ||
+            img === '' ||
+            !img.startsWith('http');
+          return !isPlaceholder;
+        });
+
+        // Update if any images were removed
+        if (cleanedImages.length < originalCount) {
+          await db.update(vendors)
+            .set({
+              images: cleanedImages,
+              updated_at: new Date().toISOString(),
+            })
+            .where(eq(vendors.id, vendor.id));
+
+          cleanedCount++;
+          totalRemoved += (originalCount - cleanedImages.length);
+          console.log(`✅ Cleaned ${originalCount - cleanedImages.length} placeholders from vendor ${vendor.id}`);
+        }
+      }
+
+      return c.json({
+        success: true,
+        vendorsCleaned: cleanedCount,
+        totalPlaceholdersRemoved: totalRemoved,
+        message: `Removed ${totalRemoved} placeholder images from ${cleanedCount} vendors`
+      });
+    } catch (error: any) {
+      console.error('❌ Placeholder cleanup error:', error);
+      return c.json({ error: error.message || 'Failed to clean placeholders' }, 500);
     }
   });
 

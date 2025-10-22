@@ -50,9 +50,33 @@ async function fetchYouTubeRSS(channelId: string): Promise<string[]> {
     const xml = await response.text();
     const videoIds = [...xml.matchAll(/yt:videoId>([^<]+)</g)].map(m => m[1]);
     
-    return videoIds.slice(0, 12).map(id => 
-      `https://i.ytimg.com/vi/${id}/maxresdefault.jpg`
-    );
+    // Validate thumbnails and use fallback quality if maxres doesn't exist
+    const validThumbnails: string[] = [];
+    
+    for (const id of videoIds.slice(0, 12)) {
+      // Try maxresdefault first, fallback to hqdefault if it doesn't exist
+      const maxresUrl = `https://i.ytimg.com/vi/${id}/maxresdefault.jpg`;
+      const hqUrl = `https://i.ytimg.com/vi/${id}/hqdefault.jpg`;
+      
+      try {
+        // Check if maxres exists (not a placeholder)
+        const checkResponse = await fetch(maxresUrl, { method: 'HEAD' });
+        
+        // maxresdefault returns 404 or very small size for placeholder
+        // If content-length is less than 5000 bytes, it's likely a placeholder
+        const contentLength = checkResponse.headers.get('content-length');
+        const isValidMaxres = checkResponse.ok && 
+                             contentLength && 
+                             parseInt(contentLength) > 5000;
+        
+        validThumbnails.push(isValidMaxres ? maxresUrl : hqUrl);
+      } catch {
+        // If check fails, use hqdefault as safe fallback
+        validThumbnails.push(hqUrl);
+      }
+    }
+    
+    return validThumbnails;
   } catch (error) {
     console.error('YouTube RSS error:', error);
     return [];

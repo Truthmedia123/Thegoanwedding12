@@ -54,9 +54,21 @@ export function SocialShare({ url, title, description = '', className = '' }: So
     window.open(`mailto:?subject=${shareTitle}&body=${shareDescription}%0A%0A${shareUrl}`, '_blank');
   };
 
+  const shareToWhatsApp = () => {
+    window.open(`https://wa.me/?text=${shareTitle}%0A${shareUrl}`, '_blank');
+  };
+
   return (
     <div className={`flex items-center gap-2 ${className}`}>
       <span className="text-sm font-medium">Share:</span>
+      <Button 
+        variant="outline" 
+        size="sm" 
+        onClick={shareToWhatsApp}
+        className="hover:bg-green-100 hover:text-green-600"
+      >
+        <i className="fab fa-whatsapp text-base"></i>
+      </Button>
       <Button 
         variant="outline" 
         size="sm" 

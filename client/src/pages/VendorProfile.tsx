@@ -402,89 +402,11 @@ export default function VendorProfile() {
               </Card>
             )}
 
-            {/* Social Media Links (Legal - No Scraping) */}
-            {(vendor.facebook_page_url || vendor.instagram_username) && (
-              <Card>
-                <CardHeader>
-                  <CardTitle>Follow Us on Social Media</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {/* Facebook Link Card */}
-                    {vendor.facebook_page_url && (
-                      <a
-                        href={vendor.facebook_page_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-4 p-6 bg-blue-50 rounded-lg hover:bg-blue-100 transition-all duration-200 group"
-                        onClick={() => {
-                          // Google Analytics tracking
-                          if (typeof window !== 'undefined' && (window as any).gtag) {
-                            (window as any).gtag('event', 'social_media_click', {
-                              platform: 'facebook',
-                              vendor_id: vendor.id,
-                              vendor_name: vendor.name
-                            });
-                          }
-                        }}
-                      >
-                        <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
-                          <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
-                          </svg>
-                        </div>
-                        <div className="flex-1">
-                          <h3 className="font-semibold text-blue-900 text-lg">Follow on Facebook</h3>
-                          <p className="text-sm text-blue-700">See our latest updates and photos</p>
-                        </div>
-                        <svg className="w-5 h-5 text-blue-600 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                        </svg>
-                      </a>
-                    )}
-
-                    {/* Instagram Link Card */}
-                    {vendor.instagram_username && (
-                      <a
-                        href={`https://instagram.com/${vendor.instagram_username}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-4 p-6 bg-gradient-to-br from-purple-500 via-pink-500 to-orange-400 rounded-lg hover:opacity-90 transition-all duration-200 group"
-                        onClick={() => {
-                          // Google Analytics tracking
-                          if (typeof window !== 'undefined' && (window as any).gtag) {
-                            (window as any).gtag('event', 'social_media_click', {
-                              platform: 'instagram',
-                              vendor_id: vendor.id,
-                              vendor_name: vendor.name
-                            });
-                          }
-                        }}
-                      >
-                        <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
-                          <svg className="w-6 h-6 text-pink-600" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
-                          </svg>
-                        </div>
-                        <div className="flex-1">
-                          <h3 className="font-semibold text-white text-lg">@{vendor.instagram_username}</h3>
-                          <p className="text-sm text-white/90">View our Instagram profile</p>
-                        </div>
-                        <svg className="w-5 h-5 text-white group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                        </svg>
-                      </a>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-
             {/* Social Media Content */}
             {(vendor.instagram || vendor.youtube) && (
               <Card>
                 <CardHeader>
-                  <CardTitle>Follow Us</CardTitle>
+                  <CardTitle>Follow</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -509,13 +431,24 @@ export default function VendorProfile() {
                             View Instagram Profile
                           </a>
                           
-                          {/* Instagram embed placeholder */}
-                          <div className="mt-4 bg-white rounded-lg p-4 border-2 border-dashed border-gray-200">
-                            <div className="text-center text-gray-500">
-                              <i className="fab fa-instagram text-3xl mb-2"></i>
-                              <p className="text-sm">Latest Instagram posts would appear here</p>
-                              <p className="text-xs mt-1">Visit our Instagram profile to see recent content</p>
+                          {/* Instagram profile preview */}
+                          <div className="mt-4 bg-white rounded-lg p-6 border text-center">
+                            <div className="mb-4">
+                              <i className="fab fa-instagram text-5xl text-pink-500 mb-3"></i>
+                              <h4 className="font-semibold text-lg">@{vendor.instagram.replace('@', '').replace('https://instagram.com/', '').replace('https://www.instagram.com/', '')}</h4>
+                              <p className="text-sm text-gray-600 mt-2">
+                                Follow us on Instagram to see our latest work, behind-the-scenes content, and client testimonials
+                              </p>
                             </div>
+                            <a 
+                              href={vendor.instagram.startsWith('http') ? vendor.instagram : `https://instagram.com/${vendor.instagram.replace('@', '')}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-2 bg-gradient-to-r from-pink-500 to-purple-500 text-white px-6 py-3 rounded-lg font-medium hover:shadow-lg transition-all transform hover:scale-105"
+                            >
+                              <i className="fab fa-instagram"></i>
+                              Open Instagram Profile
+                            </a>
                           </div>
                         </div>
                       </div>
@@ -542,13 +475,38 @@ export default function VendorProfile() {
                             View YouTube Channel
                           </a>
                           
-                          {/* YouTube embed placeholder */}
-                          <div className="mt-4 bg-white rounded-lg p-4 border-2 border-dashed border-gray-200">
-                            <div className="text-center text-gray-500">
-                              <i className="fab fa-youtube text-3xl mb-2"></i>
-                              <p className="text-sm">Latest YouTube videos would appear here</p>
-                              <p className="text-xs mt-1">Visit our YouTube channel to watch our portfolio</p>
+                          {/* YouTube channel preview */}
+                          <div className="mt-4 bg-white rounded-lg p-6 border text-center">
+                            <div className="mb-4">
+                              <i className="fab fa-youtube text-5xl text-red-500 mb-3"></i>
+                              <h4 className="font-semibold text-lg">Our YouTube Channel</h4>
+                              <p className="text-sm text-gray-600 mt-2">
+                                Watch our video portfolio, client testimonials, and see our work in action
+                              </p>
                             </div>
+                            {vendor.youtube.startsWith('UC') ? (
+                              // Channel ID - embed latest video player
+                              <div className="mb-4">
+                                <iframe
+                                  width="100%"
+                                  height="315"
+                                  src={`https://www.youtube.com/embed?listType=playlist&list=UU${vendor.youtube.substring(2)}`}
+                                  frameBorder="0"
+                                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                  allowFullScreen
+                                  className="rounded-lg"
+                                ></iframe>
+                              </div>
+                            ) : null}
+                            <a 
+                              href={vendor.youtube.startsWith('http') ? vendor.youtube : vendor.youtube.startsWith('UC') ? `https://youtube.com/channel/${vendor.youtube}` : `https://youtube.com/${vendor.youtube}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-2 bg-gradient-to-r from-red-500 to-red-600 text-white px-6 py-3 rounded-lg font-medium hover:shadow-lg transition-all transform hover:scale-105"
+                            >
+                              <i className="fab fa-youtube"></i>
+                              Open YouTube Channel
+                            </a>
                           </div>
                         </div>
                       </div>
@@ -648,7 +606,7 @@ export default function VendorProfile() {
                           {review.created_at ? new Date(review.created_at).toLocaleDateString() : ""}
                         </span>
                       </div>
-                      <p className="text-gray-700">{review.review || ""}</p>
+                      <p className="text-gray-700">{review.comment || ""}</p>
                     </div>
                   ))}
                 </div>
@@ -705,17 +663,6 @@ export default function VendorProfile() {
                     <i className="fab fa-whatsapp mr-2"></i>WhatsApp
                   </Button>
                   
-                  {/* WhatsApp Quote Button */}
-                  <Button 
-                    onClick={() => {
-                      const message = encodeURIComponent(`Hello, I'd like a quote for ${vendor.name || "your services"}`);
-                      window.open(`https://wa.me/${vendor.phone}?text=${message}`, '_blank');
-                    }}
-                    className="w-full bg-emerald-500 hover:bg-emerald-600 text-white rounded px-4 py-2"
-                  >
-                    Request Quote
-                  </Button>
-                  
                   <Button 
                     onClick={handleCall}
                     className="w-full bg-red-500 hover:bg-red-600 text-white"
@@ -742,63 +689,6 @@ export default function VendorProfile() {
                     description={vendor.description || ""}
                   />
                 </div>
-
-                {(vendor.website || vendor.instagram || vendor.youtube || vendor.facebook) && (
-                  <div className="pt-4 border-t">
-                    <h4 className="font-semibold mb-3">Follow Us</h4>
-                    <div className="flex gap-2">
-                      {vendor.website && (
-                        <Button 
-                          onClick={() => window.open(vendor.website || '', '_blank')}
-                          size="sm" 
-                          variant="outline"
-                        >
-                          <i className="fas fa-globe"></i>
-                        </Button>
-                      )}
-                      {vendor.instagram && (
-                        <Button 
-                          onClick={() => window.open(
-                            (vendor.instagram && vendor.instagram.startsWith('http')) 
-                              ? vendor.instagram 
-                              : `https://instagram.com/${vendor.instagram || ''}`, 
-                            '_blank'
-                          )}
-                          size="sm" 
-                          variant="outline"
-                          className="text-pink-600 border-pink-300 hover:bg-pink-50"
-                        >
-                          <i className="fab fa-instagram"></i>
-                        </Button>
-                      )}
-                      {vendor.youtube && (
-                        <Button 
-                          onClick={() => window.open(
-                            (vendor.youtube && vendor.youtube.startsWith('http')) 
-                              ? vendor.youtube 
-                              : `https://youtube.com/${vendor.youtube || ''}`,  
-                            '_blank'
-                          )}
-                          size="sm" 
-                          variant="outline"
-                          className="text-red-600 border-red-300 hover:bg-red-50"
-                        >
-                          <i className="fab fa-youtube"></i>
-                        </Button>
-                      )}
-                      {vendor.facebook && (
-                        <Button 
-                          onClick={() => window.open(vendor.facebook || '', '_blank')}
-                          size="sm" 
-                          variant="outline"
-                          className="text-blue-600 border-blue-300 hover:bg-blue-50"
-                        >
-                          <i className="fab fa-facebook"></i>
-                        </Button>
-                      )}
-                    </div>
-                  </div>
-                )}
               </CardContent>
             </Card>
           </div>
