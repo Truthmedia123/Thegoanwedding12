@@ -1,10 +1,12 @@
 /**
  * Cloudflare Pages Function: Sync Google Maps Photos
  * POST /api/vendors/:id/sync-google-maps
+ * Uses Supabase (not D1)
  */
 
 interface Env {
-  DB: D1Database;
+  SUPABASE_URL: string;
+  SUPABASE_ANON_KEY: string;
   GOOGLE_MAPS_API_KEY: string;
 }
 
@@ -71,10 +73,23 @@ export async function onRequestPost(context: { request: Request; env: Env; param
 
     console.log(`📍 Starting Google Maps sync for vendor ${vendorId}`);
     
-    // Get vendor
-    const vendor = await env.DB.prepare(
-      'SELECT id, google_maps_place_id, images FROM vendors WHERE id = ?'
-    ).bind(vendorId).first();
+    // Get vendor from Supabase
+    const vendorResponse = await fetch(
+      `${env.SUPABASE_URL}/rest/v1/vendors?select=id,google_maps_place_id,images&id=eq.${vendorId}`,
+      {
+        headers: {
+          'apikey': env.SUPABASE_ANON_KEY,
+          'Authorization': `Bearer ${env.SUPABASE_ANON_KEY}`,
+        },
+      }
+    );
+
+    if (!vendorResponse.ok) {
+      throw new Error(`Failed to fetch vendor: ${vendorResponse.statusText}`);
+    }
+
+    const vendors = await vendorResponse.json();
+    const vendor = vendors[0];
     
     if (!vendor) {
       return new Response(JSON.stringify({ error: 'Vendor not found' }), {
@@ -113,16 +128,29 @@ export async function onRequestPost(context: { request: Request; env: Env; param
     }
     
     // Update vendor images
-    const existingImages = JSON.parse((vendor.images as string) || '[]');
+    const existingImages = vendor.images || [];
     const newImages = [...photos, ...existingImages.filter((img: string) => !img.includes('googleapis.com'))].slice(0, 50);
     
-    await env.DB.prepare(
-      'UPDATE vendors SET images = ?, updated_at = ? WHERE id = ?'
-    ).bind(
-      JSON.stringify(newImages),
-      new Date().toISOString(),
-      vendorId
-    ).run();
+    const updateResponse = await fetch(
+      `${env.SUPABASE_URL}/rest/v1/vendors?id=eq.${vendorId}`,
+      {
+        method: 'PATCH',
+        headers: {
+          'apikey': env.SUPABASE_ANON_KEY,
+          'Authorization': `Bearer ${env.SUPABASE_ANON_KEY}`,
+          'Content-Type': 'application/json',
+          'Prefer': 'return=minimal',
+        },
+        body: JSON.stringify({
+          images: newImages,
+          updated_at: new Date().toISOString(),
+        }),
+      }
+    );
+
+    if (!updateResponse.ok) {
+      throw new Error(`Failed to update vendor: ${updateResponse.statusText}`);
+    }
     
     console.log(`✅ Google Maps sync completed for vendor ${vendorId}: ${photos.length} photos added`);
     

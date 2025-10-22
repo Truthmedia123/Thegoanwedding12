@@ -1,10 +1,12 @@
 /**
  * Cloudflare Pages Function: Clean Placeholder Images
  * POST /api/vendors/clean-placeholders
+ * Uses Supabase (not D1)
  */
 
 interface Env {
-  DB: D1Database;
+  SUPABASE_URL: string;
+  SUPABASE_ANON_KEY: string;
 }
 
 const ADMIN_TOKENS: Record<string, string> = {
@@ -27,16 +29,28 @@ export async function onRequestPost(context: { request: Request; env: Env }) {
 
     console.log('🧹 Starting placeholder cleanup for all vendors...');
 
-    // Get all vendors with images
-    const { results: allVendors } = await env.DB.prepare(
-      'SELECT id, images FROM vendors WHERE images IS NOT NULL'
-    ).all();
+    // Get all vendors with images from Supabase
+    const vendorsResponse = await fetch(
+      `${env.SUPABASE_URL}/rest/v1/vendors?select=id,images&images=not.is.null`,
+      {
+        headers: {
+          'apikey': env.SUPABASE_ANON_KEY,
+          'Authorization': `Bearer ${env.SUPABASE_ANON_KEY}`,
+        },
+      }
+    );
+
+    if (!vendorsResponse.ok) {
+      throw new Error(`Failed to fetch vendors: ${vendorsResponse.statusText}`);
+    }
+
+    const allVendors = await vendorsResponse.json();
     
     let cleanedCount = 0;
     let totalRemoved = 0;
 
-    for (const vendor of allVendors as any[]) {
-      const images = JSON.parse(vendor.images || '[]');
+    for (const vendor of allVendors) {
+      const images = vendor.images || [];
       const originalCount = images.length;
 
       // Filter out placeholder images
@@ -44,6 +58,7 @@ export async function onRequestPost(context: { request: Request; env: Env }) {
         const isPlaceholder = 
           img.includes('mqdefault.jpg') ||
           img.includes('default.jpg') ||
+          img.includes('/vi/%20') || // Invalid video IDs with spaces
           img === '' ||
           !img.startsWith('http');
         return !isPlaceholder;
@@ -51,13 +66,27 @@ export async function onRequestPost(context: { request: Request; env: Env }) {
 
       // Update if any images were removed
       if (cleanedImages.length < originalCount) {
-        await env.DB.prepare(
-          'UPDATE vendors SET images = ?, updated_at = ? WHERE id = ?'
-        ).bind(
-          JSON.stringify(cleanedImages),
-          new Date().toISOString(),
-          vendor.id
-        ).run();
+        const updateResponse = await fetch(
+          `${env.SUPABASE_URL}/rest/v1/vendors?id=eq.${vendor.id}`,
+          {
+            method: 'PATCH',
+            headers: {
+              'apikey': env.SUPABASE_ANON_KEY,
+              'Authorization': `Bearer ${env.SUPABASE_ANON_KEY}`,
+              'Content-Type': 'application/json',
+              'Prefer': 'return=minimal',
+            },
+            body: JSON.stringify({
+              images: cleanedImages,
+              updated_at: new Date().toISOString(),
+            }),
+          }
+        );
+
+        if (!updateResponse.ok) {
+          console.error(`Failed to update vendor ${vendor.id}`);
+          continue;
+        }
 
         cleanedCount++;
         totalRemoved += (originalCount - cleanedImages.length);
