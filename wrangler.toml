@@ -1,0 +1,11 @@
+name = "social-media-sync"
+main = "workers/social-media-sync.ts"
+compatibility_date = "2024-01-01"
+
+[env.production]
+name = "social-media-sync"
+
+# Environment variables (set in Cloudflare dashboard)
+# SUPABASE_URL
+# SUPABASE_ANON_KEY
+# GOOGLE_MAPS_API_KEY

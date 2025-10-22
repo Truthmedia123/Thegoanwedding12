@@ -19,13 +19,31 @@ export function NewsArticles({ vendorName }: NewsArticlesProps) {
   const { data: articles, isLoading, error } = useQuery({
     queryKey: ['news', vendorName],
     queryFn: async () => {
+      console.log(`📰 Fetching news for vendor: ${vendorName}`);
       const response = await fetch(`/api/news/search?q=${encodeURIComponent(vendorName)}`);
+      
+      console.log(`📡 News API response status: ${response.status}`);
+      
       if (!response.ok) {
+        const errorText = await response.text();
+        console.error(`❌ News API error: ${response.status} - ${errorText}`);
         throw new Error('Failed to fetch news');
       }
-      return response.json() as Promise<{ articles: NewsArticle[] }>;
+      
+      const data = await response.json();
+      console.log(`📊 News API response:`, data);
+      console.log(`📰 Articles loaded: ${data.articles?.length || 0}`);
+      
+      return data as { articles: NewsArticle[] };
     },
     staleTime: 1000 * 60 * 30, // Cache for 30 minutes
+  });
+
+  console.log('NewsArticles component state:', { 
+    isLoading, 
+    hasError: !!error, 
+    articlesCount: articles?.articles?.length || 0,
+    vendorName 
   });
 
   if (isLoading) {
@@ -57,14 +75,19 @@ export function NewsArticles({ vendorName }: NewsArticlesProps) {
   }
 
   if (!articles || articles.articles.length === 0) {
+    console.log('⚠️ No articles to display');
     return (
       <div className="text-center py-8 text-gray-500">
         <i className="fas fa-newspaper text-3xl mb-2"></i>
         <p>No recent news articles found</p>
-        <p className="text-sm mt-1">Check back later for updates</p>
+        <p className="text-sm mt-1">
+          {articles?.message || 'Check back later for updates'}
+        </p>
       </div>
     );
   }
+
+  console.log(`✅ Rendering ${articles.articles.length} news articles`);
 
   return (
     <div className="space-y-4">
