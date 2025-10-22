@@ -419,26 +419,14 @@ export default function VendorProfile() {
                         </div>
                         <div className="bg-gradient-to-r from-pink-50 to-purple-50 p-4 rounded-xl border">
                           <p className="text-sm text-gray-600 mb-3">
-                            Follow us on Instagram for the latest updates and behind-the-scenes content
+                            Follow on Instagram for the latest updates and behind-the-scenes content
                           </p>
-                          <a 
-                            href={vendor.instagram.startsWith('http') ? vendor.instagram : `https://instagram.com/${vendor.instagram}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center gap-2 bg-gradient-to-r from-pink-500 to-purple-500 text-white px-4 py-2 rounded-lg font-medium hover:shadow-lg transition-all transform hover:scale-105"
-                          >
-                            <i className="fab fa-instagram"></i>
-                            View Instagram Profile
-                          </a>
                           
                           {/* Instagram profile preview */}
                           <div className="mt-4 bg-white rounded-lg p-6 border text-center">
                             <div className="mb-4">
                               <i className="fab fa-instagram text-5xl text-pink-500 mb-3"></i>
                               <h4 className="font-semibold text-lg">@{vendor.instagram.replace('@', '').replace('https://instagram.com/', '').replace('https://www.instagram.com/', '')}</h4>
-                              <p className="text-sm text-gray-600 mt-2">
-                                Follow us on Instagram to see our latest work, behind-the-scenes content, and client testimonials
-                              </p>
                             </div>
                             <a 
                               href={vendor.instagram.startsWith('http') ? vendor.instagram : `https://instagram.com/${vendor.instagram.replace('@', '')}`}
@@ -447,7 +435,7 @@ export default function VendorProfile() {
                               className="inline-flex items-center gap-2 bg-gradient-to-r from-pink-500 to-purple-500 text-white px-6 py-3 rounded-lg font-medium hover:shadow-lg transition-all transform hover:scale-105"
                             >
                               <i className="fab fa-instagram"></i>
-                              Open Instagram Profile
+                              View Instagram Profile
                             </a>
                           </div>
                         </div>
@@ -463,26 +451,14 @@ export default function VendorProfile() {
                         </div>
                         <div className="bg-gradient-to-r from-red-50 to-pink-50 p-4 rounded-xl border">
                           <p className="text-sm text-gray-600 mb-3">
-                            Watch our video portfolio and client testimonials
+                            Watch video portfolio and client testimonials
                           </p>
-                          <a 
-                            href={vendor.youtube.startsWith('http') ? vendor.youtube : `https://youtube.com/${vendor.youtube}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center gap-2 bg-gradient-to-r from-red-500 to-red-600 text-white px-4 py-2 rounded-lg font-medium hover:shadow-lg transition-all transform hover:scale-105"
-                          >
-                            <i className="fab fa-youtube"></i>
-                            View YouTube Channel
-                          </a>
                           
                           {/* YouTube channel preview */}
                           <div className="mt-4 bg-white rounded-lg p-6 border text-center">
                             <div className="mb-4">
                               <i className="fab fa-youtube text-5xl text-red-500 mb-3"></i>
-                              <h4 className="font-semibold text-lg">Our YouTube Channel</h4>
-                              <p className="text-sm text-gray-600 mt-2">
-                                Watch our video portfolio, client testimonials, and see our work in action
-                              </p>
+                              <h4 className="font-semibold text-lg">YouTube Channel</h4>
                             </div>
                             {vendor.youtube.startsWith('UC') ? (
                               // Channel ID - embed latest video player
@@ -505,7 +481,7 @@ export default function VendorProfile() {
                               className="inline-flex items-center gap-2 bg-gradient-to-r from-red-500 to-red-600 text-white px-6 py-3 rounded-lg font-medium hover:shadow-lg transition-all transform hover:scale-105"
                             >
                               <i className="fab fa-youtube"></i>
-                              Open YouTube Channel
+                              View YouTube Channel
                             </a>
                           </div>
                         </div>
