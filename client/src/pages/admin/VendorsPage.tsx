@@ -398,6 +398,7 @@ const VendorsPage: React.FC = () => {
   const syncAllSocialMedia = async () => {
     try {
       console.log(`🔄 Triggering full social media sync for all vendors...`);
+      console.log(`📡 Worker URL: https://social-media-sync.truthmedianetworks.workers.dev`);
       
       toast({
         title: 'Sync Started',
@@ -408,13 +409,18 @@ const VendorsPage: React.FC = () => {
         method: 'POST',
       });
 
+      console.log(`📊 Response status: ${response.status} ${response.statusText}`);
+
       if (!response.ok) {
-        throw new Error('Failed to trigger sync');
+        const errorText = await response.text();
+        console.error(`❌ Worker returned error (${response.status}):`, errorText);
+        throw new Error(`Worker error (${response.status}): ${errorText}`);
       }
 
       const result = await response.json();
       
       console.log(`✅ Full sync completed:`, result);
+      console.log(`📊 Details: ${result.total_vendors} vendors, ${result.successful_syncs} synced, ${result.total_images_added} images added`);
       
       toast({
         title: 'Sync Complete!',
@@ -425,6 +431,7 @@ const VendorsPage: React.FC = () => {
       queryClient.invalidateQueries({ queryKey: ['/api/vendors'] });
     } catch (error: any) {
       console.error('❌ Sync error:', error);
+      console.error('❌ Error details:', error.message);
       toast({
         title: 'Sync Failed',
         description: error.message || 'Failed to sync social media',
