@@ -288,6 +288,40 @@ export default function VendorProfile() {
     }
   }
 
+  // Select 2 different images for hero section
+  const getHeroImages = () => {
+    const allImages = [
+      coverImage,
+      profileImage,
+      ...galleryImages,
+    ];
+
+    // Remove duplicates
+    const uniqueImages = Array.from(new Set(allImages));
+
+    // Ensure we have at least 2 different images
+    if (uniqueImages.length >= 2) {
+      return {
+        heroImage1: uniqueImages[0],
+        heroImage2: uniqueImages[1],
+      };
+    } else if (uniqueImages.length === 1) {
+      // If only 1 unique image, use gallery images or fallback
+      return {
+        heroImage1: uniqueImages[0],
+        heroImage2: galleryImages[0] || "https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&h=800",
+      };
+    } else {
+      // No images, use different fallbacks
+      return {
+        heroImage1: "https://images.unsplash.com/photo-1519741497674-611481863552?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&h=800",
+        heroImage2: "https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&h=800",
+      };
+    }
+  };
+
+  const { heroImage1, heroImage2 } = getHeroImages();
+
   return (
     <div className="min-h-screen bg-slate-50">
       <Helmet>
@@ -298,22 +332,22 @@ export default function VendorProfile() {
         </script>
       </Helmet>
       
-      {/* Hero Section - 2 Images */}
+      {/* Hero Section - 2 Different Images */}
       <section className="relative h-96">
         <div className="grid grid-cols-2 gap-1 h-full">
           {/* First Image */}
           <div className="relative h-full overflow-hidden">
             <img 
-              src={coverImage} 
+              src={heroImage1} 
               alt={`${vendor.name} - Image 1`}
               className="w-full h-full object-cover" 
             />
           </div>
           
-          {/* Second Image */}
+          {/* Second Image - Always Different */}
           <div className="relative h-full overflow-hidden">
             <img 
-              src={galleryImages[0] || profileImage} 
+              src={heroImage2} 
               alt={`${vendor.name} - Image 2`}
               className="w-full h-full object-cover" 
             />
