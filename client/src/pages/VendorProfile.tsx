@@ -298,14 +298,30 @@ export default function VendorProfile() {
         </script>
       </Helmet>
       
-      {/* Hero Section */}
+      {/* Hero Section - 2 Images */}
       <section className="relative h-96">
-        <img 
-          src={coverImage} 
-          alt={vendor.name || "Vendor"}
-          className="w-full h-full object-cover" 
-        />
-        <div className="absolute inset-0 bg-black/50"></div>
+        <div className="grid grid-cols-2 gap-1 h-full">
+          {/* First Image */}
+          <div className="relative h-full overflow-hidden">
+            <img 
+              src={coverImage} 
+              alt={`${vendor.name} - Image 1`}
+              className="w-full h-full object-cover" 
+            />
+          </div>
+          
+          {/* Second Image */}
+          <div className="relative h-full overflow-hidden">
+            <img 
+              src={galleryImages[0] || profileImage} 
+              alt={`${vendor.name} - Image 2`}
+              className="w-full h-full object-cover" 
+            />
+          </div>
+        </div>
+        
+        {/* Overlay and Text */}
+        <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/50 to-black/70"></div>
         <div className="absolute bottom-8 left-8 text-white">
           <div className="flex items-center gap-4 mb-4">
             {vendor.featured && <Badge className="bg-red-500"><i className="fas fa-star mr-1"></i>Featured</Badge>}
