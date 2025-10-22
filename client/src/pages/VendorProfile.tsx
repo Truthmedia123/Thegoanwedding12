@@ -470,27 +470,31 @@ export default function VendorProfile() {
                             Watch video portfolio and client testimonials
                           </p>
                           
-                          {/* Scrollable YouTube Video Gallery */}
-                          <div className="relative">
-                            <div className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory" style={{scrollbarWidth: 'none', msOverflowStyle: 'none'}}>
+                          {/* Scrollable YouTube Video Gallery with Arrows */}
+                          <Carousel className="w-full">
+                            <CarouselContent>
                               {vendor.images.filter((img: string) => img.includes('ytimg.com')).slice(0, 10).map((thumbnail: string, index: number) => {
                                 const videoId = thumbnail.match(/\/vi\/([^\/]+)\//)?.[1];
                                 return videoId ? (
-                                  <div key={index} className="flex-shrink-0 w-80 snap-start">
-                                    <iframe
-                                      width="320"
-                                      height="180"
-                                      src={`https://www.youtube.com/embed/${videoId}`}
-                                      frameBorder="0"
-                                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                      allowFullScreen
-                                      className="rounded-lg"
-                                    ></iframe>
-                                  </div>
+                                  <CarouselItem key={index} className="md:basis-1/2 lg:basis-1/3">
+                                    <div className="p-1">
+                                      <iframe
+                                        width="100%"
+                                        height="200"
+                                        src={`https://www.youtube.com/embed/${videoId}`}
+                                        frameBorder="0"
+                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                        allowFullScreen
+                                        className="rounded-lg"
+                                      ></iframe>
+                                    </div>
+                                  </CarouselItem>
                                 ) : null;
                               })}
-                            </div>
-                          </div>
+                            </CarouselContent>
+                            <CarouselPrevious />
+                            <CarouselNext />
+                          </Carousel>
                           
                           <a 
                             href={vendor.youtube.startsWith('http') ? vendor.youtube : vendor.youtube.startsWith('UC') ? `https://youtube.com/channel/${vendor.youtube}` : `https://youtube.com/${vendor.youtube}`}
@@ -638,6 +642,21 @@ export default function VendorProfile() {
                   <div className="flex items-start text-gray-600">
                     <i className="fas fa-home mr-3 text-red-500 mt-1"></i>
                     <span>{vendor.address}</span>
+                  </div>
+                )}
+
+                {vendor.google_maps_place_id && (
+                  <div className="pt-3 border-t">
+                    <a
+                      href={`https://www.google.com/maps/search/?api=1&query=Google&query_place_id=${vendor.google_maps_place_id}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-2 text-blue-600 hover:text-blue-800 font-medium"
+                    >
+                      <i className="fas fa-map-marked-alt text-lg"></i>
+                      <span>View on Google Maps</span>
+                      <i className="fas fa-external-link-alt text-xs"></i>
+                    </a>
                   </div>
                 )}
 

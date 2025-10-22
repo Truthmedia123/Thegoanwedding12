@@ -1092,9 +1092,139 @@ export function registerRoutes(app: Hono<{ Bindings: Env }>) {
     }
   });
 
+  /**
+   * Sync vendor gallery from Google Maps Place
+   * POST /api/vendors/:id/sync-google-maps
+   */
+  app.post("/api/vendors/:id/sync-google-maps", authenticateAdmin('vendors'), async (c) => {
+    const vendorId = parseInt(c.req.param('id'));
+    
+    try {
+      console.log(`📍 Starting Google Maps sync for vendor ${vendorId}`);
+      
+      const db = getDb(c.env.DB);
+      const [vendor] = await db.select().from(vendors).where(eq(vendors.id, vendorId));
+      
+      if (!vendor) {
+        return c.json({ error: 'Vendor not found' }, 404);
+      }
+      
+      if (!vendor.google_maps_place_id) {
+        return c.json({ error: 'No Google Maps Place ID configured for this vendor' }, 400);
+      }
+      
+      if (!c.env.GOOGLE_MAPS_API_KEY) {
+        return c.json({ error: 'Google Maps API key not configured' }, 500);
+      }
+      
+      const result = await fetchGoogleMapsPhotos(vendor.google_maps_place_id, c.env.GOOGLE_MAPS_API_KEY);
+      
+      if (!result.success) {
+        return c.json({ error: result.error || 'Failed to fetch Google Maps photos' }, 500);
+      }
+      
+      // Update vendor images
+      const existingImages = vendor.images || [];
+      const newImages = [...result.photos, ...existingImages.filter(img => !img.includes('googleapis.com'))].slice(0, 50);
+      
+      await db.update(vendors)
+        .set({
+          images: newImages,
+          updated_at: new Date().toISOString(),
+        })
+        .where(eq(vendors.id, vendorId));
+      
+      console.log(`✅ Google Maps sync completed for vendor ${vendorId}: ${result.photos.length} photos added`);
+      
+      return c.json({
+        success: true,
+        photosAdded: result.photos.length,
+        totalImages: newImages.length,
+        message: `Added ${result.photos.length} photos from Google Maps`
+      });
+    } catch (error: any) {
+      console.error('❌ Google Maps sync error:', error);
+      return c.json({ error: error.message || 'Failed to sync Google Maps photos' }, 500);
+    }
+  });
+
   // ============================================
-  // YOUTUBE SYNC HELPER FUNCTIONS
+  // SYNC HELPER FUNCTIONS
   // ============================================
+
+  interface GoogleMapsResult {
+    success: boolean;
+    photos: string[];
+    error?: string;
+  }
+
+  /**
+   * Fetch photos from Google Maps Place
+   */
+  async function fetchGoogleMapsPhotos(
+    placeId: string,
+    apiKey: string,
+    maxResults: number = 10
+  ): Promise<GoogleMapsResult> {
+    try {
+      console.log(`📍 Fetching Google Maps photos for place: ${placeId}`);
+      
+      const response = await fetch(
+        `https://maps.googleapis.com/maps/api/place/details/json?` +
+        `place_id=${placeId}&fields=photos&key=${apiKey}`
+      );
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error(`❌ Google Maps API error: ${response.status} - ${errorText}`);
+        return {
+          success: false,
+          photos: [],
+          error: `Google Maps API request failed: ${response.status}`,
+        };
+      }
+      
+      const data = await response.json();
+      
+      if (data.error_message) {
+        console.error(`❌ Google Maps API error message: ${data.error_message}`);
+        return {
+          success: false,
+          photos: [],
+          error: data.error_message,
+        };
+      }
+      
+      const photos = data.result?.photos || [];
+      console.log(`📍 Found ${photos.length} photos`);
+      
+      if (photos.length === 0) {
+        return {
+          success: true,
+          photos: [],
+        };
+      }
+      
+      const photoUrls = photos.slice(0, maxResults).map((photo: any) => 
+        `https://maps.googleapis.com/maps/api/place/photo?` +
+        `maxwidth=1600&photo_reference=${photo.photo_reference}&key=${apiKey}`
+      );
+      
+      console.log(`✅ Generated ${photoUrls.length} photo URLs`);
+      
+      return {
+        success: true,
+        photos: photoUrls,
+      };
+    } catch (error: any) {
+      console.error('❌ Google Maps fetch error:', error);
+      return {
+        success: false,
+        photos: [],
+        error: error.message,
+      };
+    }
+  }
 
   interface YouTubeVideo {
     videoId: string;

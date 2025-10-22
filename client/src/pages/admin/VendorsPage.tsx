@@ -450,14 +450,11 @@ const VendorsPage: React.FC = () => {
         description: 'Removing placeholder images from galleries...',
       });
 
-      const { data: { session } } = await supabase.auth.getSession();
-      const token = session?.access_token;
-
       const response = await fetch('/api/vendors/clean-placeholders', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
+          'x-admin-token': 'admin-2025-goa',
         },
       });
 
