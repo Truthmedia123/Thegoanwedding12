@@ -11,7 +11,7 @@ export default function SimplifiedVendorCard({ vendor }: SimplifiedVendorCardPro
       <div className="relative overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5">
         <div className="aspect-square w-full overflow-hidden">
           <img 
-            src={vendor.profileImage || "https://images.unsplash.com/photo-1519741497674-611481863552?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=800"} 
+            src={vendor.profile_image_url || vendor.featured_image || (vendor.images && vendor.images[0]) || "https://images.unsplash.com/photo-1519741497674-611481863552?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=800"} 
             alt={vendor.name}
             className="w-full h-full object-cover"
           />

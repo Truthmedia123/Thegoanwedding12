@@ -13,6 +13,8 @@ export interface Vendor {
   website: string | null
   rating: number | null
   featured_image: string | null
+  profile_image_url: string | null
+  cover_image_url: string | null
   images: string[] | null
   services: string[] | null
   price_range: string | null
@@ -32,6 +34,11 @@ export interface Vendor {
   featured?: boolean
   verified?: boolean
   review_count?: number
+  // Social media sync settings
+  google_maps_place_id?: string | null
+  auto_update_main_image?: boolean
+  main_image_selection?: 'first' | 'random' | 'highest_quality'
+  last_synced_at?: string | null
 }
 
 export interface Category {
