@@ -54,9 +54,15 @@ async function fetchYouTubeRSS(channelId: string): Promise<string[]> {
     const validThumbnails: string[] = [];
     
     for (const id of videoIds.slice(0, 12)) {
+      // Skip invalid video IDs (empty, whitespace, or too short)
+      if (!id || id.trim().length < 5 || id.includes(' ')) {
+        console.log(`⚠️ Skipping invalid video ID: "${id}"`);
+        continue;
+      }
+      
       // Try maxresdefault first, fallback to hqdefault if it doesn't exist
-      const maxresUrl = `https://i.ytimg.com/vi/${id}/maxresdefault.jpg`;
-      const hqUrl = `https://i.ytimg.com/vi/${id}/hqdefault.jpg`;
+      const maxresUrl = `https://i.ytimg.com/vi/${id.trim()}/maxresdefault.jpg`;
+      const hqUrl = `https://i.ytimg.com/vi/${id.trim()}/hqdefault.jpg`;
       
       try {
         // Check if maxres exists (not a placeholder)
@@ -69,13 +75,32 @@ async function fetchYouTubeRSS(channelId: string): Promise<string[]> {
                              contentLength && 
                              parseInt(contentLength) > 5000;
         
-        validThumbnails.push(isValidMaxres ? maxresUrl : hqUrl);
-      } catch {
-        // If check fails, use hqdefault as safe fallback
-        validThumbnails.push(hqUrl);
+        if (isValidMaxres) {
+          validThumbnails.push(maxresUrl);
+        } else {
+          // Validate hqdefault too before adding
+          const hqCheck = await fetch(hqUrl, { method: 'HEAD' });
+          if (hqCheck.ok) {
+            validThumbnails.push(hqUrl);
+          } else {
+            console.log(`⚠️ Both maxres and hq failed for video: ${id}`);
+          }
+        }
+      } catch (error) {
+        console.log(`⚠️ Thumbnail check failed for video ${id}:`, error);
+        // Try hqdefault as last resort
+        try {
+          const hqCheck = await fetch(hqUrl, { method: 'HEAD' });
+          if (hqCheck.ok) {
+            validThumbnails.push(hqUrl);
+          }
+        } catch {
+          console.log(`⚠️ All thumbnail options failed for video: ${id}`);
+        }
       }
     }
     
+    console.log(`✅ Validated ${validThumbnails.length} out of ${videoIds.length} thumbnails`);
     return validThumbnails;
   } catch (error) {
     console.error('YouTube RSS error:', error);

@@ -55,12 +55,18 @@ export async function onRequestPost(context: { request: Request; env: Env }) {
 
       // Filter out placeholder images
       const cleanedImages = images.filter((img: string) => {
+        // Check for various placeholder patterns
         const isPlaceholder = 
-          img.includes('mqdefault.jpg') ||
-          img.includes('default.jpg') ||
-          img.includes('/vi/%20') || // Invalid video IDs with spaces
-          img === '' ||
-          !img.startsWith('http');
+          img.includes('mqdefault.jpg') ||          // Low quality default
+          img.includes('default.jpg') ||            // Default placeholder
+          img.includes('/vi/%20') ||                // Invalid video IDs with spaces
+          img.includes('/vi/  /') ||                // Invalid video IDs with multiple spaces
+          img.match(/\/vi\/\s+\//) ||               // Invalid video IDs with whitespace
+          img.match(/\/vi\/[^\/]{0,4}\//) ||        // Video IDs too short (less than 5 chars)
+          img === '' ||                             // Empty string
+          !img.startsWith('http') ||                // Invalid URL
+          img.includes('undefined') ||              // Undefined in URL
+          img.includes('null');                     // Null in URL
         return !isPlaceholder;
       });
 

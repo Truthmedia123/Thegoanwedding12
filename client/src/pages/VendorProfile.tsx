@@ -12,6 +12,7 @@ import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious
 import { FavoriteButton } from "@/components/engagement/FavoriteButton";
 import { SocialShare } from "@/components/engagement/SocialShare";
 import NewsletterSignup from "@/components/engagement/NewsletterSignup";
+import { NewsArticles } from "@/components/NewsArticles";
 import { vendorJSONLD } from "@/utils/seoStructuredData";
 import { Helmet } from "react-helmet";
 import type { Review } from "@shared/schema";
@@ -509,6 +510,21 @@ export default function VendorProfile() {
                       </div>
                     )}
                   </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* In the News Section */}
+            {vendor.name && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <i className="fas fa-newspaper text-blue-600"></i>
+                    In the News
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <NewsArticles vendorName={vendor.name} />
                 </CardContent>
               </Card>
             )}

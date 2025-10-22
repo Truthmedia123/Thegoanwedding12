@@ -523,6 +523,62 @@ const VendorsPage: React.FC = () => {
     }
   };
 
+  // Fetch address from Google Maps Place ID
+  const fetchAddressFromPlaceId = async (placeId?: string) => {
+    if (!placeId || !placeId.trim()) {
+      toast({
+        title: 'Missing Place ID',
+        description: 'Please enter a Google Maps Place ID first',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    try {
+      console.log(`📍 Fetching address for Place ID: ${placeId}`);
+      
+      toast({
+        title: 'Fetching Address...',
+        description: 'Getting location details from Google Maps',
+      });
+
+      // Call our API endpoint to get place details
+      const response = await fetch(`/api/google-maps/place-details?place_id=${placeId}`);
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to fetch place details');
+      }
+
+      const result = await response.json();
+      
+      if (result.address) {
+        // Update form with the fetched address
+        setFormData({
+          ...formData,
+          address: result.address,
+          location: result.city || result.location || formData.location,
+        });
+
+        console.log(`✅ Address fetched:`, result.address);
+        
+        toast({
+          title: 'Address Retrieved!',
+          description: `Address: ${result.address}`,
+        });
+      } else {
+        throw new Error('No address found for this Place ID');
+      }
+    } catch (error: any) {
+      console.error('❌ Address fetch error:', error);
+      toast({
+        title: 'Failed to Get Address',
+        description: error.message || 'Could not retrieve address from Google Maps',
+        variant: 'destructive',
+      });
+    }
+  };
+
   const handleBulkAction = async () => {
     if (!bulkAction || selectedVendors.length === 0) {
       console.warn('⚠️ Bulk action called with no action or no vendors selected');
@@ -1265,14 +1321,26 @@ const VendorForm: React.FC<VendorFormProps> = ({ vendor, onSubmit, onCancel }) =
           </div>
           <div>
             <Label htmlFor="google_maps_place_id">Google Maps Place ID</Label>
-            <Input
-              id="google_maps_place_id"
-              value={formData.google_maps_place_id || ''}
-              onChange={(e) => setFormData({ ...formData, google_maps_place_id: e.target.value })}
-              placeholder="ChIJ..."
-            />
+            <div className="flex gap-2">
+              <Input
+                id="google_maps_place_id"
+                value={formData.google_maps_place_id || ''}
+                onChange={(e) => setFormData({ ...formData, google_maps_place_id: e.target.value })}
+                placeholder="ChIJ..."
+                className="flex-1"
+              />
+              <Button
+                type="button"
+                onClick={() => fetchAddressFromPlaceId(formData.google_maps_place_id)}
+                disabled={!formData.google_maps_place_id}
+                variant="outline"
+              >
+                <i className="fas fa-map-marker-alt mr-2"></i>
+                Get Address
+              </Button>
+            </div>
             <p className="text-xs text-gray-500 mt-1">
-              Google Maps Place ID for auto-syncing location photos
+              Google Maps Place ID for auto-syncing location photos and address
             </p>
           </div>
         </div>
