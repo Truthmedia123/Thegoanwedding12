@@ -1222,6 +1222,34 @@ const VendorForm: React.FC<VendorFormProps> = ({ vendor, onSubmit, onCancel }) =
           </div>
         </div>
 
+        {/* Social Media Links (Legal - Just URLs) */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+          <div>
+            <Label htmlFor="facebook_page_url">Facebook Page URL</Label>
+            <Input
+              id="facebook_page_url"
+              value={formData.facebook_page_url || ''}
+              onChange={(e) => setFormData({ ...formData, facebook_page_url: e.target.value })}
+              placeholder="https://facebook.com/YourBusinessPage"
+            />
+            <p className="text-xs text-gray-500 mt-1">
+              Public Facebook page URL for social media link
+            </p>
+          </div>
+          <div>
+            <Label htmlFor="instagram_username">Instagram Username</Label>
+            <Input
+              id="instagram_username"
+              value={formData.instagram_username || ''}
+              onChange={(e) => setFormData({ ...formData, instagram_username: e.target.value.replace('@', '') })}
+              placeholder="your_business_username"
+            />
+            <p className="text-xs text-gray-500 mt-1">
+              Instagram username (without @) for profile link
+            </p>
+          </div>
+        </div>
+
         {/* Main Image Auto-Update Settings */}
         <div className="border-t pt-4">
           <h3 className="font-semibold mb-3">Main Image Auto-Update</h3>
