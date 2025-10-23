@@ -290,29 +290,53 @@ export default function VendorProfile() {
 
   // Select 2 different images for hero section
   const getHeroImages = () => {
+    // Build list of all available images
     const allImages = [
       coverImage,
       profileImage,
       ...galleryImages,
     ];
 
+    console.log('🖼️ All images before deduplication:', allImages.length);
+    console.log('📸 Cover image:', coverImage?.substring(0, 60));
+    console.log('📸 Profile image:', profileImage?.substring(0, 60));
+    console.log('📸 Gallery images:', galleryImages.length);
+
     // Remove duplicates
     const uniqueImages = Array.from(new Set(allImages));
+    console.log('✅ Unique images after deduplication:', uniqueImages.length);
 
     // Ensure we have at least 2 different images
     if (uniqueImages.length >= 2) {
+      console.log('✓ Using 2 unique images from vendor');
       return {
         heroImage1: uniqueImages[0],
         heroImage2: uniqueImages[1],
       };
-    } else if (uniqueImages.length === 1) {
-      // If only 1 unique image, use gallery images or fallback
+    } else if (uniqueImages.length === 1 && galleryImages.length > 0) {
+      // If only 1 unique main image but gallery exists, use first 2 gallery images
+      console.log('✓ Using main image + gallery image');
       return {
         heroImage1: uniqueImages[0],
-        heroImage2: galleryImages[0] || "https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&h=800",
+        heroImage2: galleryImages[0] !== uniqueImages[0] ? galleryImages[0] : (galleryImages[1] || "https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&h=800"),
+      };
+    } else if (galleryImages.length >= 2) {
+      // If we have at least 2 gallery images, use them
+      console.log('✓ Using 2 gallery images');
+      return {
+        heroImage1: galleryImages[0],
+        heroImage2: galleryImages[1],
+      };
+    } else if (uniqueImages.length === 1) {
+      // Only 1 image total, use it + fallback
+      console.log('⚠️ Only 1 unique image, using fallback for second');
+      return {
+        heroImage1: uniqueImages[0],
+        heroImage2: "https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&h=800",
       };
     } else {
       // No images, use different fallbacks
+      console.log('⚠️ No images available, using fallbacks');
       return {
         heroImage1: "https://images.unsplash.com/photo-1519741497674-611481863552?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&h=800",
         heroImage2: "https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&h=800",
@@ -321,6 +345,10 @@ export default function VendorProfile() {
   };
 
   const { heroImage1, heroImage2 } = getHeroImages();
+  console.log('🎨 Final hero images:');
+  console.log('  Image 1:', heroImage1?.substring(0, 60));
+  console.log('  Image 2:', heroImage2?.substring(0, 60));
+  console.log('  Are they different?', heroImage1 !== heroImage2);
 
   return (
     <div className="min-h-screen bg-slate-50">
