@@ -766,14 +766,29 @@ export default function VendorProfile() {
 
                 {vendor.google_maps_place_id && (
                   <div className="pt-3 border-t">
+                    <div className="mb-2 flex items-center gap-2 text-gray-700 font-medium">
+                      <i className="fas fa-map-marked-alt text-red-500"></i>
+                      <span>Location Map</span>
+                    </div>
+                    <div className="rounded-lg overflow-hidden border border-gray-200 shadow-sm">
+                      <iframe
+                        src={`https://www.google.com/maps/embed/v1/place?key=${import.meta.env.VITE_GOOGLE_MAPS_API_KEY || 'YOUR_API_KEY'}&q=place_id:${vendor.google_maps_place_id}&zoom=15`}
+                        width="100%"
+                        height="250"
+                        style={{ border: 0 }}
+                        allowFullScreen
+                        loading="lazy"
+                        referrerPolicy="no-referrer-when-downgrade"
+                        title={`Map of ${vendor.name}`}
+                      ></iframe>
+                    </div>
                     <a
                       href={`https://www.google.com/maps/search/?api=1&query=Google&query_place_id=${vendor.google_maps_place_id}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center gap-2 text-blue-600 hover:text-blue-800 font-medium"
+                      className="inline-flex items-center gap-2 text-sm text-blue-600 hover:text-blue-800 font-medium mt-2"
                     >
-                      <i className="fas fa-map-marked-alt text-lg"></i>
-                      <span>View on Google Maps</span>
+                      <span>Open in Google Maps</span>
                       <i className="fas fa-external-link-alt text-xs"></i>
                     </a>
                   </div>
