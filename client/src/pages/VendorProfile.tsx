@@ -290,6 +290,12 @@ export default function VendorProfile() {
 
   // Select 2 different images for hero section
   const getHeroImages = () => {
+    // Helper to extract YouTube video ID from URL
+    const getYouTubeVideoId = (url: string): string | null => {
+      const match = url.match(/\/vi\/([^\/]+)\//);
+      return match ? match[1] : null;
+    };
+
     // Build list of all available images
     const allImages = [
       coverImage,
@@ -302,8 +308,27 @@ export default function VendorProfile() {
     console.log('📸 Profile image:', profileImage?.substring(0, 60));
     console.log('📸 Gallery images:', galleryImages.length);
 
-    // Remove duplicates
-    const uniqueImages = Array.from(new Set(allImages));
+    // Remove duplicates AND same YouTube videos (different quality)
+    const uniqueImages: string[] = [];
+    const seenVideoIds = new Set<string>();
+
+    for (const img of allImages) {
+      const videoId = getYouTubeVideoId(img);
+      
+      if (videoId) {
+        // YouTube image - check if we've seen this video ID
+        if (!seenVideoIds.has(videoId)) {
+          seenVideoIds.add(videoId);
+          uniqueImages.push(img);
+        }
+      } else {
+        // Non-YouTube image - check for exact duplicate
+        if (!uniqueImages.includes(img)) {
+          uniqueImages.push(img);
+        }
+      }
+    }
+
     console.log('✅ Unique images after deduplication:', uniqueImages.length);
 
     // Ensure we have at least 2 different images
