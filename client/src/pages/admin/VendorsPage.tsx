@@ -1180,6 +1180,9 @@ const VendorForm: React.FC<VendorFormProps> = ({ vendor, onSubmit, onCancel }) =
     google_maps_place_id: vendor?.google_maps_place_id || '',
     auto_update_main_image: vendor?.auto_update_main_image !== false,
     main_image_selection: vendor?.main_image_selection || 'first',
+    featured: vendor?.featured || false,
+    featured_until: vendor?.featured_until || '',
+    featured_priority: vendor?.featured_priority || 0,
   });
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -1345,8 +1348,63 @@ const VendorForm: React.FC<VendorFormProps> = ({ vendor, onSubmit, onCancel }) =
           </div>
         </div>
 
-        {/* Main Image Auto-Update Settings */}
+        {/* Featured Vendor Settings */}
         <div className="border-t pt-4">
+          <h3 className="font-semibold mb-3 flex items-center gap-2">
+            <i className="fas fa-crown text-rose-gold-400"></i>
+            Featured Vendor Settings
+          </h3>
+          <div className="space-y-4 bg-gradient-to-br from-rose-gold-50 to-white p-4 rounded-lg border border-rose-gold-200">
+            <div className="flex items-center space-x-2">
+              <input
+                type="checkbox"
+                id="featured"
+                checked={formData.featured}
+                onChange={(e) => setFormData({ ...formData, featured: e.target.checked })}
+                className="w-4 h-4 text-rose-gold-500 rounded"
+              />
+              <Label htmlFor="featured" className="cursor-pointer font-semibold">
+                <i className="fas fa-star text-rose-gold-400 mr-1"></i>
+                Mark as Featured Vendor
+              </Label>
+            </div>
+            
+            {formData.featured && (
+              <>
+                <div>
+                  <Label htmlFor="featured_until">Featured Until (Optional)</Label>
+                  <Input
+                    type="date"
+                    id="featured_until"
+                    value={formData.featured_until}
+                    onChange={(e) => setFormData({ ...formData, featured_until: e.target.value })}
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    Leave empty for permanent featured status
+                  </p>
+                </div>
+                
+                <div>
+                  <Label htmlFor="featured_priority">Priority (1 = highest)</Label>
+                  <Input
+                    type="number"
+                    id="featured_priority"
+                    min="0"
+                    max="100"
+                    value={formData.featured_priority}
+                    onChange={(e) => setFormData({ ...formData, featured_priority: parseInt(e.target.value) || 0 })}
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    Higher priority vendors appear first in featured section
+                  </p>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+
+        {/* Main Image Auto-Update Settings */}
+        <div className="border-t pt-4 mt-4">
           <h3 className="font-semibold mb-3">Main Image Auto-Update</h3>
           <div className="space-y-4">
             <div className="flex items-center space-x-2">

@@ -32,8 +32,11 @@ export interface Vendor {
   twitter_url?: string | null
   embed_code?: string | null
   featured?: boolean
+  featured_until?: string | null
+  featured_priority?: number | null
   verified?: boolean
   review_count?: number
+  reviewCount?: number
   // Social media sync settings
   google_maps_place_id?: string | null
   auto_update_main_image?: boolean

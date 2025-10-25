@@ -28,10 +28,11 @@ export default function SimplifiedVendorCard({ vendor }: SimplifiedVendorCardPro
           </div>
         </div>
         
-        {/* Featured badge on top right in rose gold */}
+        {/* Featured badge - Rose Gold */}
         {vendor.featured && (
-          <div className="absolute top-2 right-2 bg-rose-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-full">
-            Featured
+          <div className="absolute top-2 right-2 bg-gradient-to-r from-rose-gold-400 to-rose-gold-100 text-white text-xs font-bold px-2 py-1 rounded-full shadow-lg">
+            <i className="fas fa-star mr-1 text-[10px]"></i>
+            FEATURED
           </div>
         )}
       </div>

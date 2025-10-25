@@ -770,9 +770,9 @@ export default function VendorProfile() {
                       <i className="fas fa-map-marked-alt text-red-500"></i>
                       <span>Location Map</span>
                     </div>
-                    <div className="rounded-lg overflow-hidden border border-gray-200 shadow-sm">
+                    <div className="rounded-lg overflow-hidden border border-gray-200 shadow-sm bg-gray-100">
                       <iframe
-                        src={`https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3000!2d0!3d0!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A${vendor.google_maps_place_id}!2zPlace!5e0!3m2!1sen!2sin!4v1234567890!5m2!1sen!2sin`}
+                        src={`https://www.google.com/maps?q=place_id:${vendor.google_maps_place_id}&output=embed`}
                         width="100%"
                         height="250"
                         style={{ border: 0 }}

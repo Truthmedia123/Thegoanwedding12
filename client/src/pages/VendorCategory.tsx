@@ -95,6 +95,16 @@ export default function VendorCategory() {
   console.log('Query result - vendors:', vendors, 'isLoading:', isLoading, 'error:', error);
 
   const sortedVendors = vendors?.sort((a: Vendor, b: Vendor) => {
+    // Featured vendors always come first
+    if (a.featured && !b.featured) return -1;
+    if (!a.featured && b.featured) return 1;
+    
+    // Among featured vendors, sort by featured_priority
+    if (a.featured && b.featured) {
+      return (b.featured_priority || 0) - (a.featured_priority || 0);
+    }
+    
+    // Regular sorting for non-featured vendors
     switch (sortBy) {
       case 'rating':
         return Number(b.rating) - Number(a.rating);
@@ -106,6 +116,10 @@ export default function VendorCategory() {
         return 0;
     }
   });
+  
+  // Separate featured and regular vendors
+  const featuredVendors = sortedVendors?.filter((v: Vendor) => v.featured) || [];
+  const regularVendors = sortedVendors?.filter((v: Vendor) => !v.featured) || [];
 
   const categoryTitle = category === 'all' 
     ? 'All Vendors' 
@@ -200,17 +214,45 @@ export default function VendorCategory() {
             </div>
           ) : sortedVendors?.length ? (
             <>
-              <div className="flex items-center justify-between mb-8">
-                <p className="text-gray-600">
-                  Showing {sortedVendors.length} vendor{sortedVendors.length !== 1 ? 's' : ''}
-                </p>
-              </div>
+              {/* Featured Vendors Section */}
+              {featuredVendors.length > 0 && (
+                <section className="mb-12 p-6 rounded-xl bg-gradient-to-br from-rose-gold-50 via-white to-rose-gold-50 border border-rose-gold-200">
+                  <div className="flex items-center gap-3 mb-6">
+                    <div className="w-1 h-8 bg-gradient-to-b from-rose-gold-400 to-rose-gold-100 rounded-full"></div>
+                    <h2 className="text-2xl font-bold">
+                      <span className="bg-gradient-to-r from-rose-gold-500 to-rose-gold-300 bg-clip-text text-transparent">
+                        Featured {categoryTitle}
+                      </span>
+                    </h2>
+                    <i className="fas fa-crown text-rose-gold-400 text-xl"></i>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                    {featuredVendors.map((vendor: Vendor) => (
+                      <SimplifiedVendorCard key={vendor.id} vendor={vendor} />
+                    ))}
+                  </div>
+                </section>
+              )}
               
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                {sortedVendors.map((vendor: Vendor) => (
-                  <SimplifiedVendorCard key={vendor.id} vendor={vendor} />
-                ))}
-              </div>
+              {/* Regular Vendors Section */}
+              {regularVendors.length > 0 && (
+                <>
+                  <div className="flex items-center justify-between mb-8">
+                    <h2 className="text-2xl font-bold text-gray-800">
+                      {featuredVendors.length > 0 ? `All ${categoryTitle}` : categoryTitle}
+                    </h2>
+                    <p className="text-gray-600">
+                      {regularVendors.length} vendor{regularVendors.length !== 1 ? 's' : ''}
+                    </p>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                    {regularVendors.map((vendor: Vendor) => (
+                      <SimplifiedVendorCard key={vendor.id} vendor={vendor} />
+                    ))}
+                  </div>
+                </>
+              )}
             </>
           ) : (
             <div className="text-center py-16">

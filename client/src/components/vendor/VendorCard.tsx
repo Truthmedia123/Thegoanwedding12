@@ -41,7 +41,11 @@ export default function VendorCard({ vendor }: VendorCardProps) {
     "https://images.unsplash.com/photo-1519741497674-611481863552?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=500";
 
   return (
-    <Card className="group cursor-pointer hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-3 overflow-hidden bg-white border-0 rounded-2xl">
+    <Card className={`group cursor-pointer hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-3 overflow-hidden rounded-2xl ${
+      vendor.featured 
+        ? 'border-2 border-rose-gold-400 shadow-xl shadow-rose-gold-400/20 bg-gradient-to-b from-rose-gold-50 to-white' 
+        : 'bg-white border-0'
+    }`}>
       <Link href={`/vendor/${vendor.id}`}>
         <div className="relative overflow-hidden">
           <img 
@@ -53,14 +57,15 @@ export default function VendorCard({ vendor }: VendorCardProps) {
           {/* Gradient overlay */}
           <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
           
-          {/* Badges */}
-          <div className="absolute top-4 left-4 right-4 flex justify-between">
-            {vendor.featured && (
-              <Badge className="bg-red-500/90 backdrop-blur-sm text-white border-0 shadow-lg">
-                <i className="fas fa-star mr-1"></i>Featured
+          {/* Featured Badge - Rose Gold */}
+          {vendor.featured && (
+            <div className="absolute top-3 left-3 z-10">
+              <Badge className="bg-gradient-to-r from-rose-gold-400 to-rose-gold-100 text-white font-bold px-3 py-1.5 shadow-lg">
+                <i className="fas fa-star mr-1.5"></i>
+                FEATURED
               </Badge>
-            )}
-          </div>
+            </div>
+          )}
           
           {/* Rating overlay */}
           <div className="absolute bottom-4 left-4 bg-white/95 backdrop-blur-sm rounded-full px-3 py-1 shadow-lg">

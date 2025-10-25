@@ -66,6 +66,19 @@ export default {
           border: "var(--sidebar-border)",
           ring: "var(--sidebar-ring)",
         },
+        // Rose Gold color palette for featured vendors
+        'rose-gold': {
+          50: '#F4E4E6',
+          100: '#E8C4C8',
+          200: '#DCA4AA',
+          300: '#C9A0A4',
+          400: '#B76E79',
+          500: '#9B4F5A',
+          600: '#7F3F48',
+          700: '#632F36',
+          800: '#471F24',
+          900: '#2B0F12',
+        },
       },
       fontFamily: {
         'wedding': ['Playfair Display', 'Georgia', 'serif'],
