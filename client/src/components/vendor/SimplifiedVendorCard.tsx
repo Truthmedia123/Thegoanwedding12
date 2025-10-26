@@ -30,10 +30,10 @@ export default function SimplifiedVendorCard({ vendor }: SimplifiedVendorCardPro
         
         {/* Featured badge - Rose Gold with Shimmer */}
         {vendor.featured && (
-          <div className="absolute top-2 right-2 relative overflow-hidden bg-gradient-to-r from-rose-gold-400 to-rose-gold-100 text-white text-xs font-bold px-2 py-1 rounded-full shadow-lg">
-            <span className="relative z-10 flex items-center">
-              <i className="fas fa-star mr-1 text-[10px]"></i>
-              FEATURED
+          <div className="absolute top-2 right-2 overflow-hidden bg-gradient-to-r from-rose-gold-400 to-rose-gold-100 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-lg">
+            <span className="relative z-10 flex items-center gap-1">
+              <i className="fas fa-star text-[8px]"></i>
+              <span>FEATURED</span>
             </span>
             <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-shimmer" style={{backgroundSize: '200% 100%'}}></span>
           </div>
