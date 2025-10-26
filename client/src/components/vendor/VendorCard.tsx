@@ -57,12 +57,15 @@ export default function VendorCard({ vendor }: VendorCardProps) {
           {/* Gradient overlay */}
           <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
           
-          {/* Featured Badge - Rose Gold */}
+          {/* Featured Badge - Rose Gold with Shimmer */}
           {vendor.featured && (
             <div className="absolute top-3 left-3 z-10">
-              <Badge className="bg-gradient-to-r from-rose-gold-400 to-rose-gold-100 text-white font-bold px-3 py-1.5 shadow-lg">
-                <i className="fas fa-star mr-1.5"></i>
-                FEATURED
+              <Badge className="relative overflow-hidden bg-gradient-to-r from-rose-gold-400 to-rose-gold-100 text-white font-bold px-3 py-1.5 shadow-lg">
+                <span className="relative z-10 flex items-center">
+                  <i className="fas fa-star mr-1.5"></i>
+                  FEATURED
+                </span>
+                <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-shimmer" style={{backgroundSize: '200% 100%'}}></span>
               </Badge>
             </div>
           )}
