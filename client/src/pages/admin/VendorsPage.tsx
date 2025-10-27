@@ -646,16 +646,59 @@ const VendorsPage: React.FC = () => {
         throw new Error('CSV file must have at least a header and one data row');
       }
       
-      const headers = lines[0].split(',').map(h => h.trim());
+      // Proper CSV parsing function that handles quoted fields with commas
+      const parseCSVLine = (line: string): string[] => {
+        const result: string[] = [];
+        let current = '';
+        let inQuotes = false;
+        
+        for (let i = 0; i < line.length; i++) {
+          const char = line[i];
+          
+          if (char === '"') {
+            inQuotes = !inQuotes;
+          } else if (char === ',' && !inQuotes) {
+            result.push(current.trim());
+            current = '';
+          } else {
+            current += char;
+          }
+        }
+        result.push(current.trim());
+        return result;
+      };
+      
+      const headers = parseCSVLine(lines[0]);
       const vendorRows = lines.slice(1);
       
-      const vendors = vendorRows.map(line => {
-        const values = line.split(',').map(v => v.trim().replace(/^"|"$/g, ''));
+      const vendors = vendorRows.map((line, lineIndex) => {
+        const values = parseCSVLine(line);
         const vendor: any = {};
         
+        // Ensure we have the same number of values as headers
+        if (values.length !== headers.length) {
+          console.warn(`⚠️ Row ${lineIndex + 2} has ${values.length} values but expected ${headers.length} (headers count)`);
+        }
+        
         headers.forEach((header, index) => {
-          const value = values[index] || null;
+          let value = values[index];
           const cleanHeader = header.toLowerCase().replace(/[^a-z0-9]/g, '_');
+          
+          // Treat empty strings as null
+          if (!value || value.trim() === '') {
+            value = null;
+          }
+          
+          // Convert boolean strings
+          if (cleanHeader === 'featured' && value !== null) {
+            value = value.toLowerCase() === 'true';
+          }
+          
+          // Convert numeric strings
+          if (cleanHeader === 'featured_priority' && value !== null) {
+            value = parseInt(value) || 0;
+          }
+          
           vendor[cleanHeader] = value;
         });
         
@@ -1187,7 +1230,14 @@ const VendorForm: React.FC<VendorFormProps> = ({ vendor, onSubmit, onCancel }) =
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit(formData);
+    
+    // Clean up formData - convert empty strings to null for timestamp fields
+    const cleanedData = {
+      ...formData,
+      featured_until: formData.featured_until?.trim() ? formData.featured_until : null,
+    };
+    
+    onSubmit(cleanedData);
   };
 
   return (
