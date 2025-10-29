@@ -16,6 +16,7 @@ export interface Vendor {
   profile_image_url: string | null
   cover_image_url: string | null
   images: string[] | null
+  manual_videos: string[] | null
   services: string[] | null
   price_range: string | null
   availability: string | null

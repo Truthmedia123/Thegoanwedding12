@@ -1226,7 +1226,52 @@ const VendorForm: React.FC<VendorFormProps> = ({ vendor, onSubmit, onCancel }) =
     featured: vendor?.featured || false,
     featured_until: vendor?.featured_until || '',
     featured_priority: vendor?.featured_priority || 0,
+    // Manual image/video fields
+    profile_image_url: vendor?.profile_image_url || '',
+    cover_image_url: vendor?.cover_image_url || '',
+    images: vendor?.images || [],
+    manual_videos: (vendor as any)?.manual_videos || [],
   });
+  
+  // State for temporary input values
+  const [newImageUrl, setNewImageUrl] = useState('');
+  const [newVideoUrl, setNewVideoUrl] = useState('');
+  
+  // Handler to add image to gallery
+  const handleAddImage = () => {
+    if (newImageUrl.trim()) {
+      setFormData({
+        ...formData,
+        images: [...(formData.images || []), newImageUrl.trim()]
+      });
+      setNewImageUrl('');
+    }
+  };
+  
+  // Handler to remove image from gallery
+  const handleRemoveImage = (index: number) => {
+    const updatedImages = [...(formData.images || [])];
+    updatedImages.splice(index, 1);
+    setFormData({ ...formData, images: updatedImages });
+  };
+  
+  // Handler to add video
+  const handleAddVideo = () => {
+    if (newVideoUrl.trim()) {
+      setFormData({
+        ...formData,
+        manual_videos: [...(formData.manual_videos || []), newVideoUrl.trim()]
+      });
+      setNewVideoUrl('');
+    }
+  };
+  
+  // Handler to remove video
+  const handleRemoveVideo = (index: number) => {
+    const updatedVideos = [...(formData.manual_videos || [])];
+    updatedVideos.splice(index, 1);
+    setFormData({ ...formData, manual_videos: updatedVideos });
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -1450,6 +1495,221 @@ const VendorForm: React.FC<VendorFormProps> = ({ vendor, onSubmit, onCancel }) =
                 </div>
               </>
             )}
+          </div>
+        </div>
+
+        {/* Manual Image & Video Upload Section */}
+        <div className="border-t pt-6 mt-6">
+          <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+            <i className="fas fa-images text-blue-500"></i>
+            Manual Image & Video Upload
+            <span className="text-xs font-normal text-gray-500">
+              (For vendors without social media)
+            </span>
+          </h3>
+
+          <div className="space-y-4 bg-gray-50 p-4 rounded-lg">
+            {/* Profile Image */}
+            <div>
+              <Label htmlFor="profile_image_url" className="flex items-center gap-2">
+                <i className="fas fa-user-circle text-blue-500"></i>
+                Profile Image URL
+              </Label>
+              <Input
+                id="profile_image_url"
+                type="url"
+                value={formData.profile_image_url}
+                onChange={(e) => setFormData({ ...formData, profile_image_url: e.target.value })}
+                placeholder="https://example.com/profile-image.jpg"
+              />
+              <p className="text-xs text-gray-500 mt-1">
+                Main vendor photo (appears on cards and profile)
+              </p>
+              {formData.profile_image_url && (
+                <div className="mt-2">
+                  <img 
+                    src={formData.profile_image_url} 
+                    alt="Profile preview" 
+                    className="w-32 h-32 object-cover rounded-lg border"
+                    onError={(e) => {
+                      e.currentTarget.src = 'https://via.placeholder.com/150?text=Invalid+URL';
+                    }}
+                  />
+                </div>
+              )}
+            </div>
+
+            {/* Cover Image */}
+            <div>
+              <Label htmlFor="cover_image_url" className="flex items-center gap-2">
+                <i className="fas fa-image text-purple-500"></i>
+                Cover Image URL
+              </Label>
+              <Input
+                id="cover_image_url"
+                type="url"
+                value={formData.cover_image_url}
+                onChange={(e) => setFormData({ ...formData, cover_image_url: e.target.value })}
+                placeholder="https://example.com/cover-image.jpg"
+              />
+              <p className="text-xs text-gray-500 mt-1">
+                Banner/header image (appears at top of profile page)
+              </p>
+              {formData.cover_image_url && (
+                <div className="mt-2">
+                  <img 
+                    src={formData.cover_image_url} 
+                    alt="Cover preview" 
+                    className="w-full h-32 object-cover rounded-lg border"
+                    onError={(e) => {
+                      e.currentTarget.src = 'https://via.placeholder.com/800x200?text=Invalid+URL';
+                    }}
+                  />
+                </div>
+              )}
+            </div>
+
+            {/* Gallery Images */}
+            <div>
+              <Label className="flex items-center gap-2 mb-2">
+                <i className="fas fa-images text-green-500"></i>
+                Gallery Images
+                <span className="text-xs font-normal text-gray-500">
+                  ({(formData.images || []).length} images)
+                </span>
+              </Label>
+              
+              {/* Add Image Input */}
+              <div className="flex gap-2 mb-3">
+                <Input
+                  type="url"
+                  value={newImageUrl}
+                  onChange={(e) => setNewImageUrl(e.target.value)}
+                  placeholder="https://example.com/gallery-image.jpg"
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      handleAddImage();
+                    }
+                  }}
+                />
+                <Button
+                  type="button"
+                  onClick={handleAddImage}
+                  disabled={!newImageUrl.trim()}
+                  variant="outline"
+                >
+                  <i className="fas fa-plus mr-2"></i>
+                  Add
+                </Button>
+              </div>
+
+              {/* Gallery Image List */}
+              {formData.images && formData.images.length > 0 && (
+                <div className="grid grid-cols-4 gap-3">
+                  {formData.images.map((imageUrl, index) => (
+                    <div key={index} className="relative group">
+                      <img
+                        src={imageUrl}
+                        alt={`Gallery ${index + 1}`}
+                        className="w-full h-24 object-cover rounded-lg border"
+                        onError={(e) => {
+                          e.currentTarget.src = 'https://via.placeholder.com/150?text=Invalid';
+                        }}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveImage(index)}
+                        className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        <i className="fas fa-times text-xs"></i>
+                      </button>
+                      <div className="absolute bottom-1 left-1 bg-black/70 text-white text-xs px-2 py-0.5 rounded">
+                        {index + 1}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+              
+              <p className="text-xs text-gray-500 mt-2">
+                Add multiple images to the gallery. Press Enter or click Add button.
+              </p>
+            </div>
+
+            {/* Manual Videos */}
+            <div>
+              <Label className="flex items-center gap-2 mb-2">
+                <i className="fas fa-video text-red-500"></i>
+                Manual Videos
+                <span className="text-xs font-normal text-gray-500">
+                  ({(formData.manual_videos || []).length} videos)
+                </span>
+              </Label>
+              
+              {/* Add Video Input */}
+              <div className="flex gap-2 mb-3">
+                <Input
+                  type="url"
+                  value={newVideoUrl}
+                  onChange={(e) => setNewVideoUrl(e.target.value)}
+                  placeholder="YouTube URL, Vimeo URL, or embed code"
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      handleAddVideo();
+                    }
+                  }}
+                />
+                <Button
+                  type="button"
+                  onClick={handleAddVideo}
+                  disabled={!newVideoUrl.trim()}
+                  variant="outline"
+                >
+                  <i className="fas fa-plus mr-2"></i>
+                  Add
+                </Button>
+              </div>
+
+              {/* Video List */}
+              {formData.manual_videos && formData.manual_videos.length > 0 && (
+                <div className="space-y-2">
+                  {formData.manual_videos.map((videoUrl, index) => (
+                    <div key={index} className="flex items-center gap-2 bg-white p-2 rounded border">
+                      <i className="fas fa-video text-red-500"></i>
+                      <span className="text-sm flex-1 truncate">{videoUrl}</span>
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveVideo(index)}
+                        className="text-red-500 hover:text-red-700"
+                      >
+                        <i className="fas fa-trash text-sm"></i>
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+              
+              <p className="text-xs text-gray-500 mt-2">
+                Supported: YouTube URLs, Vimeo URLs, or full embed codes
+              </p>
+            </div>
+          </div>
+
+          {/* Info Box */}
+          <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+            <div className="flex items-start gap-2">
+              <i className="fas fa-info-circle text-blue-500 mt-0.5"></i>
+              <div className="text-sm text-blue-800">
+                <p className="font-semibold mb-1">Manual vs Auto-Sync:</p>
+                <ul className="list-disc list-inside space-y-1 text-xs">
+                  <li><strong>Auto-Sync:</strong> Use YouTube/Instagram/Facebook fields above for automatic gallery sync</li>
+                  <li><strong>Manual Upload:</strong> Use these fields for vendors without social media presence</li>
+                  <li><strong>Both:</strong> You can use both! Manual images will be combined with auto-synced content</li>
+                </ul>
+              </div>
+            </div>
           </div>
         </div>
 
