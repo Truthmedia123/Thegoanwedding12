@@ -9,6 +9,8 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
+import { ImgBBUpload } from '@/components/ImgBBUpload';
+import { ImgBBMultiUpload } from '@/components/ImgBBMultiUpload';
 import { 
   Dialog, 
   DialogContent, 
@@ -1511,62 +1513,40 @@ const VendorForm: React.FC<VendorFormProps> = ({ vendor, onSubmit, onCancel }) =
           <div className="space-y-4 bg-gray-50 p-4 rounded-lg">
             {/* Profile Image */}
             <div>
-              <Label htmlFor="profile_image_url" className="flex items-center gap-2">
+              <Label className="flex items-center gap-2 mb-2">
                 <i className="fas fa-user-circle text-blue-500"></i>
-                Profile Image URL
+                Profile Image
               </Label>
-              <Input
-                id="profile_image_url"
-                type="url"
-                value={formData.profile_image_url}
-                onChange={(e) => setFormData({ ...formData, profile_image_url: e.target.value })}
-                placeholder="https://example.com/profile-image.jpg"
+              <ImgBBUpload
+                onUploadComplete={(url) => setFormData({ ...formData, profile_image_url: url })}
+                currentUrl={formData.profile_image_url}
+                accept="image/*"
+                preset="profile"
+                label="Upload Profile Image"
+                previewClassName="w-32 h-32"
               />
               <p className="text-xs text-gray-500 mt-1">
                 Main vendor photo (appears on cards and profile)
               </p>
-              {formData.profile_image_url && (
-                <div className="mt-2">
-                  <img 
-                    src={formData.profile_image_url} 
-                    alt="Profile preview" 
-                    className="w-32 h-32 object-cover rounded-lg border"
-                    onError={(e) => {
-                      e.currentTarget.src = 'https://via.placeholder.com/150?text=Invalid+URL';
-                    }}
-                  />
-                </div>
-              )}
             </div>
 
             {/* Cover Image */}
             <div>
-              <Label htmlFor="cover_image_url" className="flex items-center gap-2">
+              <Label className="flex items-center gap-2 mb-2">
                 <i className="fas fa-image text-purple-500"></i>
-                Cover Image URL
+                Cover Image
               </Label>
-              <Input
-                id="cover_image_url"
-                type="url"
-                value={formData.cover_image_url}
-                onChange={(e) => setFormData({ ...formData, cover_image_url: e.target.value })}
-                placeholder="https://example.com/cover-image.jpg"
+              <ImgBBUpload
+                onUploadComplete={(url) => setFormData({ ...formData, cover_image_url: url })}
+                currentUrl={formData.cover_image_url}
+                accept="image/*"
+                preset="cover"
+                label="Upload Cover Image"
+                previewClassName="w-full h-32"
               />
               <p className="text-xs text-gray-500 mt-1">
                 Banner/header image (appears at top of profile page)
               </p>
-              {formData.cover_image_url && (
-                <div className="mt-2">
-                  <img 
-                    src={formData.cover_image_url} 
-                    alt="Cover preview" 
-                    className="w-full h-32 object-cover rounded-lg border"
-                    onError={(e) => {
-                      e.currentTarget.src = 'https://via.placeholder.com/800x200?text=Invalid+URL';
-                    }}
-                  />
-                </div>
-              )}
             </div>
 
             {/* Gallery Images */}
@@ -1574,66 +1554,24 @@ const VendorForm: React.FC<VendorFormProps> = ({ vendor, onSubmit, onCancel }) =
               <Label className="flex items-center gap-2 mb-2">
                 <i className="fas fa-images text-green-500"></i>
                 Gallery Images
-                <span className="text-xs font-normal text-gray-500">
-                  ({(formData.images || []).length} images)
-                </span>
               </Label>
               
-              {/* Add Image Input */}
-              <div className="flex gap-2 mb-3">
-                <Input
-                  type="url"
-                  value={newImageUrl}
-                  onChange={(e) => setNewImageUrl(e.target.value)}
-                  placeholder="https://example.com/gallery-image.jpg"
-                  onKeyPress={(e) => {
-                    if (e.key === 'Enter') {
-                      e.preventDefault();
-                      handleAddImage();
-                    }
-                  }}
-                />
-                <Button
-                  type="button"
-                  onClick={handleAddImage}
-                  disabled={!newImageUrl.trim()}
-                  variant="outline"
-                >
-                  <i className="fas fa-plus mr-2"></i>
-                  Add
-                </Button>
-              </div>
-
-              {/* Gallery Image List */}
-              {formData.images && formData.images.length > 0 && (
-                <div className="grid grid-cols-4 gap-3">
-                  {formData.images.map((imageUrl, index) => (
-                    <div key={index} className="relative group">
-                      <img
-                        src={imageUrl}
-                        alt={`Gallery ${index + 1}`}
-                        className="w-full h-24 object-cover rounded-lg border"
-                        onError={(e) => {
-                          e.currentTarget.src = 'https://via.placeholder.com/150?text=Invalid';
-                        }}
-                      />
-                      <button
-                        type="button"
-                        onClick={() => handleRemoveImage(index)}
-                        className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-                      >
-                        <i className="fas fa-times text-xs"></i>
-                      </button>
-                      <div className="absolute bottom-1 left-1 bg-black/70 text-white text-xs px-2 py-0.5 rounded">
-                        {index + 1}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
+              <ImgBBMultiUpload
+                onUploadComplete={(urls) => {
+                  setFormData({
+                    ...formData,
+                    images: [...(formData.images || []), ...urls]
+                  });
+                }}
+                currentUrls={formData.images || []}
+                onRemove={handleRemoveImage}
+                accept="image/*"
+                maxFiles={20}
+                preset="gallery"
+              />
               
               <p className="text-xs text-gray-500 mt-2">
-                Add multiple images to the gallery. Press Enter or click Add button.
+                Drag & drop multiple images or click to browse. Max 20 images.
               </p>
             </div>
 

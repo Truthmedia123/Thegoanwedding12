@@ -407,6 +407,7 @@ The following environment variables are configured in Cloudflare Pages:
 - `VITE_SUPABASE_ANON_KEY` - Supabase anonymous key
 - `VITE_GA_MEASUREMENT_ID` - Google Analytics measurement ID
 - `VITE_CLARITY_PROJECT_ID` - Microsoft Clarity project ID
+- `VITE_IMGBB_API_KEY` - ImgBB API key for image uploads
 
 #### **Build Configuration**
 - **Build Command**: `npm run build`
