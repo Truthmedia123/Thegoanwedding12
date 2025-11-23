@@ -1,7 +1,9 @@
+import { useState, useEffect } from "react";
 import { Link } from "wouter";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import type { Vendor } from "@shared/schema";
 
 interface VendorCardProps {
@@ -9,6 +11,74 @@ interface VendorCardProps {
 }
 
 export default function VendorCard({ vendor }: VendorCardProps) {
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [touchStart, setTouchStart] = useState(0);
+  const [touchEnd, setTouchEnd] = useState(0);
+
+  // Get all available images
+  const allImages = [
+    vendor.profile_image_url,
+    vendor.cover_image_url,
+    ...(vendor.images || []),
+  ].filter(Boolean);
+
+  // Auto-advance carousel
+  useEffect(() => {
+    if (allImages.length <= 1) return;
+    
+    const timer = setInterval(() => {
+      setCurrentImageIndex((prev) => (prev + 1) % allImages.length);
+    }, 5000); // Change image every 5 seconds
+
+    return () => clearInterval(timer);
+  }, [allImages.length]);
+
+  const handlePrev = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setCurrentImageIndex(prev => 
+      prev === 0 ? allImages.length - 1 : prev - 1
+    );
+  };
+
+  const handleNext = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setCurrentImageIndex(prev => 
+      prev === allImages.length - 1 ? 0 : prev + 1
+    );
+  };
+
+  // Touch event handlers for mobile swipe
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchEnd = () => {
+    if (touchStart - touchEnd > 50) {
+      // Swipe left
+      setCurrentImageIndex(prev => 
+        prev === allImages.length - 1 ? 0 : prev + 1
+      );
+    }
+
+    if (touchStart - touchEnd < -50) {
+      // Swipe right
+      setCurrentImageIndex(prev => 
+        prev === 0 ? allImages.length - 1 : prev - 1
+      );
+    }
+  };
+
+  // If no images, use a default
+  if (allImages.length === 0) {
+    allImages.push(
+      "https://images.unsplash.com/photo-1519741497674-611481863552?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=500"
+    );
+  }
+
   const handleWhatsApp = (e: React.MouseEvent) => {
     e.preventDefault();
     // Add Umami tracking for contact vendor click
@@ -36,10 +106,6 @@ export default function VendorCard({ vendor }: VendorCardProps) {
     window.location.href = `tel:${vendor.phone}`;
   };
 
-  // Determine the image source based on available fields
-  const profileImage = vendor.profile_image_url || vendor.profileImage || 
-    "https://images.unsplash.com/photo-1519741497674-611481863552?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=500";
-
   return (
     <Card className={`group cursor-pointer hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-3 overflow-hidden rounded-2xl ${
       vendor.featured 
@@ -47,12 +113,71 @@ export default function VendorCard({ vendor }: VendorCardProps) {
         : 'bg-white border-0'
     }`}>
       <Link href={`/vendor/${vendor.id}`}>
-        <div className="relative overflow-hidden">
-          <img 
-            src={profileImage} 
-            alt={vendor.name}
-            className="w-full h-72 object-cover group-hover:scale-110 transition-transform duration-700" 
-          />
+        <div
+          className="relative overflow-hidden"
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+        >
+          {/* Image Carousel */}
+          <div className="relative h-72 w-full overflow-hidden">
+            {allImages.map((img, index) => (
+              <img
+                key={index}
+                src={img}
+                alt={`${vendor.name} - ${index + 1}`}
+                className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${
+                  index === currentImageIndex ? "opacity-100" : "opacity-0"
+                }`}
+                onError={(e) => {
+                  // Fallback to default image if image fails to load
+                  const target = e.target as HTMLImageElement;
+                  target.src = "https://images.unsplash.com/photo-1519741497674-611481863552?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=500";
+                }}
+              />
+            ))}
+          </div>
+
+          {/* Navigation Arrows (only show if multiple images) */}
+          {allImages.length > 1 && (
+            <>
+              <button
+                onClick={handlePrev}
+                className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/30 hover:bg-black/50 text-white rounded-full p-2 z-10 transition-all"
+                aria-label="Previous image"
+              >
+                <ChevronLeft className="w-5 h-5" />
+              </button>
+              <button
+                onClick={handleNext}
+                className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/30 hover:bg-black/50 text-white rounded-full p-2 z-10 transition-all"
+                aria-label="Next image"
+              >
+                <ChevronRight className="w-5 h-5" />
+              </button>
+            </>
+          )}
+
+          {/* Dots Indicator */}
+          {allImages.length > 1 && (
+            <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-2 z-10">
+              {allImages.map((_, index) => (
+                <button
+                  key={index}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setCurrentImageIndex(index);
+                  }}
+                  className={`w-2 h-2 rounded-full transition-all ${
+                    index === currentImageIndex
+                      ? "bg-white w-6"
+                      : "bg-white/50 hover:bg-white/75"
+                  }`}
+                  aria-label={`Go to image ${index + 1}`}
+                />
+              ))}
+            </div>
+          )}
           
           {/* Gradient overlay */}
           <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
