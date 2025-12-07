@@ -15,15 +15,6 @@ export default function VendorCard({ vendor }: VendorCardProps) {
   const [touchStart, setTouchStart] = useState(0);
   const [touchEnd, setTouchEnd] = useState(0);
 
-  // DEBUG: Log vendor data
-  console.log('🔍 VendorCard Debug - Vendor data:', {
-    vendor,
-    profile_image_url: vendor.profile_image_url,
-    cover_image_url: vendor.cover_image_url,
-    images: vendor.images,
-    profileImage: vendor.profileImage, // Check for alternative field name
-  });
-
   // Get all available images
   const allImages = [
     vendor.profile_image_url,
@@ -31,22 +22,12 @@ export default function VendorCard({ vendor }: VendorCardProps) {
     ...(vendor.images || []),
   ].filter(Boolean);
 
-  // DEBUG: Log images array
-  console.log('🔍 VendorCard Debug - All images:', allImages);
-  console.log('🔍 VendorCard Debug - Images count:', allImages.length);
-
   // Auto-advance carousel
   useEffect(() => {
     if (allImages.length <= 1) return;
     
-    console.log('🔍 VendorCard Debug - Starting carousel with', allImages.length, 'images');
-    
     const timer = setInterval(() => {
-      setCurrentImageIndex((prev) => {
-        const newIndex = (prev + 1) % allImages.length;
-        console.log('🔍 VendorCard Debug - Auto-advancing to index:', newIndex);
-        return newIndex;
-      });
+      setCurrentImageIndex((prev) => (prev + 1) % allImages.length);
     }, 5000); // Change image every 5 seconds
 
     return () => clearInterval(timer);
@@ -54,7 +35,6 @@ export default function VendorCard({ vendor }: VendorCardProps) {
 
   const handlePrev = (e: React.MouseEvent) => {
     e.stopPropagation();
-    console.log('🔍 VendorCard Debug - Previous button clicked');
     setCurrentImageIndex(prev => 
       prev === 0 ? allImages.length - 1 : prev - 1
     );
@@ -62,7 +42,6 @@ export default function VendorCard({ vendor }: VendorCardProps) {
 
   const handleNext = (e: React.MouseEvent) => {
     e.stopPropagation();
-    console.log('🔍 VendorCard Debug - Next button clicked');
     setCurrentImageIndex(prev => 
       prev === allImages.length - 1 ? 0 : prev + 1
     );
@@ -80,7 +59,6 @@ export default function VendorCard({ vendor }: VendorCardProps) {
   const handleTouchEnd = () => {
     if (touchStart - touchEnd > 50) {
       // Swipe left
-      console.log('🔍 VendorCard Debug - Swipe left detected');
       setCurrentImageIndex(prev => 
         prev === allImages.length - 1 ? 0 : prev + 1
       );
@@ -88,7 +66,6 @@ export default function VendorCard({ vendor }: VendorCardProps) {
 
     if (touchStart - touchEnd < -50) {
       // Swipe right
-      console.log('🔍 VendorCard Debug - Swipe right detected');
       setCurrentImageIndex(prev => 
         prev === 0 ? allImages.length - 1 : prev - 1
       );
@@ -97,7 +74,6 @@ export default function VendorCard({ vendor }: VendorCardProps) {
 
   // If no images, use a default
   if (allImages.length === 0) {
-    console.log('🔍 VendorCard Debug - No images found, using default');
     allImages.push(
       "https://images.unsplash.com/photo-1519741497674-611481863552?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=500"
     );
@@ -136,11 +112,6 @@ export default function VendorCard({ vendor }: VendorCardProps) {
         ? 'border-2 border-rose-gold-400 shadow-xl shadow-rose-gold-400/20 bg-gradient-to-b from-rose-gold-50 to-white' 
         : 'bg-white border-0'
     }`}>
-      {/* DEBUG INFO */}
-      <div className="bg-red-500 text-white text-xs p-2">
-        DEBUG: Images={allImages.length}, Current={currentImageIndex}
-      </div>
-      
       <Link href={`/vendor/${vendor.id}`}>
         <div
           className="relative overflow-hidden"

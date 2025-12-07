@@ -19,29 +19,12 @@ export default function SimplifiedVendorCard({ vendor }: SimplifiedVendorCardPro
     ...(vendor.images || []),
   ].filter(Boolean);
 
-  // DEBUG: Log vendor data
-  console.log('🔍 SimplifiedVendorCard Debug - Vendor data:', {
-    vendor,
-    profile_image_url: vendor.profile_image_url,
-    featured_image: vendor.featured_image,
-    images: vendor.images,
-  });
-
-  console.log('🔍 SimplifiedVendorCard Debug - All images:', allImages);
-  console.log('🔍 SimplifiedVendorCard Debug - Images count:', allImages.length);
-
   // Auto-advance carousel
   useEffect(() => {
     if (allImages.length <= 1) return;
     
-    console.log('🔍 SimplifiedVendorCard Debug - Starting carousel with', allImages.length, 'images');
-    
     const timer = setInterval(() => {
-      setCurrentImageIndex((prev) => {
-        const newIndex = (prev + 1) % allImages.length;
-        console.log('🔍 SimplifiedVendorCard Debug - Auto-advancing to index:', newIndex);
-        return newIndex;
-      });
+      setCurrentImageIndex((prev) => (prev + 1) % allImages.length);
     }, 5000); // Change image every 5 seconds
 
     return () => clearInterval(timer);
@@ -49,7 +32,6 @@ export default function SimplifiedVendorCard({ vendor }: SimplifiedVendorCardPro
 
   const handlePrev = (e: React.MouseEvent) => {
     e.stopPropagation();
-    console.log('🔍 SimplifiedVendorCard Debug - Previous button clicked');
     setCurrentImageIndex(prev => 
       prev === 0 ? allImages.length - 1 : prev - 1
     );
@@ -57,7 +39,6 @@ export default function SimplifiedVendorCard({ vendor }: SimplifiedVendorCardPro
 
   const handleNext = (e: React.MouseEvent) => {
     e.stopPropagation();
-    console.log('🔍 SimplifiedVendorCard Debug - Next button clicked');
     setCurrentImageIndex(prev => 
       prev === allImages.length - 1 ? 0 : prev + 1
     );
@@ -75,7 +56,6 @@ export default function SimplifiedVendorCard({ vendor }: SimplifiedVendorCardPro
   const handleTouchEnd = () => {
     if (touchStart - touchEnd > 50) {
       // Swipe left
-      console.log('🔍 SimplifiedVendorCard Debug - Swipe left detected');
       setCurrentImageIndex(prev => 
         prev === allImages.length - 1 ? 0 : prev + 1
       );
@@ -83,7 +63,6 @@ export default function SimplifiedVendorCard({ vendor }: SimplifiedVendorCardPro
 
     if (touchStart - touchEnd < -50) {
       // Swipe right
-      console.log('🔍 SimplifiedVendorCard Debug - Swipe right detected');
       setCurrentImageIndex(prev => 
         prev === 0 ? allImages.length - 1 : prev - 1
       );
@@ -93,11 +72,6 @@ export default function SimplifiedVendorCard({ vendor }: SimplifiedVendorCardPro
   return (
     <Link href={`/vendor/${vendor.id}`} className="block">
       <div className="relative overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5">
-        {/* DEBUG INFO */}
-        <div className="absolute top-0 left-0 right-0 bg-red-500 text-white text-xs p-1 z-20 text-center">
-          DEBUG: Images={allImages.length}, Current={currentImageIndex}
-        </div>
-        
         <div 
           className="aspect-square w-full overflow-hidden"
           onTouchStart={handleTouchStart}
