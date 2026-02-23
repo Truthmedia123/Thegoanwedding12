@@ -288,7 +288,7 @@ export default function VendorProfile() {
     }
   }
 
-  // Select 2 different images for hero section
+  // Select 3 different images for hero section
   const getHeroImages = () => {
     // Helper to extract YouTube video ID from URL
     const getYouTubeVideoId = (url: string): string | null => {
@@ -331,33 +331,45 @@ export default function VendorProfile() {
 
     console.log('✅ Unique images after deduplication:', uniqueImages.length);
 
-    // Ensure we have at least 2 different images
-    if (uniqueImages.length >= 2) {
-      console.log('✓ Using 2 unique images from vendor');
+    // Ensure we have at least 3 different images
+    if (uniqueImages.length >= 3) {
+      console.log('✓ Using 3 unique images from vendor');
       return {
         heroImage1: uniqueImages[0],
         heroImage2: uniqueImages[1],
+        heroImage3: uniqueImages[2],
       };
-    } else if (uniqueImages.length === 1 && galleryImages.length > 0) {
-      // If only 1 unique main image but gallery exists, use first 2 gallery images
-      console.log('✓ Using main image + gallery image');
+    } else if (uniqueImages.length === 2) {
+      // If only 2 unique images, use them + fallback
+      console.log('✓ Using 2 unique images + 1 fallback');
+      return {
+        heroImage1: uniqueImages[0],
+        heroImage2: uniqueImages[1],
+        heroImage3: "https://images.unsplash.com/photo-1511285560982-1351cdeb9821?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&h=800",
+      };
+    } else if (uniqueImages.length === 1 && galleryImages.length >= 2) {
+      // If only 1 unique main image but gallery exists, use gallery images
+      console.log('✓ Using main image + 2 gallery images');
       return {
         heroImage1: uniqueImages[0],
         heroImage2: galleryImages[0] !== uniqueImages[0] ? galleryImages[0] : (galleryImages[1] || "https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&h=800"),
+        heroImage3: galleryImages[1] !== uniqueImages[0] ? galleryImages[1] : (galleryImages[2] || "https://images.unsplash.com/photo-1511285560982-1351cdeb9821?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&h=800"),
       };
-    } else if (galleryImages.length >= 2) {
-      // If we have at least 2 gallery images, use them
-      console.log('✓ Using 2 gallery images');
+    } else if (galleryImages.length >= 3) {
+      // If we have at least 3 gallery images, use them
+      console.log('✓ Using 3 gallery images');
       return {
         heroImage1: galleryImages[0],
         heroImage2: galleryImages[1],
+        heroImage3: galleryImages[2],
       };
-    } else if (uniqueImages.length === 1) {
-      // Only 1 image total, use it + fallback
-      console.log('⚠️ Only 1 unique image, using fallback for second');
+    } else if (uniqueImages.length === 1 && galleryImages.length >= 1) {
+      // Only 1 unique image and 1 gallery image
+      console.log('⚠️ Only 1 unique image + 1 gallery, using fallbacks');
       return {
         heroImage1: uniqueImages[0],
-        heroImage2: "https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&h=800",
+        heroImage2: galleryImages[0],
+        heroImage3: "https://images.unsplash.com/photo-1511285560982-1351cdeb9821?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&h=800",
       };
     } else {
       // No images, use different fallbacks
@@ -365,15 +377,16 @@ export default function VendorProfile() {
       return {
         heroImage1: "https://images.unsplash.com/photo-1519741497674-611481863552?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&h=800",
         heroImage2: "https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&h=800",
+        heroImage3: "https://images.unsplash.com/photo-1511285560982-1351cdeb9821?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&h=800",
       };
     }
   };
 
-  const { heroImage1, heroImage2 } = getHeroImages();
+  const { heroImage1, heroImage2, heroImage3 } = getHeroImages();
   console.log('🎨 Final hero images:');
   console.log('  Image 1:', heroImage1?.substring(0, 60));
   console.log('  Image 2:', heroImage2?.substring(0, 60));
-  console.log('  Are they different?', heroImage1 !== heroImage2);
+  console.log('  Image 3:', heroImage3?.substring(0, 60));
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -385,9 +398,9 @@ export default function VendorProfile() {
         </script>
       </Helmet>
       
-      {/* Hero Section - 2 Different Images */}
+      {/* Hero Section - 3 Different Images */}
       <section className="relative h-96">
-        <div className="grid grid-cols-2 gap-1 h-full">
+        <div className="grid grid-cols-3 gap-1 h-full">
           {/* First Image */}
           <div className="relative h-full overflow-hidden">
             <img 
@@ -397,11 +410,20 @@ export default function VendorProfile() {
             />
           </div>
           
-          {/* Second Image - Always Different */}
+          {/* Second Image */}
           <div className="relative h-full overflow-hidden">
             <img 
               src={heroImage2} 
               alt={`${vendor.name} - Image 2`}
+              className="w-full h-full object-cover" 
+            />
+          </div>
+          
+          {/* Third Image */}
+          <div className="relative h-full overflow-hidden">
+            <img 
+              src={heroImage3} 
+              alt={`${vendor.name} - Image 3`}
               className="w-full h-full object-cover" 
             />
           </div>
