@@ -10,7 +10,7 @@ import hotjar from '@hotjar/browser';
 // Replace YOUR_HOTJAR_ID with your actual Hotjar site ID
 const HOTJAR_ID = process.env.HOTJAR_ID ? parseInt(process.env.HOTJAR_ID) : 0;
 if (HOTJAR_ID) {
-  hotjar.initialize(HOTJAR_ID, 6);
+  hotjar.init(HOTJAR_ID, 6);
 }
 
 // Register service worker for PWA functionality
@@ -83,11 +83,11 @@ function installPWA() {
     deferredPrompt.prompt();
     
     // Wait for the user to respond to the prompt
-    deferredPrompt.userChoice.then((choiceResult: any) => {
+    deferredPrompt.userChoice.then((choiceResult: { outcome: string }) => {
       if (choiceResult.outcome === 'accepted') {
-        console.log('User accepted the install prompt');
+        // User accepted the install prompt
       } else {
-        console.log('User dismissed the install prompt');
+        // User dismissed the install prompt
       }
       deferredPrompt = null;
     });
@@ -96,6 +96,7 @@ function installPWA() {
 
 // Handle app installed event
 window.addEventListener('appinstalled', () => {
+  // PWA was installed
   console.log('PWA was installed');
   // Hide install promotion
   const installBtn = document.getElementById('install-pwa');

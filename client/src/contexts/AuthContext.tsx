@@ -47,8 +47,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const mockUser = {
         id: 'admin-user',
         email: 'admin@goanwedding.com',
-        role: 'admin'
-      } as any;
+        role: 'admin',
+        app_metadata: {},
+        user_metadata: {},
+        aud: 'authenticated',
+        created_at: new Date().toISOString()
+      } as User;
       
       const mockProfile = {
         id: 'admin-user',
@@ -60,7 +64,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setUser(mockUser);
       setProfile(mockProfile);
       setLoading(false);
-      console.log('✅ AuthContext: Token authentication successful');
       return;
     }
     

@@ -29,31 +29,22 @@ import GoanWeddingTimeline from "@/pages/GoanWeddingTimeline";
 import MobileAnalytics from "@/pages/MobileAnalytics";
 import NotFound from "@/pages/not-found";
 import FavoritesPage from "@/pages/Favorites";
-import HomeDebug from "@/pages/HomeDebug";
 import GuestRSVP from "@/pages/GuestRSVP";
 import RSVPCreator from "@/pages/RSVPCreator";
 import PublicWeddingPage from "@/pages/PublicWeddingPage";
 import WeddingAdmin from "@/pages/WeddingAdmin";
-
-// Import the new page components
 import SupabaseSearch from "@/components/SupabaseSearch";
 import VendorAvailabilityPage from "@/pages/VendorAvailabilityPage";
-import TestImportsPage from "@/pages/TestImportsPage";
-import TestAllFeatures from "@/pages/TestAllFeatures";
 
-console.log("App module loaded");
 
 function Router() {
-  console.log("Router component rendering");
   const [location] = useLocation();
-  console.log("Current location:", location);
   
   try {
     return (
       <Layout>
         <Switch>
           <Route path="/" component={Home} />
-          <Route path="/debug" component={HomeDebug} />
           <Route path="/vendors/:category" component={VendorCategory} />
           <Route path="/vendor/:id" component={VendorProfile} />
           <Route path="/list-business" component={ListBusiness} />
@@ -102,8 +93,6 @@ function Router() {
           // Add routes for the new components
           <Route path="/enhanced-search" component={SupabaseSearch} />
           <Route path="/vendor-availability" component={VendorAvailabilityPage} />
-          <Route path="/test-imports" component={TestImportsPage} />
-          <Route path="/test-all-features" component={TestAllFeatures} />
           <Route component={NotFound} />
         </Switch>
       </Layout>
@@ -115,9 +104,6 @@ function Router() {
 }
 
 function App() {
-  console.log("App component rendering");
-  
-  // Add error boundary
   try {
   return (
     <QueryClientProvider client={queryClient}>

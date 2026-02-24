@@ -116,17 +116,6 @@ export default function VendorProfile() {
     },
   });
 
-  // Add Umami tracking for vendor page views
-  useEffect(() => {
-    if (vendor && typeof window !== 'undefined' && (window as any).umami) {
-      (window as any).umami('vendor_page_view', { 
-        vendor_id: vendor.id,
-        vendor_name: vendor.name,
-        vendor_category: vendor.category
-      });
-    }
-  }, [vendor]);
-
   const { data: reviews } = useQuery<Review[]>({
     queryKey: [`/api/vendors/${id}/reviews`],
     queryFn: async () => {
@@ -134,17 +123,6 @@ export default function VendorProfile() {
       return [];
     },
   });
-
-  // Add Umami tracking for vendor page views
-  useEffect(() => {
-    if (vendor && typeof window !== 'undefined' && (window as any).umami) {
-      (window as any).umami('vendor_page_view', { 
-        vendor_id: vendor.id,
-        vendor_name: vendor.name,
-        vendor_category: vendor.category
-      });
-    }
-  }, [vendor]);
 
   // Initialize social media embeds
   useEffect(() => {
