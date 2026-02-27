@@ -376,10 +376,10 @@ export default function VendorProfile() {
         </script>
       </Helmet>
       
-      {/* Hero Section - 3 Different Images */}
+      {/* Hero Section - 3 Different Images (1 on mobile) */}
       <section className="relative h-96">
-        <div className="grid grid-cols-3 gap-1 h-full">
-          {/* First Image */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-1 h-full">
+          {/* First Image - Always visible */}
           <div className="relative h-full overflow-hidden">
             <img 
               src={heroImage1} 
@@ -388,8 +388,8 @@ export default function VendorProfile() {
             />
           </div>
           
-          {/* Second Image */}
-          <div className="relative h-full overflow-hidden">
+          {/* Second Image - Hidden on mobile */}
+          <div className="relative h-full overflow-hidden hidden md:block">
             <img 
               src={heroImage2} 
               alt={`${vendor.name} - Image 2`}
@@ -397,8 +397,8 @@ export default function VendorProfile() {
             />
           </div>
           
-          {/* Third Image */}
-          <div className="relative h-full overflow-hidden">
+          {/* Third Image - Hidden on mobile */}
+          <div className="relative h-full overflow-hidden hidden md:block">
             <img 
               src={heroImage3} 
               alt={`${vendor.name} - Image 3`}
