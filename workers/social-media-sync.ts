@@ -234,9 +234,9 @@ async function syncAllVendors(env: Env) {
   console.log('📡 Fetching vendors from Supabase...');
   console.log('🔗 Supabase URL:', env.SUPABASE_URL);
   
-  // Try with all fields first, fall back to basic fields if columns don't exist
-  let response = await fetch(
-    `${env.SUPABASE_URL}/rest/v1/vendors?select=id,name,youtube,google_maps_place_id,images,auto_update_main_image,main_image_selection`,
+  // Query with only basic fields that definitely exist
+  const response = await fetch(
+    `${env.SUPABASE_URL}/rest/v1/vendors?select=id,name,youtube,google_maps_place_id,images`,
     {
       headers: {
         'apikey': env.SUPABASE_ANON_KEY,
@@ -245,27 +245,26 @@ async function syncAllVendors(env: Env) {
     }
   );
 
-  // If query fails (columns might not exist), try with basic fields only
-  if (!response.ok) {
-    console.warn('⚠️ Full query failed, trying with basic fields only...');
-    response = await fetch(
-      `${env.SUPABASE_URL}/rest/v1/vendors?select=id,name,youtube,google_maps_place_id,images`,
-      {
-        headers: {
-          'apikey': env.SUPABASE_ANON_KEY,
-          'Authorization': `Bearer ${env.SUPABASE_ANON_KEY}`,
-        },
-      }
-    );
-  }
-
   if (!response.ok) {
     const errorText = await response.text();
     console.error('❌ Supabase fetch error:', response.status, errorText);
     throw new Error(`Failed to fetch vendors: ${response.status} - ${errorText}`);
   }
 
-  const vendors: Vendor[] = await response.json();
+  const vendorsRaw: any[] = await response.json();
+  
+  // Map to Vendor interface with defaults for missing fields
+  const vendors: Vendor[] = vendorsRaw.map(v => ({
+    id: v.id,
+    name: v.name,
+    youtube: v.youtube,
+    google_maps_place_id: v.google_maps_place_id,
+    images: v.images || [],
+    // Use defaults since these columns may not exist yet
+    auto_update_main_image: true, // Default to true
+    main_image_selection: 'first' as const, // Default strategy
+  }));
+  
   console.log(`📊 Found ${vendors.length} vendors to sync`);
   
   // Log first vendor for debugging
