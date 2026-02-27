@@ -1279,8 +1279,10 @@ const VendorForm: React.FC<VendorFormProps> = ({ vendor, onSubmit, onCancel }) =
     e.preventDefault();
     
     // Clean up formData - convert empty strings to null for timestamp fields
+    // Remove manual_videos temporarily until column is added to database
+    const { manual_videos, ...restFormData } = formData;
     const cleanedData = {
-      ...formData,
+      ...restFormData,
       featured_until: formData.featured_until?.trim() ? formData.featured_until : null,
     };
     
