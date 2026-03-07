@@ -37,7 +37,7 @@ export default function Layout({ children }: LayoutProps) {
             <div className="flex items-center">
               <Link href="/" className="flex-shrink-0">
                 <h1 className="text-xl md:text-2xl font-bold text-slate-800">
-                  <span style={{ color: "var(--goan-coral)" }}>TheGoan</span>
+                  <span style={{ color: "var(--goan-coral)" }}>Goan</span>
                   <span style={{ color: "var(--goan-sea-blue)" }}>Wedding</span>
                 </h1>
               </Link>
@@ -109,7 +109,7 @@ export default function Layout({ children }: LayoutProps) {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             <div>
               <h3 className="text-2xl font-bold mb-4">
-                <span style={{ color: "var(--goan-coral)" }}>TheGoan</span>
+                <span style={{ color: "var(--goan-coral)" }}>Goan</span>
                 <span style={{ color: "var(--goan-sea-blue)" }}>Wedding</span>
               </h3>
               <p className="text-gray-300 mb-6">
