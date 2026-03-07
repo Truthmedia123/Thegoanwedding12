@@ -195,7 +195,7 @@ export default function VendorProfile() {
         contact_method: 'whatsapp'
       });
     }
-    const message = encodeURIComponent(`Hi! I found your business ${vendor.name} on TheGoanWedding.com and would like to know more about your services.`);
+    const message = encodeURIComponent(`Hi! I found your business ${vendor.name} on info@goanwedding.com and would like to know more about your services.`);
     window.open(`https://wa.me/${vendor.whatsapp}?text=${message}`, '_blank');
   };
 

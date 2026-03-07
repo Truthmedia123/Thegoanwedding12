@@ -26,8 +26,8 @@ export const MobileVendorDiscoverySEO: React.FC<MobileVendorDiscoverySEOProps> =
     },
     'description': 'Discover Goa\'s best wedding vendors with swipe-based browsing and voice search.',
     'screenshot': [
-      'https://thegoanwedding.com/screenshots/mobile-swipe.png',
-      'https://thegoanwedding.com/screenshots/voice-search.png'
+      'https://goanwedding.com/screenshots/mobile-swipe.png',
+      'https://goanwedding.com/screenshots/voice-search.png'
     ]
   };
 

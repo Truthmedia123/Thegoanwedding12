@@ -14,9 +14,9 @@ import { useEffect } from "react";
 const structuredData = {
   "@context": "https://schema.org",
   "@type": "Organization",
-  "name": "TheGoanWedding.com",
-  "url": "https://thegoanwedding.com",
-  "logo": "https://thegoanwedding.com/assets/logo.png",
+  "name": "GoanWedding.com",
+  "url": "https://goanwedding.com",
+  "logo": "https://goanwedding.com/assets/logo.png",
   "description": "Premium wedding vendor directory in Goa offering photographers, caterers, venues, decorators and more for your perfect Goan wedding celebration.",
   "address": {
     "@type": "PostalAddress",
@@ -24,9 +24,9 @@ const structuredData = {
     "addressCountry": "IN"
   },
   "sameAs": [
-    "https://www.facebook.com/thegoanwedding",
-    "https://www.instagram.com/thegoanwedding",
-    "https://twitter.com/thegoanwedding"
+    "https://www.facebook.com/goanwedding",
+    "https://www.instagram.com/goanwedding",
+    "https://twitter.com/goanwedding"
   ]
 };
 

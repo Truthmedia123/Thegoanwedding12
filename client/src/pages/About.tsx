@@ -228,7 +228,7 @@ export default function About() {
                   <i className="fas fa-envelope mr-2"></i>Get in Touch
                 </a>
                 <a 
-                  href="mailto:info@thegoanwedding.com?subject=Inquiry from TheGoanWedding.com"
+                  href="mailto:info@goanwedding.com?subject=Inquiry from TheGoanWedding.com"
                   className="bg-red-500 hover:bg-red-600 text-white px-8 py-4 rounded-full font-semibold text-lg transition-all transform hover:scale-105 shadow-lg inline-block"
                 >
                   <i className="fas fa-envelope mr-2"></i>Email Us

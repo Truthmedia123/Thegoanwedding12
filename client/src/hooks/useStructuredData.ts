@@ -71,10 +71,10 @@ export function useStructuredData(
     const localBusiness = {
       '@context': 'https://schema.org',
       '@type': 'LocalBusiness',
-      '@id': `https://thegoanwedding.com/vendor/${vendor.id}`,
+      '@id': `https://goanwedding.com/vendor/${vendor.id}`,
       name: vendor.name,
       description: vendor.description,
-      url: `https://thegoanwedding.com/vendor/${vendor.id}`,
+      url: `https://goanwedding.com/vendor/${vendor.id}`,
       additionalType: getBusinessType(vendor.category),
       address: {
         '@type': 'PostalAddress',
@@ -92,7 +92,7 @@ export function useStructuredData(
       telephone: vendor.contact.phone,
       email: vendor.contact.email,
       sameAs: getSameAsUrls(vendor),
-      image: vendor.images?.map(img => `https://thegoanwedding.com${img}`) || [],
+      image: vendor.images?.map(img => `https://goanwedding.com${img}`) || [],
       serviceArea: {
         '@type': 'GeoCircle',
         geoMidpoint: {
@@ -138,11 +138,11 @@ export function useStructuredData(
         schemas.push({
           '@context': 'https://schema.org',
           '@type': 'Service',
-          '@id': `https://thegoanwedding.com/vendor/${vendor.id}#${service.toLowerCase().replace(/\s+/g, '-')}`,
+          '@id': `https://goanwedding.com/vendor/${vendor.id}#${service.toLowerCase().replace(/\s+/g, '-')}`,
           name: service,
           provider: {
             '@type': 'LocalBusiness',
-            '@id': `https://thegoanwedding.com/vendor/${vendor.id}`
+            '@id': `https://goanwedding.com/vendor/${vendor.id}`
           },
           areaServed: {
             '@type': 'State',
@@ -158,12 +158,12 @@ export function useStructuredData(
       schemas.push({
         '@context': 'https://schema.org',
         '@type': 'Offer',
-        '@id': `https://thegoanwedding.com/vendor/${vendor.id}#offer`,
+        '@id': `https://goanwedding.com/vendor/${vendor.id}#offer`,
         name: `${vendor.category} Services`,
         description: `Professional ${vendor.category.toLowerCase()} services for weddings in Goa`,
         offeredBy: {
           '@type': 'LocalBusiness',
-          '@id': `https://thegoanwedding.com/vendor/${vendor.id}`
+          '@id': `https://goanwedding.com/vendor/${vendor.id}`
         },
         priceRange: getPriceRangeString(vendor.priceRange),
         priceCurrency: vendor.priceRange.currency,
@@ -179,10 +179,10 @@ export function useStructuredData(
         schemas.push({
           '@context': 'https://schema.org',
           '@type': 'Review',
-          '@id': `https://thegoanwedding.com/vendor/${vendor.id}#review-${index}`,
+          '@id': `https://goanwedding.com/vendor/${vendor.id}#review-${index}`,
           itemReviewed: {
             '@type': 'LocalBusiness',
-            '@id': `https://thegoanwedding.com/vendor/${vendor.id}`
+            '@id': `https://goanwedding.com/vendor/${vendor.id}`
           },
           author: {
             '@type': 'Person',
@@ -205,7 +205,7 @@ export function useStructuredData(
       schemas.push({
         '@context': 'https://schema.org',
         '@type': 'Event',
-        '@id': `https://thegoanwedding.com/vendor/${vendor.id}#wedding-event`,
+        '@id': `https://goanwedding.com/vendor/${vendor.id}#wedding-event`,
         name: 'Wedding Services',
         description: `Professional wedding ${vendor.category.toLowerCase()} services in Goa`,
         eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode',
@@ -222,7 +222,7 @@ export function useStructuredData(
         },
         organizer: {
           '@type': 'LocalBusiness',
-          '@id': `https://thegoanwedding.com/vendor/${vendor.id}`
+          '@id': `https://goanwedding.com/vendor/${vendor.id}`
         }
       });
     }
@@ -333,7 +333,7 @@ export function useBreadcrumbSchema(items: Array<{ name: string; url: string }>)
         '@type': 'ListItem',
         position: index + 1,
         name: item.name,
-        item: `https://thegoanwedding.com${item.url}`
+        item: `https://goanwedding.com${item.url}`
       }))
     };
   }, [items]);

@@ -122,7 +122,7 @@ export default function Layout({ children }: LayoutProps) {
                 <a href="#" className="text-gray-300 hover:text-red-500 transition-colors">
                   <i className="fab fa-instagram text-xl"></i>
                 </a>
-                <a href="mailto:info@thegoanwedding.com" className="text-gray-300 hover:text-red-500 transition-colors">
+                <a href="mailto:info@goanwedding.com" className="text-gray-300 hover:text-red-500 transition-colors">
                   <i className="fas fa-envelope text-xl"></i>
                 </a>
               </div>
@@ -156,7 +156,7 @@ export default function Layout({ children }: LayoutProps) {
               <div className="space-y-3 text-gray-300">
                 <div className="flex items-center">
                   <i className="fas fa-envelope mr-3 text-red-500"></i>
-                  <span>info@thegoanwedding.com</span>
+                  <span>info@goanwedding.com</span>
                 </div>
                 <div className="flex items-center">
                   <i className="fas fa-map-marker-alt mr-3 text-red-500"></i>
@@ -167,7 +167,7 @@ export default function Layout({ children }: LayoutProps) {
           </div>
           
           <div className="border-t border-gray-700 mt-12 pt-8 text-center text-gray-300">
-            <p>&copy; 2024 TheGoanWedding.com. All rights reserved.</p>
+            <p>&copy; 2024 GoanWedding.com. All rights reserved.</p>
           </div>
         </div>
       </footer>

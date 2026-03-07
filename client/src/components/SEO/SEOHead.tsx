@@ -17,13 +17,13 @@ interface SEOHeadProps {
 }
 
 export const SEOHead: React.FC<SEOHeadProps> = ({
-  title = "TheGoanWedding - Goa's Premier Wedding Vendor Directory",
+  title = "GoanWedding - Goa's Premier Wedding Vendor Directory",
   description = "Discover Goa's best wedding vendors including photographers, venues, caterers, and more. Plan your perfect Goan wedding with our comprehensive directory.",
   keywords = "Goa wedding, wedding vendors, wedding photography, wedding venues, wedding planning, Goan wedding",
   image = "/assets/hero.jpg",
-  url = "https://thegoanwedding.com",
+  url = "https://goanwedding.com",
   type = "website",
-  author = "TheGoanWedding",
+  author = "GoanWedding",
   publishedTime,
   modifiedTime,
   section,
@@ -31,28 +31,28 @@ export const SEOHead: React.FC<SEOHeadProps> = ({
   structuredData,
   children,
 }) => {
-  const fullTitle = title.includes("TheGoanWedding") ? title : `${title} | TheGoanWedding`;
-  const fullUrl = url.startsWith('http') ? url : `https://thegoanwedding.com${url}`;
-  const fullImage = image.startsWith('http') ? image : `https://thegoanwedding.com${image}`;
+  const fullTitle = title.includes("GoanWedding") ? title : `${title} | GoanWedding`;
+  const fullUrl = url.startsWith('http') ? url : `https://goanwedding.com${url}`;
+  const fullImage = image.startsWith('http') ? image : `https://goanwedding.com${image}`;
 
   // Default structured data for the website
   const defaultStructuredData = {
     "@context": "https://schema.org",
     "@type": "WebSite",
-    "name": "TheGoanWedding",
+    "name": "GoanWedding",
     "description": description,
-    "url": "https://thegoanwedding.com",
+    "url": "https://goanwedding.com",
     "potentialAction": {
       "@type": "SearchAction",
-      "target": "https://thegoanwedding.com/search?q={search_term_string}",
+      "target": "https://goanwedding.com/search?q={search_term_string}",
       "query-input": "required name=search_term_string"
     },
     "publisher": {
       "@type": "Organization",
-      "name": "TheGoanWedding",
+      "name": "GoanWedding",
       "logo": {
         "@type": "ImageObject",
-        "url": "https://thegoanwedding.com/icons/icon-512.png"
+        "url": "https://goanwedding.com/icons/icon-512.png"
       }
     }
   };
@@ -76,7 +76,7 @@ export const SEOHead: React.FC<SEOHeadProps> = ({
       <meta property="og:image" content={fullImage} />
       <meta property="og:url" content={fullUrl} />
       <meta property="og:type" content={type} />
-      <meta property="og:site_name" content="TheGoanWedding" />
+      <meta property="og:site_name" content="GoanWedding" />
       <meta property="og:locale" content="en_US" />
 
       {/* Twitter Card Tags */}
@@ -84,8 +84,8 @@ export const SEOHead: React.FC<SEOHeadProps> = ({
       <meta name="twitter:title" content={fullTitle} />
       <meta name="twitter:description" content={description} />
       <meta name="twitter:image" content={fullImage} />
-      <meta name="twitter:site" content="@thegoanwedding" />
-      <meta name="twitter:creator" content="@thegoanwedding" />
+      <meta name="twitter:site" content="@goanwedding" />
+      <meta name="twitter:creator" content="@goanwedding" />
 
       {/* Article specific tags */}
       {type === 'article' && (
@@ -143,7 +143,7 @@ export const SEOHead: React.FC<SEOHeadProps> = ({
 // Hook for dynamic SEO updates
 export const useSEO = () => {
   const updateTitle = (title: string) => {
-    document.title = title.includes("TheGoanWedding") ? title : `${title} | TheGoanWedding`;
+    document.title = title.includes("GoanWedding") ? title : `${title} | GoanWedding`;
   };
 
   const updateMeta = (name: string, content: string) => {
