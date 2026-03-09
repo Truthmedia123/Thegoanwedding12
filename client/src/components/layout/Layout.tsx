@@ -37,7 +37,7 @@ export default function Layout({ children }: LayoutProps) {
             <div className="flex items-center">
               <Link href="/" className="flex items-center space-x-3 flex-shrink-0">
                 <img 
-                  src="/assets/hero.jpg" 
+                  src="/assets/Logo.png" 
                   alt="GoanWedding.com" 
                   className="h-16 w-auto block"
                 />
@@ -111,7 +111,7 @@ export default function Layout({ children }: LayoutProps) {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             <div>
               <img 
-                src="/assets/hero.jpg" 
+                src="/assets/Logo.png" 
                 alt="GoanWedding.com" 
                 className="h-12 w-auto object-contain mb-4"
               />
