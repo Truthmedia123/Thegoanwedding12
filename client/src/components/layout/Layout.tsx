@@ -37,12 +37,12 @@ export default function Layout({ children }: LayoutProps) {
             <div className="flex items-center">
               <Link href="/" className="flex items-center space-x-3 flex-shrink-0">
                 <img 
-                  src="/assets/Logo.png" 
+                  src="/assets/Logo (2).png" 
                   alt="GoanWedding.com" 
                   className="h-16 w-auto block"
                 />
-                <span className="hidden md:block text-xl font-bold text-slate-800">GoanWedding.com</span>
               </Link>
+              <span className="hidden md:block text-xl font-bold text-slate-800">GoanWedding.com</span>
             </div>
             
             <div className="hidden md:block">
@@ -111,7 +111,7 @@ export default function Layout({ children }: LayoutProps) {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             <div>
               <img 
-                src="/assets/Logo.png" 
+                src="/assets/Logo (2).png" 
                 alt="GoanWedding.com" 
                 className="h-12 w-auto object-contain mb-4"
               />
