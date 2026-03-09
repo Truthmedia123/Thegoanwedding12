@@ -52,7 +52,7 @@ export const SEOHead: React.FC<SEOHeadProps> = ({
       "name": "GoanWedding",
       "logo": {
         "@type": "ImageObject",
-        "url": "https://goanwedding.com/icons/icon-512.png"
+        "url": "https://goanwedding.com/assets/logo.png"
       }
     }
   };

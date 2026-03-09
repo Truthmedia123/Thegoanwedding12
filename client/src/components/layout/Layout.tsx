@@ -36,10 +36,11 @@ export default function Layout({ children }: LayoutProps) {
           <div className="flex justify-between items-center h-14 md:h-16">
             <div className="flex items-center">
               <Link href="/" className="flex-shrink-0">
-                <h1 className="text-xl md:text-2xl font-bold text-slate-800">
-                  <span style={{ color: "var(--goan-coral)" }}>Goan</span>
-                  <span style={{ color: "var(--goan-sea-blue)" }}>Wedding</span>
-                </h1>
+                <img 
+                  src="/assets/logo.png" 
+                  alt="GoanWedding.com" 
+                  className="h-10 md:h-12 w-auto object-contain"
+                />
               </Link>
             </div>
             
@@ -108,10 +109,11 @@ export default function Layout({ children }: LayoutProps) {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             <div>
-              <h3 className="text-2xl font-bold mb-4">
-                <span style={{ color: "var(--goan-coral)" }}>Goan</span>
-                <span style={{ color: "var(--goan-sea-blue)" }}>Wedding</span>
-              </h3>
+              <img 
+                src="/assets/logo.png" 
+                alt="GoanWedding.com" 
+                className="h-12 w-auto object-contain mb-4 brightness-200"
+              />
               <p className="text-gray-300 mb-6">
                 Goa's premier wedding vendor directory, connecting couples with the finest professionals for their special day.
               </p>
