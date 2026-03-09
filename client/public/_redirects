@@ -3,5 +3,8 @@
 # Admin redirect to Directus
 /admin  https://your-directus-instance.railway.app/admin  302
 
+# Assets - serve directly
+/assets/*  /assets/:splat  200
+
 # SPA fallback - must be last
 /*                    /index.html                200

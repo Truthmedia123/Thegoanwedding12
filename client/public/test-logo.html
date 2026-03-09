@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Logo Test</title>
+</head>
+<body>
+    <h1>Logo Test Page</h1>
+    <p>Direct image test:</p>
+    <img src="/assets/Logo.png" alt="Logo Test" style="height: 64px; border: 2px solid red;">
+    
+    <p>With different path:</p>
+    <img src="./assets/Logo.png" alt="Logo Test 2" style="height: 64px; border: 2px solid blue;">
+    
+    <p>Using hero.jpg as comparison:</p>
+    <img src="/assets/hero.jpg" alt="Hero Test" style="height: 64px; border: 2px solid green;">
+    
+    <script>
+        // Test image loading
+        const img = new Image();
+        img.onload = function() { console.log('Logo loaded successfully'); };
+        img.onerror = function() { console.log('Logo failed to load'); };
+        img.src = '/assets/Logo.png';
+    </script>
+</body>
+</html>

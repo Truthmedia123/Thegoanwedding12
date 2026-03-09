@@ -39,7 +39,13 @@ export default function Layout({ children }: LayoutProps) {
                 <img 
                   src="/assets/Logo.png" 
                   alt="GoanWedding.com" 
-                  className="h-11 md:h-[60px] w-auto object-contain"
+                  className="h-16 w-auto block"
+                  onLoad={() => console.log('Logo loaded in React')}
+                  onError={(e) => {
+                    console.error('Logo failed to load in React:', e);
+                    e.target.style.display = 'none';
+                  }}
+                  style={{border: '2px solid red', backgroundColor: 'yellow'}}
                 />
                 <span className="hidden md:block text-xl font-bold text-slate-800">GoanWedding.com</span>
               </Link>
