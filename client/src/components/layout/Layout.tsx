@@ -40,8 +40,14 @@ export default function Layout({ children }: LayoutProps) {
                   src="/assets/Logo.png" 
                   alt="GoanWedding.com" 
                   className="h-16 w-auto block"
+                  onLoad={() => console.log('Logo loaded successfully')}
+                  onError={(e) => {
+                    console.error('Logo failed to load:', e);
+                    const target = e.target as HTMLImageElement;
+                    target.src = '/assets/hero.jpg';
+                    target.alt = 'GoanWedding.com';
+                  }}
                 />
-                <span className="hidden md:block text-xl font-bold text-slate-800">GoanWedding.com</span>
               </Link>
             </div>
             
