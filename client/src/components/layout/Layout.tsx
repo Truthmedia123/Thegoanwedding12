@@ -35,12 +35,13 @@ export default function Layout({ children }: LayoutProps) {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-14 md:h-16">
             <div className="flex items-center">
-              <Link href="/" className="flex-shrink-0">
+              <Link href="/" className="flex items-center space-x-3 flex-shrink-0">
                 <img 
                   src="/assets/Logo.png" 
                   alt="GoanWedding.com" 
-                  className="h-10 md:h-12 w-auto object-contain"
+                  className="h-11 md:h-[60px] w-auto object-contain"
                 />
+                <span className="hidden md:block text-xl font-bold text-slate-800">GoanWedding.com</span>
               </Link>
             </div>
             
