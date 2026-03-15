@@ -37,9 +37,12 @@ export default function Layout({ children }: LayoutProps) {
             <div className="flex items-center">
               <Link href="/" className="flex items-center space-x-3 flex-shrink-0">
                 <img 
-                  src="/assets/Logo.png" 
-                  alt="GoanWedding.com" 
-                  className="h-16 w-auto block"
+                  src="/assets/LOGO.png" 
+                  alt="GoanWedding.com - The Ultimate Goan Wedding Vendor Directory" 
+                  className="h-12 w-auto block"
+                  onError={(e) => {
+                    console.error('Logo failed to load:', e);
+                  }}
                 />
               </Link>
               <span className="hidden md:block text-xl font-bold text-slate-800">GoanWedding.com</span>
@@ -53,8 +56,8 @@ export default function Layout({ children }: LayoutProps) {
                     href={item.href}
                     className={`px-3 py-2 text-sm font-medium transition-colors ${
                       location.startsWith(item.href)
-                        ? "text-red-500"
-                        : "text-slate-700 hover:text-red-500"
+                        ? "text-primary-600"
+                        : "text-slate-700 hover:text-primary-600"
                     }`}
                   >
                     {item.name}
@@ -62,7 +65,7 @@ export default function Layout({ children }: LayoutProps) {
                 ))}
                 <Link href="/list-business">
                   <Button
-                    className="bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded-full text-sm font-medium transition-all transform hover:scale-105"
+                    className="bg-primary-600 hover:bg-primary-700 text-white px-6 py-2 rounded-full text-sm font-medium transition-all transform hover:scale-105"
                   >
                     Partner With Us
                   </Button>
@@ -84,13 +87,13 @@ export default function Layout({ children }: LayoutProps) {
                         key={item.name}
                         href={item.href}
                         onClick={() => setIsMenuOpen(false)}
-                        className="text-lg font-medium text-slate-700 hover:text-red-500 transition-colors"
+                        className="text-lg font-medium text-slate-700 hover:text-primary-600 transition-colors"
                       >
                         {item.name}
                       </Link>
                     ))}
                     <Link href="/list-business" onClick={() => setIsMenuOpen(false)}>
-                      <Button className="w-full bg-red-500 hover:bg-red-600 text-white mt-4">
+                      <Button className="w-full bg-primary-600 hover:bg-primary-700 text-white mt-4">
                         Partner With Us
                       </Button>
                     </Link>
@@ -111,18 +114,18 @@ export default function Layout({ children }: LayoutProps) {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             <div>
               <img 
-                src="/assets/Logo.png" 
-                alt="GoanWedding.com" 
+                src="/assets/LOGO.png" 
+                alt="GoanWedding.com - The Ultimate Goan Wedding Vendor Directory" 
                 className="h-12 w-auto object-contain mb-4"
               />
               <p className="text-gray-300 mb-6">
                 Goa's premier wedding vendor directory, connecting couples with the finest professionals for their special day.
               </p>
               <div className="flex space-x-4">
-                <a href="#" className="text-gray-300 hover:text-red-500 transition-colors">
+                <a href="#" className="text-gray-300 hover:text-primary-600 transition-colors">
                   <i className="fab fa-facebook text-xl"></i>
                 </a>
-                <a href="#" className="text-gray-300 hover:text-red-500 transition-colors">
+                <a href="#" className="text-gray-300 hover:text-primary-600 transition-colors">
                   <i className="fab fa-instagram text-xl"></i>
                 </a>
                 <a href="mailto:info@goanwedding.com" className="text-gray-300 hover:text-red-500 transition-colors">
@@ -134,23 +137,23 @@ export default function Layout({ children }: LayoutProps) {
             <div>
               <h4 className="text-lg font-semibold mb-4">Popular Categories</h4>
               <ul className="space-y-2 text-gray-300">
-                <li><Link href="/vendors/photographers" className="hover:text-red-500 transition-colors">Wedding Photographers</Link></li>
-                <li><Link href="/vendors/venues" className="hover:text-red-500 transition-colors">Beach Venues</Link></li>
-                <li><Link href="/vendors/caterers" className="hover:text-red-500 transition-colors">Goan Caterers</Link></li>
-                <li><Link href="/vendors/makeup-artists" className="hover:text-red-500 transition-colors">Makeup Artists</Link></li>
-                <li><Link href="/vendors/wedding-planners" className="hover:text-red-500 transition-colors">Wedding Planners</Link></li>
+                <li><Link href="/vendors/photographers" className="hover:text-primary-600 transition-colors">Wedding Photographers</Link></li>
+                <li><Link href="/vendors/venues" className="hover:text-primary-600 transition-colors">Beach Venues</Link></li>
+                <li><Link href="/vendors/caterers" className="hover:text-primary-600 transition-colors">Goan Caterers</Link></li>
+                <li><Link href="/vendors/makeup-artists" className="hover:text-primary-600 transition-colors">Makeup Artists</Link></li>
+                <li><Link href="/vendors/wedding-planners" className="hover:text-primary-600 transition-colors">Wedding Planners</Link></li>
               </ul>
             </div>
             
             <div>
               <h4 className="text-lg font-semibold mb-4">Quick Links</h4>
               <ul className="space-y-2 text-gray-300">
-                <li><Link href="/about" className="hover:text-red-500 transition-colors">About Us</Link></li>
-                <li><Link href="/list-business" className="hover:text-red-500 transition-colors">Partner With Us</Link></li>
-                <li><Link href="/blog" className="hover:text-red-500 transition-colors">Blog</Link></li>
-                <li><a href="/privacy-policy" className="hover:text-red-500 transition-colors">Privacy Policy</a></li>
-                <li><a href="/terms-conditions" className="hover:text-red-500 transition-colors">Terms & Conditions</a></li>
-                <li><Link href="/admin/dashboard?token=admin-secret-2024" className="hover:text-red-500 transition-colors text-xs">Admin</Link></li>
+                <li><Link href="/about" className="hover:text-primary-600 transition-colors">About Us</Link></li>
+                <li><Link href="/list-business" className="hover:text-primary-600 transition-colors">Partner With Us</Link></li>
+                <li><Link href="/blog" className="hover:text-primary-600 transition-colors">Blog</Link></li>
+                <li><a href="/privacy-policy" className="hover:text-primary-600 transition-colors">Privacy Policy</a></li>
+                <li><a href="/terms-conditions" className="hover:text-primary-600 transition-colors">Terms & Conditions</a></li>
+                <li><Link href="/admin/dashboard?token=admin-secret-2024" className="hover:text-primary-600 transition-colors text-xs">Admin</Link></li>
               </ul>
             </div>
             
