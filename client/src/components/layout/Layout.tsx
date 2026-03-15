@@ -38,14 +38,13 @@ export default function Layout({ children }: LayoutProps) {
               <Link href="/" className="flex items-center space-x-3 flex-shrink-0">
                 <img 
                   src="/assets/LOGO.png" 
-                  alt="GoanWedding.com - The Ultimate Goan Wedding Vendor Directory" 
+                  alt="GoanWedding.com" 
                   className="h-12 w-auto block"
                   onError={(e) => {
                     console.error('Logo failed to load:', e);
                   }}
                 />
               </Link>
-              <span className="hidden md:block text-xl font-bold text-slate-800">GoanWedding.com</span>
             </div>
             
             <div className="hidden md:block">
@@ -115,7 +114,7 @@ export default function Layout({ children }: LayoutProps) {
             <div>
               <img 
                 src="/assets/LOGO.png" 
-                alt="GoanWedding.com - The Ultimate Goan Wedding Vendor Directory" 
+                alt="GoanWedding.com" 
                 className="h-12 w-auto object-contain mb-4"
               />
               <p className="text-gray-300 mb-6">
