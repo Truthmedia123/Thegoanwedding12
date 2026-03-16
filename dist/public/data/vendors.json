@@ -1,0 +1,122 @@
+[
+  {
+    "id": "1",
+    "name": "Sunset Beach Resort",
+    "category": "Venues",
+    "description": "Stunning beachfront venue with panoramic ocean views, perfect for your dream Goan wedding ceremony.",
+    "price_range": "$$$$",
+    "location": "North Goa",
+    "phone": "+91 832 245 6789",
+    "email": "info@sunsetbeachresort.com",
+    "website": "https://sunsetbeachresort.com",
+    "profile_image_url": "/vendors/sample-vendor/profile.jpg",
+    "cover_image_url": "/vendors/sample-vendor/cover.jpg",
+    "gallery_image_urls": [
+      "/vendors/sample-vendor/gallery/image1.jpg",
+      "/vendors/sample-vendor/gallery/image2.jpg"
+    ],
+    "rating": 4.8,
+    "reviews_count": 127,
+    "featured": true
+  },
+  {
+    "id": "2",
+    "name": "Goa Wedding Photography",
+    "category": "Photography",
+    "description": "Capturing the magic of your special day with artistic and candid wedding photography.",
+    "price_range": "$$$",
+    "location": "South Goa",
+    "phone": "+91 987 654 3210",
+    "email": "hello@goaweddingphotography.com",
+    "website": "https://goaweddingphotography.com",
+    "profile_image_url": "/vendors/sample-vendor/profile.jpg",
+    "cover_image_url": "/vendors/sample-vendor/cover.jpg",
+    "gallery_image_urls": [
+      "/vendors/sample-vendor/gallery/image1.jpg",
+      "/vendors/sample-vendor/gallery/image2.jpg"
+    ],
+    "rating": 4.9,
+    "reviews_count": 89,
+    "featured": true
+  },
+  {
+    "id": "3",
+    "name": "Spice Route Caterers",
+    "category": "Catering",
+    "description": "Authentic Goan cuisine with a modern twist, specializing in wedding feasts that delight.",
+    "price_range": "$$$",
+    "location": "North Goa",
+    "phone": "+91 832 345 6789",
+    "email": "events@spiceroutecaterers.com",
+    "website": "https://spiceroutecaterers.com",
+    "profile_image_url": "/vendors/sample-vendor/profile.jpg",
+    "cover_image_url": "/vendors/sample-vendor/cover.jpg",
+    "gallery_image_urls": [
+      "/vendors/sample-vendor/gallery/image1.jpg",
+      "/vendors/sample-vendor/gallery/image2.jpg"
+    ],
+    "rating": 4.7,
+    "reviews_count": 142,
+    "featured": true
+  },
+  {
+    "id": "4",
+    "name": "Floral Dreams Goa",
+    "category": "Florists",
+    "description": "Creating breathtaking floral arrangements inspired by Goa's natural beauty.",
+    "price_range": "$$",
+    "location": "South Goa",
+    "phone": "+91 987 123 4567",
+    "email": "info@floraldreamsgoa.com",
+    "website": "https://floraldreamsgoa.com",
+    "profile_image_url": "/vendors/sample-vendor/profile.jpg",
+    "cover_image_url": "/vendors/sample-vendor/cover.jpg",
+    "gallery_image_urls": [
+      "/vendors/sample-vendor/gallery/image1.jpg",
+      "/vendors/sample-vendor/gallery/image2.jpg"
+    ],
+    "rating": 4.9,
+    "reviews_count": 76,
+    "featured": true
+  },
+  {
+    "id": "5",
+    "name": "Melody Makers Band",
+    "category": "Entertainment",
+    "description": "Live music for your wedding celebration, from traditional Goan folk to contemporary hits.",
+    "price_range": "$$",
+    "location": "North Goa",
+    "phone": "+91 832 987 6543",
+    "email": "bookings@melodymakersband.com",
+    "website": "https://melodymakersband.com",
+    "profile_image_url": "/vendors/sample-vendor/profile.jpg",
+    "cover_image_url": "/vendors/sample-vendor/cover.jpg",
+    "gallery_image_urls": [
+      "/vendors/sample-vendor/gallery/image1.jpg",
+      "/vendors/sample-vendor/gallery/image2.jpg"
+    ],
+    "rating": 4.8,
+    "reviews_count": 93,
+    "featured": true
+  },
+  {
+    "id": "6",
+    "name": "Bridal Beauty Studio",
+    "category": "Beauty",
+    "description": "Premium bridal makeup and hair styling services for your special day.",
+    "price_range": "$$$",
+    "location": "South Goa",
+    "phone": "+91 987 456 7890",
+    "email": "hello@bridalbeautystudio.com",
+    "website": "https://bridalbeautystudio.com",
+    "profile_image_url": "/vendors/sample-vendor/profile.jpg",
+    "cover_image_url": "/vendors/sample-vendor/cover.jpg",
+    "gallery_image_urls": [
+      "/vendors/sample-vendor/gallery/image1.jpg",
+      "/vendors/sample-vendor/gallery/image2.jpg"
+    ],
+    "rating": 4.9,
+    "reviews_count": 112,
+    "featured": true
+  }
+]

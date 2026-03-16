@@ -1,0 +1,44 @@
+[
+  {
+    "id": "1",
+    "title": "Top 10 Beach Wedding Venues in Goa",
+    "slug": "top-10-beach-wedding-venues-in-goa",
+    "excerpt": "Discover the most stunning beach locations in Goa for your dream wedding ceremony.",
+    "content": "Goa is renowned for its pristine beaches, making it an ideal destination for beach weddings. In this guide, we'll explore the top 10 beach wedding venues that offer breathtaking backdrops for your special day.",
+    "featured_image": "https://images.unsplash.com/photo-1519741497674-611481863552?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&h=600",
+    "author": "Wedding Planning Team",
+    "published_date": "2024-01-15T00:00:00Z",
+    "category": "Venues",
+    "tags": ["beach", "venues", "goa", "wedding"],
+    "created_at": "2024-01-15T00:00:00Z",
+    "updated_at": "2024-01-15T00:00:00Z"
+  },
+  {
+    "id": "2",
+    "title": "Traditional Goan Wedding Ceremonies Explained",
+    "slug": "traditional-goa-wedding-ceremonies-explained",
+    "excerpt": "Learn about the rich cultural traditions and ceremonies that make Goan weddings unique.",
+    "content": "Goan weddings are a beautiful blend of Indian and Portuguese traditions. This article explores the key ceremonies that define a traditional Goan wedding celebration.",
+    "featured_image": "https://images.unsplash.com/photo-1511933619531-4b0d4d7d9c5c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&h=600",
+    "author": "Cultural Experts",
+    "published_date": "2024-01-20T00:00:00Z",
+    "category": "Culture",
+    "tags": ["tradition", "culture", "goa", "ceremony"],
+    "created_at": "2024-01-20T00:00:00Z",
+    "updated_at": "2024-01-20T00:00:00Z"
+  },
+  {
+    "id": "3",
+    "title": "Wedding Planning Timeline for a Goa Destination Wedding",
+    "slug": "wedding-planning-timeline-goa-destination-wedding",
+    "excerpt": "A comprehensive 12-month timeline to plan your perfect Goa destination wedding.",
+    "content": "Planning a destination wedding in Goa requires careful timing and organization. This detailed timeline will help you stay on track for your dream celebration.",
+    "featured_image": "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&h=600",
+    "author": "Wedding Planning Team",
+    "published_date": "2024-02-01T00:00:00Z",
+    "category": "Planning",
+    "tags": ["planning", "timeline", "destination", "wedding"],
+    "created_at": "2024-02-01T00:00:00Z",
+    "updated_at": "2024-02-01T00:00:00Z"
+  }
+]

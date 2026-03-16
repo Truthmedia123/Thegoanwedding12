@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>JavaScript Test</title>
+    <script>
+        console.log('JavaScript test page loaded');
+        
+        // Test if required APIs are available
+        if (typeof fetch !== 'undefined') {
+            console.log('✓ Fetch API is available');
+        } else {
+            console.error('✗ Fetch API is not available');
+        }
+        
+        if (typeof Promise !== 'undefined') {
+            console.log('✓ Promise API is available');
+        } else {
+            console.error('✗ Promise API is not available');
+        }
+        
+        // Test a simple fetch request
+        fetch('/api/health')
+            .then(response => {
+                console.log('✓ API Health Check Response:', response.status);
+                return response.json();
+            })
+            .then(data => {
+                console.log('✓ API Health Check Data:', data);
+                document.body.innerHTML += '<p style="color: green;">✓ API Health Check Successful: ' + JSON.stringify(data) + '</p>';
+            })
+            .catch(error => {
+                console.error('✗ API Health Check Error:', error);
+                document.body.innerHTML += '<p style="color: red;">✗ API Health Check Error: ' + error.message + '</p>';
+            });
+    </script>
+</head>
+<body>
+    <h1>JavaScript Test Page</h1>
+    <p>Check the browser console for test results.</p>
+</body>
+</html>
