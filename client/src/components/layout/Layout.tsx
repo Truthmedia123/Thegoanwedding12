@@ -40,6 +40,7 @@ export default function Layout({ children }: LayoutProps) {
                   src="/assets/Logo-dark.png" 
                   alt="GoanWedding.com" 
                   className="h-20 w-auto block"
+                  fetchPriority="high"
                 />
               </Link>
             </div>
