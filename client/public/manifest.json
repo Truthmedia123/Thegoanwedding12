@@ -12,7 +12,7 @@
   "dir": "ltr",
   "icons": [
     {
-      "src": "/assets/LOGO.png",
+      "src": "/assets/Logo.png",
       "sizes": "any",
       "type": "image/png"
     }
