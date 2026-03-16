@@ -33,13 +33,13 @@ export default function Layout({ children }: LayoutProps) {
       {/* Sticky Navigation */}
       <nav className="sticky top-0 z-50 bg-white/95 backdrop-blur-md shadow-lg border-b border-yellow-500/20 nav-mobile">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-14 md:h-16">
+          <div className="flex justify-between items-center h-20 md:h-24">
             <div className="flex items-center">
               <Link href="/" className="flex items-center space-x-3 flex-shrink-0">
                 <img 
                   src="/assets/Logo-dark.png" 
                   alt="GoanWedding.com" 
-                  className="h-12 w-auto block"
+                  className="h-20 w-auto block"
                 />
               </Link>
             </div>
@@ -112,7 +112,7 @@ export default function Layout({ children }: LayoutProps) {
               <img 
                 src="/assets/Logo-footer.png" 
                 alt="GoanWedding.com" 
-                className="h-16 w-auto object-contain mb-4 block"
+                className="h-28 w-auto object-contain mb-4 block"
               />
               <p className="text-gray-300 mb-6">
                 Goa's premier wedding vendor directory, connecting couples with the finest professionals for their special day.
