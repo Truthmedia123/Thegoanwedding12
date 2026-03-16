@@ -12,6 +12,12 @@
   "dir": "ltr",
   "icons": [
     {
+      "src": "/assets/FAVICON.png",
+      "sizes": "any",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
       "src": "/assets/Logo.png",
       "sizes": "any",
       "type": "image/png"
