@@ -37,14 +37,9 @@ export default function Layout({ children }: LayoutProps) {
             <div className="flex items-center">
               <Link href="/" className="flex items-center space-x-3 flex-shrink-0">
                 <img 
-                  src="/assets/Logo.png" 
+                  src="/assets/Logo-dark.png" 
                   alt="GoanWedding.com" 
                   className="h-12 w-auto block"
-                  style={{ mixBlendMode: 'multiply' }}
-                  onError={(e) => {
-                    const target = e.currentTarget as HTMLImageElement;
-                    console.error('Logo failed to load from:', target.src);
-                  }}
                 />
               </Link>
             </div>
@@ -114,14 +109,11 @@ export default function Layout({ children }: LayoutProps) {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             <div>
-              <div className="bg-white inline-block mb-4 rounded-md px-2 py-1">
-                <img 
-                  src="/assets/Logo.png" 
-                  alt="GoanWedding.com" 
-                  className="h-10 w-auto object-contain block"
-                  style={{ mixBlendMode: 'multiply' }}
-                />
-              </div>
+              <img 
+                src="/assets/Logo-footer.png" 
+                alt="GoanWedding.com" 
+                className="h-16 w-auto object-contain mb-4 block"
+              />
               <p className="text-gray-300 mb-6">
                 Goa's premier wedding vendor directory, connecting couples with the finest professionals for their special day.
               </p>
