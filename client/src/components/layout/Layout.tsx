@@ -41,7 +41,8 @@ export default function Layout({ children }: LayoutProps) {
                   alt="GoanWedding.com" 
                   className="h-12 w-auto block"
                   onError={(e) => {
-                    console.error('Logo failed to load:', e);
+                    const target = e.currentTarget as HTMLImageElement;
+                    console.error('Logo failed to load from:', target.src);
                   }}
                 />
               </Link>
@@ -113,7 +114,7 @@ export default function Layout({ children }: LayoutProps) {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             <div>
               <img 
-                src="/assets/hero.jpg" 
+                src="/assets/Logo.png" 
                 alt="GoanWedding.com" 
                 className="h-12 w-auto object-contain mb-4"
               />
