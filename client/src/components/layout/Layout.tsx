@@ -113,11 +113,13 @@ export default function Layout({ children }: LayoutProps) {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             <div>
-              <img 
-                src="/assets/Logo.png" 
-                alt="GoanWedding.com" 
-                className="h-12 w-auto object-contain mb-4"
-              />
+              <div className="bg-white rounded-lg px-3 py-1 inline-block mb-4">
+                <img 
+                  src="/assets/Logo.png" 
+                  alt="GoanWedding.com" 
+                  className="h-10 w-auto object-contain"
+                />
+              </div>
               <p className="text-gray-300 mb-6">
                 Goa's premier wedding vendor directory, connecting couples with the finest professionals for their special day.
               </p>
