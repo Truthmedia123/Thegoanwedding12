@@ -40,6 +40,7 @@ export default function Layout({ children }: LayoutProps) {
                   src="/assets/Logo.png" 
                   alt="GoanWedding.com" 
                   className="h-12 w-auto block"
+                  style={{ mixBlendMode: 'multiply' }}
                   onError={(e) => {
                     const target = e.currentTarget as HTMLImageElement;
                     console.error('Logo failed to load from:', target.src);
@@ -113,11 +114,12 @@ export default function Layout({ children }: LayoutProps) {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             <div>
-              <div className="bg-white rounded-lg px-3 py-1 inline-block mb-4">
+              <div className="bg-white inline-block mb-4 rounded-md px-2 py-1">
                 <img 
                   src="/assets/Logo.png" 
                   alt="GoanWedding.com" 
-                  className="h-10 w-auto object-contain"
+                  className="h-10 w-auto object-contain block"
+                  style={{ mixBlendMode: 'multiply' }}
                 />
               </div>
               <p className="text-gray-300 mb-6">
