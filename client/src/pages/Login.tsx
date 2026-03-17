@@ -9,8 +9,8 @@ import { Loader2, Lock, Mail } from 'lucide-react';
 
 // Admin credentials - SECURE: Change these passwords in production
 const ADMIN_CREDENTIALS: Record<string, { password: string; role: string }> = {
-  'admin@https://goanwedding.com': { password: 'SecureAdmin2025!', role: 'full-access' },
-  'noel@https://goanwedding.com': { password: 'NoelSecure2025!', role: 'full-access' },
+  'admin@goanwedding.com': { password: 'SecureAdmin2025!', role: 'full-access' },
+  'noel@goanwedding.com': { password: 'NoelSecure2025!', role: 'full-access' },
 };
 
 const Login: React.FC = () => {
@@ -86,7 +86,7 @@ const Login: React.FC = () => {
                 <Input
                   id="email"
                   type="email"
-                  placeholder="admin@https://goanwedding.com"
+                  placeholder="admin@goanwedding.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="pl-10"
